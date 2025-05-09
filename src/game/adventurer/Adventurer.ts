@@ -83,17 +83,6 @@ export class Adventurer {
 
     public equipment: AdventurerEquipment = new Map();
 
-    // Equipment
-    public equipment_head: null | BaseArmor = null;
-    public equipment_chest: null | BaseArmor = null;
-    public equipment_gloves: null | BaseArmor = null;
-    public equipment_pants: null | BaseArmor = null;
-    public equipment_shoes: null | BaseArmor = null;
-
-    // Weapons and Shield
-    public first_hand_equipment: null | BaseWeapon = null;
-    public second_hand_equipment: null | BaseWeapon | BaseArmor = null;
-
     /**
      * Adds an item to the desired slot.
      *
