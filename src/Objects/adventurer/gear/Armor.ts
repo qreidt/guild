@@ -6,6 +6,7 @@ export enum ArmorType {
     Glove,
     Pants,
     Shoes,
+    Shield,
 }
 
 export abstract class BaseArmor extends EquippableItem {
@@ -109,21 +110,21 @@ export class LeatherGlove extends BaseArmor {
 
 export class WoodShield extends BaseArmor {
     public readonly value = 10;
-    public readonly type = ArmorType.Glove;
+    public readonly type = ArmorType.Shield;
     public readonly base_armor_value = 10;
     public readonly weight = 5;
 }
 
 export class ReinforcedWoodShield extends BaseArmor {
     public readonly value = 10;
-    public readonly type = ArmorType.Glove;
+    public readonly type = ArmorType.Shield;
     public readonly base_armor_value = 10;
     public readonly weight = 5;
 }
 
 export class IronShield extends BaseArmor {
     public readonly value = 10;
-    public readonly type = ArmorType.Glove;
+    public readonly type = ArmorType.Shield;
     public readonly base_armor_value = 10;
     public readonly weight = 5;
 }

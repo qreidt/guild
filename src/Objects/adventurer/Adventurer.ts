@@ -1,6 +1,7 @@
 import {Inventory} from "../common/Inventory.ts";
-import {BaseArmor} from "./gear/Armor.ts";
+import {ArmorType, BaseArmor} from "./gear/Armor.ts";
 import {BaseWeapon} from "./gear/Weapon.ts";
+import type {EquippableItem} from "./gear/EquippableItem.ts";
 
 export enum AdventurerRank {
     Iron,
@@ -30,6 +31,8 @@ export enum AdventurerEquipmentSlot {
     FirstArm,
     SecondArm,
 }
+
+type AdventurerEquipment = Map<AdventurerEquipmentSlot, EquippableItem>;
 
 export class Adventurer {
     public rank: AdventurerRank = AdventurerRank.Iron;
@@ -78,6 +81,8 @@ export class Adventurer {
 
     public inventory: Inventory = new Inventory();
 
+    public equipment: AdventurerEquipment = new Map();
+
     // Equipment
     public equipment_head: null | BaseArmor = null;
     public equipment_chest: null | BaseArmor = null;
@@ -88,4 +93,77 @@ export class Adventurer {
     // Weapons and Shield
     public first_hand_equipment: null | BaseWeapon = null;
     public second_hand_equipment: null | BaseWeapon | BaseArmor = null;
+
+    /**
+     * Adds an item to the desired slot.
+     *
+     * If another item already exists in that slot, returns the item.
+     *
+     * @param slot
+     * @param item
+     */
+    public equipItem(slot: AdventurerEquipmentSlot, item: EquippableItem): null|EquippableItem {
+        if (! this.validateEquipItem(slot, item)) {
+            return null; // ToDo throw exception
+        }
+
+        const equipped_item = this.unEquipItem(slot);
+        this.equipment.set(slot, item);
+
+        return equipped_item;
+    }
+
+    private validateEquipItem(slot: AdventurerEquipmentSlot, item: EquippableItem): boolean {
+        switch (slot) {
+            case AdventurerEquipmentSlot.Head:
+            case AdventurerEquipmentSlot.Chest:
+            case AdventurerEquipmentSlot.Pants:
+            case AdventurerEquipmentSlot.Gloves:
+            case AdventurerEquipmentSlot.Boots:
+                if (!(item instanceof BaseArmor)) {
+                    return false;
+                }
+
+                return ({
+                    [AdventurerEquipmentSlot.Head]: ArmorType.Head,
+                    [AdventurerEquipmentSlot.Chest]: ArmorType.Chest,
+                    [AdventurerEquipmentSlot.Pants]: ArmorType.Pants,
+                    [AdventurerEquipmentSlot.Gloves]: ArmorType.Glove,
+                    [AdventurerEquipmentSlot.Boots]: ArmorType.Shoes,
+                }[slot]) === item.type;
+
+            case AdventurerEquipmentSlot.FirstArm:
+                if (! (item instanceof BaseWeapon)) {
+                    return false;
+                }
+
+                // Check if item in the secondary hand if equipping a dual handed weapon
+                if (item.dual_handed && ! this.equipment.has(AdventurerEquipmentSlot.SecondArm)) {
+                    return true;
+                }
+
+                return true;
+
+            case AdventurerEquipmentSlot.SecondArm:
+                // check if the first hand has a dual handed weapon
+                if (this.equipment.has(AdventurerEquipmentSlot.FirstArm)) {
+                    return false;
+                }
+
+                // Only allow shield as armor
+                if (item instanceof BaseArmor && item.type !== ArmorType.Shield) {
+                    return false;
+                }
+
+                // Allow only items that can be dual weld.
+                return item instanceof BaseWeapon && item.can_dual_wield;
+        }
+    }
+
+    public unEquipItem(slot: AdventurerEquipmentSlot): null | EquippableItem {
+        const item = this.equipment.get(slot) ?? null;
+        this.equipment.delete(slot);
+
+        return item;
+    }
 }
