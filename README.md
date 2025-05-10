@@ -14,10 +14,14 @@ and city development while facing the challenges of a growing magical realm.
 - [ ] Save/load game state to local storage
 - [ ] Explore dungeons/labyrinths
 
+## Ideas
+- [Adventurer](./src/game/adventurer/_.md)
+- [Any](./_.md)
+
 ## Tech Stack
 
-- **[Vue 3](https://vuejs.org/)** – The progressive JavaScript framework
-- **[TypeScript](https://www.typescriptlang.org/)** – Strongly typed JavaScript
+- **[Vue 3](https://vuejs.org/)** - The progressive JavaScript framework
+- **[TypeScript](https://www.typescriptlang.org/)** - Strongly typed JavaScript
 
 ## Getting Started
 
