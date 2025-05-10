@@ -1,140 +1,40 @@
-# City
-- Citizens
-- Money
+# Guild (Adventurer Fantasy City Manager)
 
-# Adventurer
-- Rank (1, 7)
-- Health
-- Money
-- Proficiencies
-- Attributes
-    - Strength
-    - Intelligence
-    - Agility
-    - Mana
-    - Vitality
-    - Wisdom
-    - Perception
-    - Dexterity
-    - Stealth
-- Inventory
-    - Cargo
-    - Potions
-- Type
-    - Scout
-    - Swordsmen
-    - Archer
-    - Mage
-    - Tank
-    - Healer
-    - Spearman
-- Weapon(s)
-    - Type
-    - Durability
-- Armor
-    - Type
-    - Durability
+Welcome to **Guild**, a browser-based city management simulation built with **Vue**, and **TypeScript**.
+In this game, you take on the role of a city ruler in a medieval fantasy world, managing adventurers, resources,
+and city development while facing the challenges of a growing magical realm.
 
-# Mission
-- Rank
-- Reward
+## Objectives/Roadmap
 
-# Adventure
-- Mission
-- Adventurer Group
-- Loot
-- Slayed
+- [ ] Manage resources like gold, food, and population
+- [ ] Recruit and manage adventurers with unique skills and traits
+- [ ] Construct and upgrade city buildings to improve your economy and defense
+- [ ] Send adventurers on quests and defend the city from threats and gather resources
+- [ ] Adventurer traits and leveling system
+- [ ] Save/load game state to local storage
+- [ ] Explore dungeons/labyrinths
 
-# Monster
-- Rank
-- Health
-- Type
+## Tech Stack
 
-# Zone (Forest)
-- Danger
-- Monsters:
-    - Boars
-    - Wolfs
-    - Bears
-    - Deer
-    - Rabbits
-    - Goblin
-    - Slime
-    - Mushroom Spawn
-    - Bat
-    - Bandit
+- **[Vue 3](https://vuejs.org/)** – The progressive JavaScript framework
+- **[TypeScript](https://www.typescriptlang.org/)** – Strongly typed JavaScript
 
-# Zone (Labyrinth)
-- Level 1
-- Traps
-- Monsters
-    - Goblin
-    - Slime
-    - Skeleton
-    - Mushroom Spawn
-    - Giant Rat
-    - Zombie
-- Bosses:
-    - Goblin Chief
-    - Sewer King Rat
-    - Flame Wisp Alpha
-    - Bone Warden
+## Getting Started
 
-# Buildings (Mine)
-- Level
-- Produces:
-    - Iron Ore
+### Prerequisites
 
-# Buildings (Lumber)
-- Level
-- Produces:
-    - Lumber
+- Node.js `>= 22`
 
-# Buildings (Black Smith)
-- Level
-- Produces & Sells:
-    - Swords
-    - Shields
-    - Metal Armor
-    - Rusty Dagger
+### Installation
 
-# Buildings (Tannery)
-- Level
-- Produces & Sells:
-    - Leather Armor
-- Buys:
-    - Wolf Pelt
-    - Deer Pelt
-    - Boar Pelt
-    - Chewed Leather
+Clone the repository:
 
-# Buildings (Fletcher)
-- Level
-- Produces:
-    - Bows
-    - Arrows
+```bash
+git clone https://github.com/qreidt/guild.git
+cd fantasy-city-manager
+```
 
-# Buildings (Alchemist's Lab)
-- Level
-- Produces & Sells:
-    - Health Potion
-    - Strength Potion
-- Buys:
-    - Slime Jelly
-    - Slime Core
-    - Rat Tail
-    - Wisp Essence
-    - Ghostlight Shard
-    - Bone Fragment
-    - Soul Dust
-    - Bat Wing
-    - Echo Crystal
-
-# Buildings (Hunter’s Lodge)
-- Level
-- Produces:
-    - Meat
-- Buys:
-    - Deer Meat
-    - Boar Meat
-    - Bear Meat
+Install dependencies:
+```bash
+npm install
+```
