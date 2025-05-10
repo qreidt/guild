@@ -4,6 +4,8 @@ Welcome to **Guild**, a browser-based city management simulation built with **Vu
 In this game, you take on the role of a city ruler in a medieval fantasy world, managing adventurers, resources,
 and city development while facing the challenges of a growing magical realm.
 
+[Check it now](https://github.com/qreidt/guild)
+
 ## Objectives/Roadmap
 
 - [ ] Manage resources like gold, food, and population
