@@ -11,7 +11,7 @@ export class GameController {
     }
 
     private timeout_id: null | number = null;
-    private autoTick(interval: number = null) {
+    private autoTick(interval: null|number = null) {
         if (this.auto_tick_interval === 0) {
             return;
         }
@@ -20,7 +20,8 @@ export class GameController {
     }
 
     public nextTick(): void {
-        clearTimeout(this.timeout_id);
+        this.clearTimeout();
+
         console.log(`[Tick: ${this.tick}] [Running: ${this.running}]`);
 
         if (! this.running) {
@@ -35,11 +36,15 @@ export class GameController {
 
     public pause(): void {
         this.running = false;
-        clearTimeout(this.timeout_id);
+        this.clearTimeout();
     }
 
     public resume(): void {
         this.running = true;
         this.autoTick(0.5);
+    }
+
+    private clearTimeout(): void {
+        if (this.timeout_id) clearTimeout(this.timeout_id);
     }
 }

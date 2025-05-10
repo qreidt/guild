@@ -1,4 +1,5 @@
 import {EquippableItem} from "./EquippableItem.ts";
+import type {IEquippableItem} from "./EquippableItem.ts";
 
 export enum WeaponType {
     Sword,
@@ -8,19 +9,32 @@ export enum WeaponType {
     Staff,
 }
 
-export abstract class BaseWeapon extends EquippableItem {
-    public abstract readonly type: WeaponType;
-    public abstract readonly range: number;
-    public abstract readonly base_damage_value: number;
-    public abstract readonly dual_handed: boolean;
-    public abstract readonly can_dual_wield: boolean;
+export interface IWeapon extends IEquippableItem {
+    type: WeaponType;
+    range: number;
+    base_damage_value: number;
+    dual_handed: boolean;
+    can_dual_wield: boolean;
+}
 
-    public readonly max_durability: number = 100;
+export class Weapon extends EquippableItem implements IWeapon {
+    public readonly type: WeaponType;
+    public readonly range: number;
+    public readonly base_damage_value: number;
+    public readonly dual_handed: boolean;
+    public readonly can_dual_wield: boolean;
 
     public readonly damage_value: number;
 
-    constructor() {
-        super();
+    constructor(id: WeaponID) {
+        super(AvailableWeapons[id]);
+
+        this.type = AvailableWeapons[id].type;
+        this.range = AvailableWeapons[id].range;
+        this.base_damage_value = AvailableWeapons[id].base_damage_value;
+        this.dual_handed = AvailableWeapons[id].dual_handed;
+        this.can_dual_wield = AvailableWeapons[id].can_dual_wield;
+
         this.damage_value = this.damageValue;
     }
 
@@ -32,70 +46,76 @@ export abstract class BaseWeapon extends EquippableItem {
     }
 }
 
-export class WoodBow extends BaseWeapon {
-    public readonly type = WeaponType.Bow
-    public readonly value = 10;
-    public readonly range = 25;
-    public readonly base_damage_value = 10;
-    public readonly weight = 5;
-    public readonly dual_handed = true;
-    public readonly can_dual_wield = false;
+export enum WeaponID {
+    WoodBow,
+    ReinforcedWoodBow,
+    WoodStaff,
+    IronSword,
+    IronDagger,
+    IronSpear,
+    // IronArrow,
 }
 
-export class ReinforcedWoodBow extends BaseWeapon {
-    public readonly type = WeaponType.Bow
-    public readonly value = 10;
-    public readonly range = 30;
-    public readonly base_damage_value = 10;
-    public readonly weight = 5;
-    public readonly dual_handed = true;
-    public readonly can_dual_wield = false;
-}
-
-export class WoodStaff extends BaseWeapon {
-    public readonly range = 30;
-    public readonly type = WeaponType.Staff
-    public readonly value = 10;
-    public readonly base_damage_value = 10;
-    public readonly weight = 5;
-    public readonly dual_handed = false;
-    public readonly can_dual_wield = false;
-}
-
-export class IronSword extends BaseWeapon {
-    public readonly type = WeaponType.Sword
-    public readonly value = 10;
-    public readonly range = 2;
-    public readonly base_damage_value = 10;
-    public readonly weight = 5;
-    public readonly dual_handed = false;
-    public readonly can_dual_wield = true;
-}
-
-// export class IronArrow extends BaseWeapon {
-//     public readonly type = WeaponType.Arrow
-//     public readonly value = 10;
-//     public readonly range = 2;
-//     public readonly base_damage_value = 10;
-//     public readonly weight = 5;
-// }
-
-export class IronDagger extends BaseWeapon {
-    public readonly type = WeaponType.Dagger
-    public readonly value = 10;
-    public readonly range = 2;
-    public readonly base_damage_value = 10;
-    public readonly weight = 5;
-    public readonly dual_handed = false;
-    public readonly can_dual_wield = true;
-}
-
-export class IronSpear extends BaseWeapon {
-    public readonly type = WeaponType.Spear
-    public readonly value = 10;
-    public readonly range = 4;
-    public readonly base_damage_value = 10;
-    public readonly weight = 5;
-    public readonly dual_handed = true;
-    public readonly can_dual_wield = false;
+export const AvailableWeapons: Record<WeaponID, IWeapon> = {
+    [WeaponID.WoodBow]: {
+        type: WeaponType.Bow,
+        value: 10,
+        range: 25,
+        base_damage_value: 10,
+        weight: 5,
+        dual_handed: true,
+        can_dual_wield: false,
+    },
+    [WeaponID.ReinforcedWoodBow]: {
+        type: WeaponType.Bow,
+        value: 10,
+        range: 30,
+        base_damage_value: 10,
+        weight: 5,
+        dual_handed: true,
+        can_dual_wield: false,
+    },
+    [WeaponID.WoodStaff]: {
+        range: 30,
+        type: WeaponType.Staff,
+        value: 10,
+        base_damage_value: 10,
+        weight: 5,
+        dual_handed: false,
+        can_dual_wield: false,
+    },
+    [WeaponID.IronSword]: {
+        type: WeaponType.Sword,
+        value: 10,
+        range: 2,
+        base_damage_value: 10,
+        weight: 5,
+        dual_handed: false,
+        can_dual_wield: true,
+    },
+    [WeaponID.IronDagger]: {
+        type: WeaponType.Dagger,
+        value: 10,
+        range: 2,
+        base_damage_value: 10,
+        weight: 5,
+        dual_handed: false,
+        can_dual_wield: true,
+    },
+    [WeaponID.IronSpear]: {
+        type: WeaponType.Spear,
+        value: 10,
+        range: 4,
+        base_damage_value: 10,
+        weight: 5,
+        dual_handed: true,
+        can_dual_wield: false,
+    },
+    // [WeaponID.IronArrow]: {
+    //     type: WeaponType.Arrow,
+    //     value: 10,
+    //     range: 2,
+    //     base_damage_value: 10,
+    //     weight: 5,
+    // },
 }

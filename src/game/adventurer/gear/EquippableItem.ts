@@ -1,21 +1,33 @@
-import {BaseGood} from "../../common/Good.ts";
+import type {IGood} from "../../common/Good.ts";
+import {ArmorID} from "./Armor.ts";
+import {WeaponID} from "./Weapon.ts";
 
-export abstract class EquippableItem extends BaseGood {
+export interface IEquippableItem extends IGood {
+    // buff_strength: number;
+    // buff_intelligence: number;
+    // buff_agility: number;
+    // buff_mana: number;
+    // buff_vitality: number;
+    // buff_wisdom: number;
+    // buff_perception: number;
+    // buff_dexterity: number;
+    // buff_stealth: number;
+}
+
+export abstract class EquippableItem implements IEquippableItem {
+    public value: number;
+    public weight: number;
+
     public current_damage: number = 0;
-    public abstract readonly max_durability: number;
+    public readonly max_durability: number = 100;
 
     private readonly _linear_degradation_value: number = 0.5;
     private readonly _linear_degradation_threshold: number = 0.3;
 
-    public readonly buff_strength: number = 0;
-    public readonly buff_intelligence: number = 0;
-    public readonly buff_agility: number = 0;
-    public readonly buff_mana: number = 0;
-    public readonly buff_vitality: number = 0;
-    public readonly buff_wisdom: number = 0;
-    public readonly buff_perception: number = 0;
-    public readonly buff_dexterity: number = 0;
-    public readonly buff_stealth: number = 0;
+    constructor(item: IEquippableItem) {
+        this.value = item.value;
+        this.weight = item.weight;
+    }
 
     /**
      * Reduce the effectiveness of the item based on the following formula:

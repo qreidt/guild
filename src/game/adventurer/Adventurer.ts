@@ -1,6 +1,6 @@
 import {Inventory} from "../common/Inventory.ts";
-import {ArmorType, BaseArmor} from "./gear/Armor.ts";
-import {BaseWeapon} from "./gear/Weapon.ts";
+import {ArmorType, Armor} from "./gear/Armor.ts";
+import {Weapon} from "./gear/Weapon.ts";
 import type {EquippableItem} from "./gear/EquippableItem.ts";
 
 export enum AdventurerRank {
@@ -109,7 +109,7 @@ export class Adventurer {
             case AdventurerEquipmentSlot.Pants:
             case AdventurerEquipmentSlot.Gloves:
             case AdventurerEquipmentSlot.Boots:
-                if (!(item instanceof BaseArmor)) {
+                if (!(item instanceof Armor)) {
                     return false;
                 }
 
@@ -122,7 +122,7 @@ export class Adventurer {
                 }[slot]) === item.type;
 
             case AdventurerEquipmentSlot.FirstArm:
-                if (! (item instanceof BaseWeapon)) {
+                if (! (item instanceof Weapon)) {
                     return false;
                 }
 
@@ -140,12 +140,12 @@ export class Adventurer {
                 }
 
                 // Only allow shield as armor
-                if (item instanceof BaseArmor && item.type !== ArmorType.Shield) {
+                if (item instanceof Armor && item.type !== ArmorType.Shield) {
                     return false;
                 }
 
                 // Allow only items that can be dual weld.
-                return item instanceof BaseWeapon && item.can_dual_wield;
+                return item instanceof Weapon && item.can_dual_wield;
         }
     }
 

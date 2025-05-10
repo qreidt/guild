@@ -1,243 +1,100 @@
-export abstract class BaseGood {
-    public abstract readonly value: number;
-    public abstract readonly weight: number;
+export interface IGood {
+    value: number;
+    weight: number;
 }
 
-
-export class WoodPlank extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
+export enum GoodID {
+    WoodPlank,
+    IronOre,
+    Deer,
+    DeerPelt,
+    DeerMeat,
+    Boar,
+    BoarPelt,
+    BoarMeat,
+    Wolf,
+    WolfPelt,
+    WolfMeat,
+    SharpFang,
+    BeastClaw,
+    Bear,
+    BearPelt,
+    BearMeat,
+    SlimeJelly,
+    MonsterCore,
+    RustyDagger,
+    TatteredCloth,
+    RatTail,
+    ChewedLeather,
+    BoneShard,
+    BatWing,
+    EchoCrystal,
+    BoneFragment,
+    RustedSword,
+    SoulDust,
+    WispEssence,
+    GhostlightShard,
+    Spores,
+    FungalCap,
+    HealingHerb,
+    RatKingFang,
+    ToxicGland,
+    WardenBlade,
+    BoneCrest,
+    CursedAsh,
+    EmberCore,
+    FlickeringFlame,
+    ArcaneOre,
+    ShardOfAwakening,
+    FungalCrown,
+    ToxicSporeSack,
+    RegrowthExtract,
 }
 
-export class IronOre extends BaseGood {
-    public readonly value = 2;
-    public readonly weight = 0;
-}
-
-export class Deer extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class DeerPelt extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class DeerMeat extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class Boar extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class BoarPelt extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class BoarMeat extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class Wolf extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class WolfPelt extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class WolfMeat extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class SharpFang extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class BeastClaw extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class Bear extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class BearPelt extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class BearMeat extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class SlimeJelly extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class MonsterCore extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class RustyDagger extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class TatteredCloth extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class RatTail extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class ChewedLeather extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class BoneShard extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class BatWing extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class EchoCrystal extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class BoneFragment extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class RustedSword extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class SoulDust extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class WispEssence extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class GhostlightShard extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class Spores extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class FungalCap extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class HealingHerb extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class RatKingFang extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class ToxicGland extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class WardenBlade extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class BoneCrest extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class CursedAsh extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class EmberCore extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class FlickeringFlame extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class ArcaneOre extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class ShardOfAwakening extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class StoneplateBoots extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class FungalCrown extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class ToxicSporeSack extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-export class RegrowthExtract extends BaseGood {
-    public readonly value = 1;
-    public readonly weight = 0;
-}
-
-
-
-
-
-
-
-
+export const AvailableGoods: Record<GoodID, IGood> = {
+    [GoodID.WoodPlank]: {value: 1, weight: 0,},
+    [GoodID.IronOre]: {value: 2, weight: 0,},
+    [GoodID.Deer]: {value: 1, weight: 0,},
+    [GoodID.DeerPelt]: {value: 1, weight: 0,},
+    [GoodID.DeerMeat]: {value: 1, weight: 0,},
+    [GoodID.Boar]: {value: 1, weight: 0,},
+    [GoodID.BoarPelt]: {value: 1, weight: 0,},
+    [GoodID.BoarMeat]: {value: 1, weight: 0,},
+    [GoodID.Wolf]: {value: 1, weight: 0,},
+    [GoodID.WolfPelt]: {value: 1, weight: 0,},
+    [GoodID.WolfMeat]: {value: 1, weight: 0,},
+    [GoodID.SharpFang]: {value: 1, weight: 0,},
+    [GoodID.BeastClaw]: {value: 1, weight: 0,},
+    [GoodID.Bear]: {value: 1, weight: 0,},
+    [GoodID.BearPelt]: {value: 1, weight: 0,},
+    [GoodID.BearMeat]: {value: 1, weight: 0,},
+    [GoodID.SlimeJelly]: {value: 1, weight: 0,},
+    [GoodID.MonsterCore]: {value: 1, weight: 0,},
+    [GoodID.RustyDagger]: {value: 1, weight: 0,},
+    [GoodID.TatteredCloth]: {value: 1, weight: 0,},
+    [GoodID.RatTail]: {value: 1, weight: 0,},
+    [GoodID.ChewedLeather]: {value: 1, weight: 0,},
+    [GoodID.BoneShard]: {value: 1, weight: 0,},
+    [GoodID.BatWing]: {value: 1, weight: 0,},
+    [GoodID.EchoCrystal]: {value: 1, weight: 0,},
+    [GoodID.BoneFragment]: {value: 1, weight: 0,},
+    [GoodID.RustedSword]: {value: 1, weight: 0,},
+    [GoodID.SoulDust]: {value: 1, weight: 0,},
+    [GoodID.WispEssence]: {value: 1, weight: 0,},
+    [GoodID.GhostlightShard]: {value: 1, weight: 0,},
+    [GoodID.Spores]: {value: 1, weight: 0,},
+    [GoodID.FungalCap]: {value: 1, weight: 0,},
+    [GoodID.HealingHerb]: {value: 1, weight: 0,},
+    [GoodID.RatKingFang]: {value: 1, weight: 0,},
+    [GoodID.ToxicGland]: {value: 1, weight: 0,},
+    [GoodID.WardenBlade]: {value: 1, weight: 0,},
+    [GoodID.BoneCrest]: {value: 1, weight: 0,},
+    [GoodID.CursedAsh]: {value: 1, weight: 0,},
+    [GoodID.EmberCore]: {value: 1, weight: 0,},
+    [GoodID.FlickeringFlame]: {value: 1, weight: 0,},
+    [GoodID.ArcaneOre]: {value: 1, weight: 0,},
+    [GoodID.ShardOfAwakening]: {value: 1, weight: 0,},
+    [GoodID.FungalCrown]: {value: 1, weight: 0,},
+    [GoodID.ToxicSporeSack]: {value: 1, weight: 0,},
+    [GoodID.RegrowthExtract]: {value: 1, weight: 0,},
+} as const;

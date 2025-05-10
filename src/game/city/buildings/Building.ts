@@ -1,18 +1,21 @@
-import type {BaseGood} from "../../common/Good.ts";
 import {Inventory} from "../../common/Inventory.ts";
+import type {InventoryItemID} from "../../common/Inventory.ts";
+import type City from "../City.ts";
 
-type Recipe = {
-    ingredients?: Map<typeof BaseGood, number>,
-    product: Map<typeof BaseGood, number>,
+export type Recipe = {
+    ingredients?: Map<InventoryItemID, number>,
+    product: Map<InventoryItemID, number>,
 };
 
 export abstract class BaseBuilding {
     public abstract level: number;
     public abstract money: number;
     public abstract produces: Recipe[];
-    public abstract buys: (typeof BaseGood)[];
+    public abstract buys: InventoryItemID[];
 
     public inventory: Inventory = new Inventory();
+
+    public abstract handleTick(city: City): void;
 
     public produce(recipe_id: number): void {
         const recipe = this.produces[recipe_id];
