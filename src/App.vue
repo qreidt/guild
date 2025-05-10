@@ -13,12 +13,18 @@
     <template #footer>
       <div class="flex h-full items-center justify-between">
         <div class="flex gap-x-16">
-          <div class="flex">tick: {{ controller.tick }}</div>
+          <div class="flex">tick: {{ c.tick }}</div>
 
         </div>
-        <Button @click="controller.nextTick()">
-          Next Tick
-        </Button>
+        <div class="flex gap-x-8">
+          <Button @click="c.running ? c.pause() : c.resume()">
+            {{ c.running ? 'Pause' : 'Resume' }}
+          </Button>
+          <Button @click="c.nextTick()">
+            Next Tick
+          </Button>
+        </div>
+
       </div>
     </template>
   </Layout>
@@ -30,6 +36,6 @@ import Button from "./components/Button.vue";
 import {reactive} from "vue";
 import {GameController} from "./game/controllers/GameController.ts";
 
-const controller = reactive(new GameController()) as GameController;
-const city = controller.city;
+const c = reactive(new GameController(2)) as GameController;
+const city = c.city;
 </script>
