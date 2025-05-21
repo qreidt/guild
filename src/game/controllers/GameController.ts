@@ -19,12 +19,12 @@ export class GameController {
         this.timeout_id = setTimeout(() => this.nextTick(), (interval ?? this.auto_tick_interval) * 1000);
     }
 
-    public nextTick(): void {
+    public nextTick(force: boolean = false): void {
         this.clearTimeout();
 
         console.log(`[Tick: ${this.tick}] [Running: ${this.running}]`);
 
-        if (! this.running) {
+        if (! this.running && ! force) {
             return;
         }
 

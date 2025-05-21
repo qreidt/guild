@@ -20,7 +20,7 @@
           <Button @click="c.running ? c.pause() : c.resume()">
             {{ c.running ? 'Pause' : 'Resume' }}
           </Button>
-          <Button @click="c.nextTick()">
+          <Button @click="c.nextTick(true)">
             Next Tick
           </Button>
         </div>

@@ -1,6 +1,4 @@
 import type {IGood} from "../../common/Good.ts";
-import {ArmorID} from "./Armor.ts";
-import {WeaponID} from "./Weapon.ts";
 
 export interface IEquippableItem extends IGood {
     // buff_strength: number;
