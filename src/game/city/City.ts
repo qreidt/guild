@@ -1,4 +1,4 @@
-import {BaseBuilding} from "./buildings/Building.ts";
+import {BaseBuilding, BuildingID} from "./buildings/Building.ts";
 import {IronMine} from "./buildings/IronMine.ts";
 import {BlackSmith} from "./buildings/BlackSmith.ts";
 import {Inventory} from "../common/Inventory.ts";
@@ -8,7 +8,7 @@ export default class City {
     public citizens_count: number;
     public money: number;
 
-    public buildings: Map<typeof BaseBuilding, BaseBuilding>;
+    public buildings: Map<BuildingID, BaseBuilding>;
 
     public transportService: TransportService = new TransportService();
 
@@ -18,9 +18,9 @@ export default class City {
         this.citizens_count = citizens;
         this.money = money;
 
-        this.buildings = new Map<typeof BaseBuilding, BaseBuilding>([
-            [IronMine, new IronMine()],
-            [BlackSmith, new BlackSmith()],
+        this.buildings = new Map<BuildingID, BaseBuilding>([
+            [BuildingID.IronMine, new IronMine()],
+            [BuildingID.BlackSmith, new BlackSmith()],
         ]);
     }
 

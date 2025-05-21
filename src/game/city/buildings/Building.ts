@@ -7,6 +7,12 @@ export type Recipe = {
     product: Map<InventoryItemID, number>,
 };
 
+export enum BuildingID {
+    BlackSmith= 1,
+    IronMine,
+    LumberMill,
+}
+
 export abstract class BaseBuilding {
     public abstract level: number;
     public abstract money: number;
