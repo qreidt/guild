@@ -1,6 +1,6 @@
-import {BaseBuilding} from "../city/buildings/Building.ts";
+import {BaseBuilding} from "../city/buildings/common/Building.ts";
 import {Inventory} from "../common/Inventory.ts";
-import City from "../city/City.ts";
+import {City} from "../city/City.ts";
 
 export type Location = BaseBuilding | City;
 

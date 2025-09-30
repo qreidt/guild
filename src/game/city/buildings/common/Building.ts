@@ -1,6 +1,7 @@
-import {Inventory} from "../../common/Inventory.ts";
-import type {InventoryItemID} from "../../common/Inventory.ts";
-import type City from "../City.ts";
+import {Inventory} from "../../../common/Inventory.ts";
+import type {InventoryItemID} from "../../../common/Inventory.ts";
+import {City} from "../../City.ts";
+import type {BaseAction} from "./BaseAction.ts";
 
 export type Recipe = {
     ingredients?: Map<InventoryItemID, number>,
@@ -8,9 +9,9 @@ export type Recipe = {
 };
 
 export enum BuildingID {
-    BlackSmith= 1,
-    IronMine,
-    LumberMill,
+    BlackSmith = 'BlackSmith',
+    IronMine = 'IronMine',
+    LumberMill = 'LumberMill',
 }
 
 export abstract class BaseBuilding {
@@ -19,9 +20,25 @@ export abstract class BaseBuilding {
     public abstract produces: Recipe[];
     public abstract buys: InventoryItemID[];
 
+    // ToDo Replicate to BlackSmith and Mine
+    // public abstract actions: BaseAction[];
+
     public inventory: Inventory = new Inventory();
 
-    public abstract handleTick(city: City): void;
+    public active_action: null | BaseAction = null;
+
+    public handleTick(_city: City): void {
+        if (! this.active_action || this.active_action.isDone()) {
+            this.active_action = this.chooseNextAction();
+            this.active_action.start();
+        }
+
+        if (this.active_action) {
+            this.active_action.tick();
+        }
+    }
+
+    protected abstract chooseNextAction(): BaseAction;
 
     public produce(recipe_id: number): void {
         const recipe = this.produces[recipe_id];

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {BaseBuilding, BuildingID} from "../../game/city/buildings/Building.ts";
+import {BaseBuilding, BuildingID} from "../../game/city/buildings/common/Building.ts";
 import type {PropType} from "vue";
 
 const {buildings} = defineProps({

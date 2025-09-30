@@ -4,6 +4,7 @@ export interface IGood {
 }
 
 export enum GoodID {
+    Lumber,
     WoodPlank,
     IronOre,
     Deer,

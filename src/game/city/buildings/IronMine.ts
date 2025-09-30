@@ -1,6 +1,6 @@
-import {BaseBuilding} from "./Building.ts";
+import {BaseBuilding} from "./common/Building.ts";
 import {$itemMap, InventoryItemIDs} from "../../common/Inventory.ts";
-import type City from "../City.ts";
+import {City} from "../City.ts";
 
 
 export class IronMine extends BaseBuilding {
@@ -30,5 +30,9 @@ export class IronMine extends BaseBuilding {
 
         // Mine iron at the end of every tick
         this.produce(0);
+    }
+
+    protected chooseNextAction(): void {
+        //
     }
 }

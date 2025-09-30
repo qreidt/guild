@@ -1,8 +1,9 @@
-import City from "../city/City.ts";
+import {City} from "../city/City.ts";
+import {BaseBuilding, type BuildingID} from "../city/buildings/common/Building.ts";
 
 export class GameController {
     public running: boolean = false;
-    public tick = 0;
+    public tick = 5;
 
     public city: City;
 
@@ -22,13 +23,14 @@ export class GameController {
     public nextTick(force: boolean = false): void {
         this.clearTimeout();
 
-        console.log(`[Tick: ${this.tick}] [Running: ${this.running}]`);
+        console.debug(`[Tick: ${this.tick}] [Running: ${this.running}] [Night: ${this.isNight() ? 'true' : 'false'}]`);
 
         if (! this.running && ! force) {
             return;
         }
 
         // ToDO
+        this.city.handleTick();
 
         this.tick++;
         this.autoTick();
@@ -47,4 +49,19 @@ export class GameController {
     private clearTimeout(): void {
         if (this.timeout_id) clearTimeout(this.timeout_id);
     }
+
+    /**
+     * If it's between 20h and 05h, it's night and some people should be sleeping.
+     */
+    public isNight(): boolean {
+        return false;
+        // const hour = this.tick % 24;
+        // return hour > 20 || hour < 5;
+    }
+
+    public getBuilding(id: BuildingID): null|BaseBuilding {
+        return this.city.buildings.get(id) ?? null;
+    }
 }
+
+export default new GameController(2);

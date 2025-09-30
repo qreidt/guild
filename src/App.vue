@@ -4,8 +4,8 @@
       <div class="flex h-full items-center">
         <div class="flex text-2xl">City</div>
         <div class="flex flex-1 justify-center gap-x-16">
+          <div class="">$ {{ city.money }}</div>
           <div class="">Citizens: {{ city.citizens_count }}</div>
-          <div class="">Funds: $ {{ city.money }}</div>
         </div>
       </div>
     </template>
@@ -48,11 +48,11 @@
 import Layout from "./Layout.vue";
 import Button from "./components/Button.vue";
 import {computed, reactive, ref} from "vue";
-import {GameController} from "./game/controllers/GameController.ts";
+import GameControllerSingleton, {GameController} from "./game/controllers/GameController.ts";
 import BuildingsList from "./components/left-menu/BuildingsList.vue";
-import {BaseBuilding, BuildingID} from "./game/city/buildings/Building.ts";
+import {BaseBuilding, BuildingID} from "./game/city/buildings/common/Building.ts";
 
-const c = reactive(new GameController(2)) as GameController;
+const c = reactive(GameControllerSingleton) as GameController;
 const city = c.city;
 const buildings = city.buildings;
 

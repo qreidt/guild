@@ -1,7 +1,7 @@
-import {BaseBuilding} from "./Building.ts";
+import {BaseBuilding} from "./common/Building.ts";
 import {$itemMap} from "../../common/Inventory.ts";
 import {InventoryItemIDs as ItemID} from "../../common/Inventory.ts";
-import type City from "../City.ts";
+import {City} from "../City.ts";
 
 
 export class BlackSmith extends BaseBuilding {
@@ -30,5 +30,9 @@ export class BlackSmith extends BaseBuilding {
 
     handleTick(city: City): void {
         const _city = city;
+    }
+
+    protected chooseNextAction(): void {
+        //
     }
 }

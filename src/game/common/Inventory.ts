@@ -69,6 +69,14 @@ export class Inventory {
         return new_amount;
     }
 
+    public retrieveItems(list: InventoryList): InventoryList {
+        for (const [item, required_amount] of list) {
+            this.retrieveItem(item, required_amount);
+        }
+
+        return list;
+    }
+
     /**
      * Retrieves a list of inventory items and creates a new inventory with them
      * @param record
@@ -100,6 +108,17 @@ export class Inventory {
      */
     public getItem(item: InventoryItemID): number {
         return this.items.get(item) ?? 0;
+    }
+
+    public hasItems(list: InventoryList): boolean {
+        for (const [item, required_amount] of list) {
+            const inventory_amount = this.getItem(item);
+            if (inventory_amount < required_amount) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 
