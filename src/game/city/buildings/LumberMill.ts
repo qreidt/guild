@@ -3,6 +3,7 @@ import {BaseBuilding, BuildingID} from "./common/Building.ts";
 import {$itemMap, $itemsMap, InventoryItemIDs} from "../../common/Inventory.ts";
 import {BaseAction} from "./common/BaseAction.ts";
 import type {City} from "../City.ts";
+import {Worker} from "./common/worker.ts";
 
 export class LumberMill extends BaseBuilding {
     level = 1;
@@ -15,6 +16,10 @@ export class LumberMill extends BaseBuilding {
 
     constructor() {
         super();
+        this.workers = [
+            new Worker(),
+            new Worker(),
+        ];
     }
 
     handleTick(_city: City) {

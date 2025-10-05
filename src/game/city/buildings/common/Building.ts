@@ -2,6 +2,7 @@ import {Inventory} from "../../../common/Inventory.ts";
 import type {InventoryItemID} from "../../../common/Inventory.ts";
 import {City} from "../../City.ts";
 import type {BaseAction} from "./BaseAction.ts";
+import {Worker} from "./worker.ts";
 
 export type Recipe = {
     ingredients?: Map<InventoryItemID, number>,
@@ -25,16 +26,21 @@ export abstract class BaseBuilding {
 
     public inventory: Inventory = new Inventory();
 
+    public workers: Worker[] = [];
     public active_action: null | BaseAction = null;
 
     public handleTick(_city: City): void {
-        if (! this.active_action || this.active_action.isDone()) {
-            this.active_action = this.chooseNextAction();
-            this.active_action.start();
+        const availableWorkers = this.workers.filter((w) => w.isAvailable());
+
+        if (availableWorkers.length > 0) {
+            for (const worker of availableWorkers) {
+                worker.active_action = this.chooseNextAction();
+                worker.active_action.start();
+            }
         }
 
-        if (this.active_action) {
-            this.active_action.tick();
+        for (const worker of this.workers) {
+            worker.tick();
         }
     }
 
