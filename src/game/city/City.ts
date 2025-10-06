@@ -21,13 +21,13 @@ export class City {
 
         this.buildings = new Map<BuildingID, BaseBuilding>([
             [BuildingID.LumberMill, new LumberMill()],
-            // [BuildingID.IronMine, new IronMine()],
+            [BuildingID.IronMine, new IronMine()],
             // [BuildingID.BlackSmith, new BlackSmith()],
         ]);
     }
 
     handleTick(): void {
-        this.transportService.tickTransports();
+        // this.transportService.tickTransports();
 
         // Let every building work before managing things in the city
         this.tickBuildings();

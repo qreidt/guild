@@ -1,12 +1,14 @@
-import {GoodID} from "./Good.ts";
+import {AvailableGoods, GoodID} from "./Good.ts";
 import {WeaponID} from "../adventurer/gear/Weapon.ts";
 import {ArmorID} from "../adventurer/gear/Armor.ts";
 
 export const InventoryItemIDs = Object.keys({...GoodID, ...WeaponID, ...ArmorID})
     .reduce((agg, key) => {
-        agg[key] = key;
-        return agg;
-    }, {} as Record<string, string>);
+            agg[key] = key;
+            return agg;
+        }, {} as Record<string, string>
+    // ) as Record<GoodID | WeaponID | ArmorID, string>;
+    ) as Record<GoodID, string>;
 
 export type InventoryItemID = keyof typeof InventoryItemIDs;
 export type InventoryList = Map<InventoryItemID, number>;
@@ -119,6 +121,28 @@ export class Inventory {
         }
 
         return true;
+    }
+
+    public get value(): number {
+        let total = 0;
+
+        for (const [itemId, amount] of this.items) {
+            const item = AvailableGoods[itemId];
+            total += item.value * amount;
+        }
+
+        return total;
+    }
+
+    public get weight(): number {
+        let total = 0;
+
+        for (const [itemId, amount] of this.items) {
+            const item = AvailableGoods[itemId];
+            total += item.weight * amount;
+        }
+
+        return total;
     }
 }
 

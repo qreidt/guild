@@ -1,8 +1,8 @@
 import {Inventory} from "../../../common/Inventory.ts";
 import type {InventoryItemID} from "../../../common/Inventory.ts";
 import {City} from "../../City.ts";
-import type {BaseAction} from "./BaseAction.ts";
-import {Worker} from "./worker.ts";
+import type {Action} from "./Action.ts";
+import {Worker} from "./Worker.ts";
 
 export type Recipe = {
     ingredients?: Map<InventoryItemID, number>,
@@ -18,16 +18,16 @@ export enum BuildingID {
 export abstract class BaseBuilding {
     public abstract level: number;
     public abstract money: number;
-    public abstract produces: Recipe[];
-    public abstract buys: InventoryItemID[];
+    // public abstract produces: Recipe[];
+    // public abstract buys: InventoryItemID[];
 
     // ToDo Replicate to BlackSmith and Mine
-    // public abstract actions: BaseAction[];
+    // public abstract actions: Action[];
 
     public inventory: Inventory = new Inventory();
 
     public workers: Worker[] = [];
-    public active_action: null | BaseAction = null;
+    public active_action: null | Action = null;
 
     public handleTick(_city: City): void {
         const availableWorkers = this.workers.filter((w) => w.isAvailable());
@@ -44,27 +44,27 @@ export abstract class BaseBuilding {
         }
     }
 
-    protected abstract chooseNextAction(): BaseAction;
+    protected abstract chooseNextAction(): Action;
 
-    public produce(recipe_id: number): void {
-        const recipe = this.produces[recipe_id];
-
-        if (! this.validateRecipeIngredients(recipe)) {
-            return; // ToDo throw exception?
-        }
-
-        // Remove the ingredients from the inventory
-        if (recipe.ingredients) {
-            recipe.ingredients.forEach((amount, item) => {
-                this.inventory.retrieveItem(item, amount);
-            });
-        }
-
-        // Put the product in the inventory
-        recipe.product.forEach((amount, item) => {
-            this.inventory.putItem(item, amount);
-        });
-    }
+    // public produce(recipe_id: number): void {
+    //     const recipe = this.produces[recipe_id];
+    //
+    //     if (! this.validateRecipeIngredients(recipe)) {
+    //         return; // ToDo throw exception?
+    //     }
+    //
+    //     // Remove the ingredients from the inventory
+    //     if (recipe.ingredients) {
+    //         recipe.ingredients.forEach((amount, item) => {
+    //             this.inventory.retrieveItem(item, amount);
+    //         });
+    //     }
+    //
+    //     // Put the product in the inventory
+    //     recipe.product.forEach((amount, item) => {
+    //         this.inventory.putItem(item, amount);
+    //     });
+    // }
 
     /**
      * Validate if the inventory contains the ingredients required to produce the recipe

@@ -1,5 +1,5 @@
 import {type BaseBuilding, BuildingID} from "./Building.ts";
-import type {InventoryList} from "../../../common/Inventory.ts";
+import {Inventory, type InventoryList} from "../../../common/Inventory.ts";
 import gameController from "../../../controllers/GameController.ts";
 
 export enum ActionStatus {
@@ -7,12 +7,12 @@ export enum ActionStatus {
     FINISHED = 1,
 }
 
-export abstract class BaseAction {
+export abstract class Action {
     public abstract total_ticks: number;
 
     public status: ActionStatus;
     public ticks_remaining: number = 999;
-    public action_input: null | InventoryList = null;
+    public action_input: null | Inventory = null;
 
     protected abstract building_id: BuildingID;
 
@@ -22,7 +22,7 @@ export abstract class BaseAction {
 
     public validateInput(building: BaseBuilding): boolean {
         if (!this.action_input) return true;
-        return building.inventory.hasItems(this.action_input);
+        return building.inventory.hasItems(this.action_input.items);
     }
 
     public start(): void {
@@ -32,10 +32,10 @@ export abstract class BaseAction {
         }
 
         this.status = ActionStatus.ACTIVE;
-        this.ticks_remaining = this.total_ticks + 1;
+        this.ticks_remaining = this.total_ticks;
 
         if (this.action_input) {
-            building.inventory.retrieveItems(this.action_input);
+            building.inventory.retrieveItems(this.action_input.items);
         }
 
         if (this.started) this.started();
@@ -89,11 +89,19 @@ export abstract class BaseAction {
     protected finished(): void {
         //
     }
+}
 
+export abstract class TransportAction extends Action {
+    public money: number = 0;
+    get value(): number {
+        if (! this.action_input) return this.money;
+
+        return this.action_input.value + this.money;
+    }
 }
 
 export class ActionInputException extends Error {
-    constructor(public readonly action: BaseAction) {
+    constructor(public readonly action: Action) {
         super('The building doesnt have enough input to execute the desired action.');
     }
 }

@@ -1,11 +1,11 @@
-import type {BaseAction} from "./BaseAction.ts";
+import type {Action} from "./Action.ts";
 
 /**
  * Is available in the building inside an array
  * Using a worker allows the building to have many workers in parallel.
  */
 export class Worker {
-    public active_action: null | BaseAction = null;
+    public active_action: null | Action = null;
 
     public tick(): void {
         if (! this.active_action) {
