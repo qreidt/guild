@@ -2,7 +2,6 @@ import {BaseBuilding, BuildingID} from "./buildings/common/Building.ts";
 import {IronMine} from "./buildings/IronMine.ts";
 import {BlackSmith} from "./buildings/BlackSmith.ts";
 import {Inventory} from "../common/Inventory.ts";
-import {TransportService} from "../services/TransportService.ts";
 import {LumberMill} from "./buildings/LumberMill.ts";
 
 export class City {
@@ -10,8 +9,6 @@ export class City {
     public money: number;
 
     public buildings: Map<BuildingID, BaseBuilding>;
-
-    public transportService: TransportService = new TransportService();
 
     public inventory: Inventory = new Inventory();
 
