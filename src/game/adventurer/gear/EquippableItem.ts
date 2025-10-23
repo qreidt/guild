@@ -10,21 +10,21 @@ export interface IEquippableItem extends IGood {
     // buff_perception: number;
     // buff_dexterity: number;
     // buff_stealth: number;
+    current_wear: number;
 }
 
 export abstract class EquippableItem implements IEquippableItem {
-    public value: number;
-    public weight: number;
+    public value: number = 0;
+    public weight: number = 0;
 
-    public current_damage: number = 0;
-    public readonly max_durability: number = 100;
+    public current_wear: number = 0;
+    public max_durability: number = 100;
 
     private readonly _linear_degradation_value: number = 0.5;
     private readonly _linear_degradation_threshold: number = 0.3;
 
-    constructor(item: IEquippableItem) {
-        this.value = item.value;
-        this.weight = item.weight;
+    constructor(wear: number = 0) {
+        this.current_wear = wear;
     }
 
     /**
@@ -51,10 +51,10 @@ export abstract class EquippableItem implements IEquippableItem {
      * Get the remaining durability as %
      */
     private get currentDamagePercentage() {
-        if (this.current_damage === 0) {
+        if (this.current_wear === 0) {
             return 0;
         }
 
-        return this.current_damage / this.max_durability;
+        return this.current_wear / this.max_durability;
     }
 }

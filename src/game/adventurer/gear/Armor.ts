@@ -15,17 +15,13 @@ export interface IArmor extends IEquippableItem {
     base_armor_value: number;
 }
 
-export class Armor extends EquippableItem implements IArmor {
-    public readonly type: ArmorType;
-    public readonly base_armor_value: number;
+export class Armor extends EquippableItem implements Partial<IArmor> {
+    public readonly base_armor_value: number = 0;
 
     public armor_value: number;
 
-    constructor(id: ArmorID) {
-        super(AvailableArmors[id]);
-        this.type = AvailableArmors[id].type;
-        this.base_armor_value = AvailableArmors[id].base_armor_value;
-
+    constructor(wear: number = 0) {
+        super(wear);
         this.armor_value = this.armorValue;
     }
 
@@ -54,90 +50,118 @@ export enum ArmorID {
     IronShield,
 }
 
+export class IronHelmet extends Armor implements IArmor {
+    public readonly type = ArmorType.Head;
+    public readonly value = 10;
+    public readonly base_armor_value = 10;
+    public readonly weight = 5;
+}
+
+export class IronPlate extends Armor implements IArmor {
+    public readonly type = ArmorType.Chest;
+    public readonly value = 10;
+    public readonly base_armor_value = 10;
+    public readonly weight = 5;
+}
+
+export class IronMail extends Armor implements IArmor {
+    public readonly type = ArmorType.Chest;
+    public readonly value = 10;
+    public readonly base_armor_value = 10;
+    public readonly weight = 5;
+}
+
+export class IronPants extends Armor implements IArmor {
+    public readonly type = ArmorType.Pants;
+    public readonly value = 10;
+    public readonly base_armor_value = 10;
+    public readonly weight = 5;
+}
+
+export class IronBoot extends Armor implements IArmor {
+    public readonly type = ArmorType.Shoes;
+    public readonly value = 10;
+    public readonly base_armor_value = 10;
+    public readonly weight = 5;
+}
+
+export class IronGauntlet extends Armor implements IArmor {
+    public readonly type = ArmorType.Glove;
+    public readonly value = 10;
+    public readonly base_armor_value = 10;
+    public readonly weight = 5;
+}
+
+export class LeatherHelmet extends Armor implements IArmor {
+    public readonly type = ArmorType.Head;
+    public readonly value = 10;
+    public readonly base_armor_value = 10;
+    public readonly weight = 5;
+}
+
+export class LeatherChest extends Armor implements IArmor {
+    public readonly type = ArmorType.Chest;
+    public readonly value = 10;
+    public readonly base_armor_value = 10;
+    public readonly weight = 5;
+}
+
+export class LeatherPants extends Armor implements IArmor {
+    public readonly type = ArmorType.Pants;
+    public readonly value = 10;
+    public readonly base_armor_value = 10;
+    public readonly weight = 5;
+}
+
+export class LeatherBoot extends Armor implements IArmor {
+    public readonly type = ArmorType.Shoes;
+    public readonly value = 10;
+    public readonly base_armor_value = 10;
+    public readonly weight = 5;
+}
+
+export class LeatherGlove extends Armor implements IArmor {
+    public readonly type = ArmorType.Glove;
+    public readonly value = 10;
+    public readonly base_armor_value = 10;
+    public readonly weight = 5;
+}
+
+export class WoodShield extends Armor implements IArmor {
+    public readonly type = ArmorType.Shield;
+    public readonly value = 10;
+    public readonly base_armor_value = 10;
+    public readonly weight = 5;
+}
+
+export class ReinforcedWoodShield extends Armor implements IArmor {
+    public readonly type = ArmorType.Shield;
+    public readonly value = 10;
+    public readonly base_armor_value = 10;
+    public readonly weight = 5;
+}
+
+export class IronShield extends Armor implements IArmor {
+    public readonly type = ArmorType.Shield;
+    public readonly value = 10;
+    public readonly base_armor_value = 10;
+    public readonly weight = 5;
+}
+
 export const AvailableArmors: Record<ArmorID, IArmor> = {
-    [ArmorID.IronHelmet]: {
-        value: 10,
-        type: ArmorType.Head,
-        base_armor_value: 10,
-        weight: 5,
-    },
-    [ArmorID.IronPlate]: {
-        value: 10,
-        type: ArmorType.Chest,
-        base_armor_value: 10,
-        weight: 5,
-    },
-    [ArmorID.IronMail]: {
-        value: 10,
-        type: ArmorType.Chest,
-        base_armor_value: 10,
-        weight: 5,
-    },
-    [ArmorID.IronPants]: {
-        value: 10,
-        type: ArmorType.Pants,
-        base_armor_value: 10,
-        weight: 5,
-    },
-    [ArmorID.IronBoot]: {
-        value: 10,
-        type: ArmorType.Shoes,
-        base_armor_value: 10,
-        weight: 5,
-    },
-    [ArmorID.IronGauntlet]: {
-        value: 10,
-        type: ArmorType.Glove,
-        base_armor_value: 10,
-        weight: 5,
-    },
-    [ArmorID.LeatherHelmet]: {
-        value: 10,
-        type: ArmorType.Head,
-        base_armor_value: 10,
-        weight: 5,
-    },
-    [ArmorID.LeatherChest]: {
-        value: 10,
-        type: ArmorType.Chest,
-        base_armor_value: 10,
-        weight: 5,
-    },
-    [ArmorID.LeatherPants]: {
-        value: 10,
-        type: ArmorType.Pants,
-        base_armor_value: 10,
-        weight: 5,
-    },
-    [ArmorID.LeatherBoot]: {
-        value: 10,
-        type: ArmorType.Shoes,
-        base_armor_value: 10,
-        weight: 5,
-    },
-    [ArmorID.LeatherGlove]: {
-        value: 10,
-        type: ArmorType.Glove,
-        base_armor_value: 10,
-        weight: 5,
-    },
-    [ArmorID.WoodShield]: {
-        value: 10,
-        type: ArmorType.Shield,
-        base_armor_value: 10,
-        weight: 5,
-    },
-    [ArmorID.ReinforcedWoodShield]: {
-        value: 10,
-        type: ArmorType.Shield,
-        base_armor_value: 10,
-        weight: 5,
-    },
-    [ArmorID.IronShield]: {
-        value: 10,
-        type: ArmorType.Shield,
-        base_armor_value: 10,
-        weight: 5,
-    },
+    [ArmorID.IronHelmet]: new IronHelmet(),
+    [ArmorID.IronPlate]: new IronPlate(),
+    [ArmorID.IronMail]: new IronMail(),
+    [ArmorID.IronPants]: new IronPants(),
+    [ArmorID.IronBoot]: new IronBoot(),
+    [ArmorID.IronGauntlet]: new IronGauntlet(),
+    [ArmorID.LeatherHelmet]: new LeatherHelmet(),
+    [ArmorID.LeatherChest]: new LeatherChest(),
+    [ArmorID.LeatherPants]: new LeatherPants(),
+    [ArmorID.LeatherBoot]: new LeatherBoot(),
+    [ArmorID.LeatherGlove]: new LeatherGlove(),
+    [ArmorID.WoodShield]: new WoodShield(),
+    [ArmorID.ReinforcedWoodShield]: new ReinforcedWoodShield(),
+    [ArmorID.IronShield]: new IronShield(),
 } as const;
 
