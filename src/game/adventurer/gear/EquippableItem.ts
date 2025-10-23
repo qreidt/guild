@@ -57,4 +57,18 @@ export abstract class EquippableItem implements IEquippableItem {
 
         return this.current_wear / this.max_durability;
     }
+
+    public static getGood(this: {new (): IGood}): IGood {
+        const instance = new this();
+        return {
+            value: instance.value,
+            weight: instance.weight,
+        };
+    }
+}
+
+class WrongEquippableItemTypeError extends Error {
+    constructor(expected: string, got: string) {
+        super(`[WrongEquippableItemType] Expected: ${expected} and got: ${got}.`);
+    }
 }

@@ -144,7 +144,7 @@ export class Adventurer {
                     return false;
                 }
 
-                // Allow only items that can be dual weld.
+                // Allow only goods that can be dual weld.
                 return item instanceof Weapon && item.can_dual_wield;
         }
     }

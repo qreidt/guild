@@ -1,3 +1,6 @@
+import Weapons from '../adventurer/gear/Weapon.ts';
+import Armors from '../adventurer/gear/Armor.ts';
+
 export interface IGood {
     value: number;
     weight: number;
@@ -8,7 +11,20 @@ export enum GoodID {
     WoodPlank = 'WoodPlank',
     IronOre = 'IronOre',
 
-    // ToDo Add rest of items
+    // Weapons
+    IronSword = 'IronSword',
+    IronSpear = 'IronSpear',
+
+    // Armors
+    IronShield = 'IronShield',
+    IronHelmet = 'IronHelmet',
+    IronPlate = 'IronPlate',
+    IronMail = 'IronMail',
+    IronGauntlet = 'IronGauntlet',
+    IronPants = 'IronPants',
+    IronBoot = 'IronBoot',
+
+    // ToDo Add rest of goods
 
     // Deer,
     // DeerPelt,
@@ -56,9 +72,24 @@ export enum GoodID {
 }
 
 export const AvailableGoods: Record<GoodID, IGood> = {
-    [GoodID.Lumber]: {value: 10, weight: 20,},
-    [GoodID.WoodPlank]: {value: 1, weight: 1,},
-    [GoodID.IronOre]: {value: 2, weight: 1,},
+    [GoodID.Lumber]: {value: 10, weight: 20},
+    [GoodID.WoodPlank]: {value: 1, weight: 1},
+    [GoodID.IronOre]: {value: 2, weight: 1},
+
+    // Weapons
+    [GoodID.IronSword]: Weapons.IronSword.getGood(),
+    [GoodID.IronSpear]: Weapons.IronSpear.getGood(),
+
+    // Armors
+    [GoodID.IronShield]: Armors.IronShield.getGood(),
+    [GoodID.IronHelmet]: Armors.IronHelmet.getGood(),
+    [GoodID.IronPlate]: Armors.IronPlate.getGood(),
+    [GoodID.IronMail]: Armors.IronMail.getGood(),
+    [GoodID.IronGauntlet]: Armors.IronGauntlet.getGood(),
+    [GoodID.IronPants]: Armors.IronPants.getGood(),
+    [GoodID.IronBoot]: Armors.IronBoot.getGood(),
+
+    // Weapons
     // [GoodID.Deer]: {value: 1, weight: 0,},
     // [GoodID.DeerPelt]: {value: 1, weight: 0,},
     // [GoodID.DeerMeat]: {value: 1, weight: 0,},

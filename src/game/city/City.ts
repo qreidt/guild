@@ -22,7 +22,7 @@ export class City {
         this.buildings = new Map<BuildingID, BaseBuilding>([
             [BuildingID.LumberMill, new LumberMill()],
             [BuildingID.IronMine, new IronMine()],
-            // [BuildingID.BlackSmith, new BlackSmith()],
+            [BuildingID.BlackSmith, new BlackSmith()],
         ]);
     }
 

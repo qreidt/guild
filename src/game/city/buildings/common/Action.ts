@@ -14,7 +14,7 @@ export abstract class Action {
     public ticks_remaining: number = 999;
     public action_input: null | Inventory = null;
 
-    protected abstract building_id: BuildingID;
+    protected abstract building_id: BuildingID|null;
 
     constructor() {
         this.status = ActionStatus.ACTIVE;
@@ -22,7 +22,7 @@ export abstract class Action {
 
     public validateInput(building: BaseBuilding): boolean {
         if (!this.action_input) return true;
-        return building.inventory.hasItems(this.action_input.items);
+        return building.inventory.hasItems(this.action_input.goods);
     }
 
     public start(): void {
@@ -35,7 +35,7 @@ export abstract class Action {
         this.ticks_remaining = this.total_ticks;
 
         if (this.action_input) {
-            building.inventory.retrieveItems(this.action_input.items);
+            building.inventory.retrieveItems(this.action_input.goods);
         }
 
         if (this.started) this.started();
@@ -63,7 +63,7 @@ export abstract class Action {
     }
 
     protected getBuilding(): BaseBuilding {
-        return gameController.getBuilding(this.building_id)!;
+        return gameController.getBuilding(this.building_id!)!;
     }
 
     public isDone(): boolean {
@@ -98,6 +98,11 @@ export abstract class TransportAction extends Action {
 
         return this.action_input.value + this.money;
     }
+}
+
+export class WaitAction extends Action {
+    public total_ticks: number = 1;
+    public building_id = null;
 }
 
 export class ActionInputException extends Error {

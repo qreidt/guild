@@ -15,7 +15,7 @@ export interface IArmor extends IEquippableItem {
     base_armor_value: number;
 }
 
-export class Armor extends EquippableItem implements Partial<IArmor> {
+export abstract class Armor extends EquippableItem implements Partial<IArmor> {
     public readonly base_armor_value: number = 0;
 
     public armor_value: number;
@@ -165,3 +165,19 @@ export const AvailableArmors: Record<ArmorID, IArmor> = {
     [ArmorID.IronShield]: new IronShield(),
 } as const;
 
+export default {
+    IronHelmet,
+    IronPlate,
+    IronMail,
+    IronPants,
+    IronBoot,
+    IronGauntlet,
+    // LeatherHelmet,
+    // LeatherChest,
+    // LeatherPants,
+    // LeatherBoot,
+    // LeatherGlove,
+    // WoodShield,
+    // ReinforcedWoodShield,
+    IronShield,
+};

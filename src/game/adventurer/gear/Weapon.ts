@@ -17,7 +17,7 @@ export interface IWeapon extends IEquippableItem {
     can_dual_wield: boolean;
 }
 
-abstract class Weapon extends EquippableItem implements Partial<IWeapon> { // ToDo remove Partial
+export abstract class Weapon extends EquippableItem implements Partial<IWeapon> {
 
     public readonly value: number = 0;
     public readonly weight: number = 0;
@@ -44,7 +44,7 @@ export enum WeaponID {
     IronSword,
     IronDagger,
     IronSpear,
-    // IronArrow,
+    //IronArrow,
 }
 
 export class WoodBow extends Weapon implements IWeapon {
@@ -115,3 +115,8 @@ export const AvailableWeapons: Record<WeaponID, IWeapon> = {
     [WeaponID.IronDagger]: new IronDagger(),
     [WeaponID.IronSpear]: new IronSpear(),
 }
+
+export default {
+    IronSword,
+    IronSpear,
+};

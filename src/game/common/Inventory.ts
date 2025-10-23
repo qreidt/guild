@@ -1,6 +1,7 @@
 import {AvailableGoods, GoodID} from "./Good.ts";
 import {WeaponID} from "../adventurer/gear/Weapon.ts";
 import {ArmorID} from "../adventurer/gear/Armor.ts";
+import {EquippableItem, type IEquippableItem} from "../adventurer/gear/EquippableItem.ts";
 
 export const InventoryItemIDs = Object.keys({...GoodID, ...WeaponID, ...ArmorID})
     .reduce((agg, key) => {
@@ -15,10 +16,12 @@ export type InventoryList = Map<InventoryItemID, number>;
 
 export class Inventory {
 
-    public items: InventoryList;
+    public goods: InventoryList;
+    public equipable_items: EquippableItem[];
 
     constructor(items: null|InventoryList = null) {
-        this.items = items ?? new Map();
+        this.goods = items ?? new Map();
+        this.equipable_items = [];
     }
 
     public static create(record: Record<InventoryItemID, number>): Inventory {
@@ -26,7 +29,7 @@ export class Inventory {
     }
 
     /**
-     * Puts a defined amount of items in the items map.
+     * Puts a defined amount of goods in the goods map.
      *
      * If the item already exists in the map, the amount is added.
      *
@@ -34,19 +37,19 @@ export class Inventory {
      * @param amount
      */
     public putItem(item: InventoryItemID, amount: number): number {
-        if (! this.items.has(item)) {
-            this.items.set(item, amount);
+        if (! this.goods.has(item)) {
+            this.goods.set(item, amount);
             return amount;
         }
 
-        const new_amount = this.items.get(item)! + amount;
-        this.items.set(item, new_amount);
+        const new_amount = this.goods.get(item)! + amount;
+        this.goods.set(item, new_amount);
 
         return new_amount;
     }
 
     /**
-     * Removes a defined amount of a determined item from the items map.
+     * Removes a defined amount of a determined item from the goods map.
      *
      * If the resulting amount of the item is 0, the item is deleted from the map.
      *
@@ -63,11 +66,11 @@ export class Inventory {
 
         const new_amount = available_amount - requested_amount;
         if (new_amount === 0) {
-            this.items.delete(item);
+            this.goods.delete(item);
             return 0;
         }
 
-        this.items.set(item, new_amount);
+        this.goods.set(item, new_amount);
         return new_amount;
     }
 
@@ -80,7 +83,7 @@ export class Inventory {
     }
 
     /**
-     * Retrieves a list of inventory items and creates a new inventory with them
+     * Retrieves a list of inventory goods and creates a new inventory with them
      * @param record
      */
     public retrieveIntoNew(record: Record<InventoryItemID, number>): Inventory {
@@ -109,7 +112,7 @@ export class Inventory {
      * @param item
      */
     public getItem(item: InventoryItemID): number {
-        return this.items.get(item) ?? 0;
+        return this.goods.get(item) ?? 0;
     }
 
     public hasItems(list: InventoryList): boolean {
@@ -123,12 +126,26 @@ export class Inventory {
         return true;
     }
 
+    public addEquipableItem(item: EquippableItem): void {
+        this.equipable_items.push(item);
+    }
+
+    public takeEquipableItem(index: number): EquippableItem {
+        const item = this.equipable_items[index];
+        delete this.equipable_items[index];
+        return item;
+    }
+
     public get value(): number {
         let total = 0;
 
-        for (const [itemId, amount] of this.items) {
+        for (const [itemId, amount] of this.goods) {
             const item = AvailableGoods[itemId];
             total += item.value * amount;
+        }
+
+        for (const item of this.equipable_items) {
+            total += item.value;
         }
 
         return total;
@@ -137,9 +154,13 @@ export class Inventory {
     public get weight(): number {
         let total = 0;
 
-        for (const [itemId, amount] of this.items) {
+        for (const [itemId, amount] of this.goods) {
             const item = AvailableGoods[itemId];
             total += item.weight * amount;
+        }
+
+        for (const item of this.equipable_items) {
+            total += item.weight;
         }
 
         return total;

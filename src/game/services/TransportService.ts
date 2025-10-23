@@ -32,7 +32,7 @@ export class TransportService {
                 continue;
             }
 
-            transport.content.items.forEach((amount, item) => {
+            transport.content.goods.forEach((amount, item) => {
                 transport.destination.inventory.putItem(item, amount);
             });
         }
