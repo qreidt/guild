@@ -10,6 +10,7 @@ export enum GoodID {
     Lumber = 'Lumber',
     WoodPlank = 'WoodPlank',
     IronOre = 'IronOre',
+    IronIngot = 'IronIngot',
 
     // Weapons
     IronSword = 'IronSword',
@@ -22,7 +23,7 @@ export enum GoodID {
     IronMail = 'IronMail',
     IronGauntlet = 'IronGauntlet',
     IronPants = 'IronPants',
-    IronBoot = 'IronBoot',
+    IronBoots = 'IronBoots',
 
     // ToDo Add rest of goods
 
@@ -75,6 +76,7 @@ export const AvailableGoods: Record<GoodID, IGood> = {
     [GoodID.Lumber]: {value: 10, weight: 20},
     [GoodID.WoodPlank]: {value: 1, weight: 1},
     [GoodID.IronOre]: {value: 2, weight: 1},
+    [GoodID.IronIngot]: {value: 5, weight: 1},
 
     // Weapons
     [GoodID.IronSword]: Weapons.IronSword.getGood(),
@@ -87,7 +89,7 @@ export const AvailableGoods: Record<GoodID, IGood> = {
     [GoodID.IronMail]: Armors.IronMail.getGood(),
     [GoodID.IronGauntlet]: Armors.IronGauntlet.getGood(),
     [GoodID.IronPants]: Armors.IronPants.getGood(),
-    [GoodID.IronBoot]: Armors.IronBoot.getGood(),
+    [GoodID.IronBoots]: Armors.IronBoot.getGood(),
 
     // Weapons
     // [GoodID.Deer]: {value: 1, weight: 0,},

@@ -1,8 +1,9 @@
-import {BaseBuilding} from "./common/Building.ts";
+import {BaseBuilding, BuildingID} from "./common/Building.ts";
 import {City} from "../City.ts";
 import {GoodID} from "../../common/Good.ts";
 import {Worker} from "./common/Worker.ts";
 import {Action, WaitAction} from "./common/Action.ts";
+import {Inventory} from "../../common/Inventory.ts";
 
 
 export class BlackSmith extends BaseBuilding {
@@ -13,27 +14,168 @@ export class BlackSmith extends BaseBuilding {
         super();
         this.workers = [
             new Worker(),
-            //new Worker(),
+            new Worker(),
         ];
-    }
 
-    // produces = [
-    //     {ingredients: $itemMap(GoodID.IronOre, 2), product: $itemMap(GoodID.IronSword, 1)},
-    //     {ingredients: $itemMap(GoodID.IronOre, 2), product: $itemMap(GoodID.IronShield, 1)},
-    //     {ingredients: $itemMap(GoodID.IronOre, 2), product: $itemMap(GoodID.IronHelmet, 1)},
-    //     {ingredients: $itemMap(GoodID.IronOre, 2), product: $itemMap(GoodID.IronPlate, 1)},
-    //     {ingredients: $itemMap(GoodID.IronOre, 2), product: $itemMap(GoodID.IronMail, 1)},
-    //     {ingredients: $itemMap(GoodID.IronOre, 2), product: $itemMap(GoodID.IronGauntlet, 1)},
-    //     {ingredients: $itemMap(GoodID.IronOre, 2), product: $itemMap(GoodID.IronPants, 1)},
-    //     {ingredients: $itemMap(GoodID.IronOre, 2), product: $itemMap(GoodID.IronBoot, 1)},
-    //     {ingredients: $itemMap(GoodID.IronOre, 2), product: $itemMap(GoodID.IronSpear, 1)},
-    // ];
-
-    handleTick(city: City): void {
-        const _city = city;
+        this.inventory = new Inventory(new Map([
+            [GoodID.IronOre, 400],
+            [GoodID.IronSword, 1],
+        ]));
     }
 
     protected chooseNextAction(): Action {
-        return new WaitAction();
+        const list = this.inventory.getItemCountByGoodID();
+
+        const make_ingot_action = new MakeIngotAction();
+        const can_make_ingot = make_ingot_action.validateInput(this);
+
+        // map ordered by priority with minimum amount of each item
+        const production_list = {
+            [GoodID.IronSword]:    {desired_amount: 12, action: MakeIronSwordAction},
+            [GoodID.IronShield]:   {desired_amount:  8, action: MakeIronShieldAction},
+            [GoodID.IronHelmet]:   {desired_amount:  6, action: MakeIronHelmetAction},
+            [GoodID.IronPlate]:    {desired_amount:  4, action: MakeIronPlateAction},
+            [GoodID.IronMail]:     {desired_amount:  4, action: MakeIronMailAction},
+            [GoodID.IronPants]:    {desired_amount:  8, action: MakeIronPantsAction},
+            [GoodID.IronBoots]:    {desired_amount:  8, action: MakeIronBootsAction},
+            [GoodID.IronGauntlet]: {desired_amount:  8, action: MakeIronGauntletAction},
+            [GoodID.IronSpear]:    {desired_amount:  4, action: MakeIronSpearAction},
+        };
+
+        // any item with count below minimum amount
+        for (const [good_id, recipe] of Object.entries(production_list)) {
+            const current_amount = list.get(good_id as GoodID) ?? 0;
+            const action = new recipe.action();
+
+            if (current_amount < recipe.desired_amount) {
+                if (! this.inventory.hasItems(action.action_input.goods)) {
+                    if (can_make_ingot) {
+                        return make_ingot_action;
+                    }
+
+                    continue;
+                }
+
+                return action;
+            }
+        }
+
+        if (this.inventory.getItem(GoodID.IronOre) >= 2) {
+            return new MakeIngotAction();
+        }
+
+        return new WaitAction(BuildingID.BlackSmith);
     }
+}
+
+class MakeIngotAction extends Action {
+    total_ticks = 2; // 1h
+    building_id = BuildingID.BlackSmith;
+
+    constructor() {
+        super();
+
+        this.action_input = new Inventory(new Map([
+            [GoodID.IronOre, 2],
+        ]));
+    }
+
+
+    protected finished() {
+        this.getBuilding().inventory.putItem(GoodID.IronIngot, 1);
+        console.debug('Blacksmith melted an Iron Ingot.');
+    }
+}
+
+abstract class BaseMakeAction extends Action {
+
+    abstract good_id: GoodID;
+    abstract total_ticks: number;
+    amount: number = 1;
+
+    protected finished() {
+        this.getBuilding().inventory.putItem(this.good_id, this.amount);
+        console.debug(`Blacksmith finished making a [${this.good_id}].`);
+    }
+}
+
+class MakeIronSwordAction extends BaseMakeAction {
+    name = 'MakeIronSword';
+    total_ticks = 8; // 4 hours
+    building_id = BuildingID.BlackSmith;
+
+    good_id = GoodID.IronSword;
+    action_input = new Inventory(new Map([[GoodID.IronIngot, 2]]));
+}
+
+class MakeIronShieldAction extends BaseMakeAction {
+    name = 'MakeIronShield';
+    total_ticks = 8; // 4 hours
+    building_id = BuildingID.BlackSmith;
+
+    good_id = GoodID.IronShield;
+    action_input = new Inventory(new Map([[GoodID.IronIngot, 4]]));
+}
+
+class MakeIronHelmetAction extends BaseMakeAction {
+    name = 'MakeIronHelmet';
+    total_ticks = 8; // 4 hours
+    building_id = BuildingID.BlackSmith;
+
+    good_id = GoodID.IronHelmet;
+    action_input = new Inventory(new Map([[GoodID.IronIngot, 2]]));
+}
+
+class MakeIronPlateAction extends BaseMakeAction {
+    name = 'MakeIronPlate';
+    total_ticks = 8; // 4 hours
+    building_id = BuildingID.BlackSmith;
+
+    good_id = GoodID.IronPlate;
+    action_input = new Inventory(new Map([[GoodID.IronIngot, 6]]));
+}
+
+class MakeIronMailAction extends BaseMakeAction {
+    name = 'MakeIronMail';
+    total_ticks = 8; // 4 hours
+    building_id = BuildingID.BlackSmith;
+
+    good_id = GoodID.IronMail;
+    action_input = new Inventory(new Map([[GoodID.IronIngot, 3]]));
+}
+
+class MakeIronPantsAction extends BaseMakeAction {
+    name = 'MakeIronPants';
+    total_ticks = 8; // 4 hours
+    building_id = BuildingID.BlackSmith;
+
+    good_id = GoodID.IronPants;
+    action_input = new Inventory(new Map([[GoodID.IronIngot, 4]]));
+}
+
+class MakeIronBootsAction extends BaseMakeAction {
+    name = 'MakeIronBoots';
+    total_ticks = 8; // 4 hours
+    building_id = BuildingID.BlackSmith;
+
+    good_id = GoodID.IronBoots;
+    action_input = new Inventory(new Map([[GoodID.IronIngot, 2]]));
+}
+
+class MakeIronGauntletAction extends BaseMakeAction {
+    name = 'MakeIronGauntlet';
+    total_ticks = 8; // 4 hours
+    building_id = BuildingID.BlackSmith;
+
+    good_id = GoodID.IronGauntlet;
+    action_input = new Inventory(new Map([[GoodID.IronIngot, 2]]));
+}
+
+class MakeIronSpearAction extends BaseMakeAction {
+    name = 'MakeIronSpear';
+    total_ticks = 8; // 4 hours
+    building_id = BuildingID.BlackSmith;
+
+    good_id = GoodID.IronSpear;
+    action_input = new Inventory(new Map([[GoodID.IronIngot, 1]]));
 }

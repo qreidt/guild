@@ -1,18 +1,7 @@
 import {AvailableGoods, GoodID} from "./Good.ts";
-import {WeaponID} from "../adventurer/gear/Weapon.ts";
-import {ArmorID} from "../adventurer/gear/Armor.ts";
 import {EquippableItem, type IEquippableItem} from "../adventurer/gear/EquippableItem.ts";
 
-export const InventoryItemIDs = Object.keys({...GoodID, ...WeaponID, ...ArmorID})
-    .reduce((agg, key) => {
-            agg[key] = key;
-            return agg;
-        }, {} as Record<string, string>
-    // ) as Record<GoodID | WeaponID | ArmorID, string>;
-    ) as Record<GoodID, string>;
-
-export type InventoryItemID = keyof typeof InventoryItemIDs;
-export type InventoryList = Map<InventoryItemID, number>;
+export type InventoryList = Map<GoodID, number>;
 
 export class Inventory {
 
@@ -24,7 +13,7 @@ export class Inventory {
         this.equipable_items = [];
     }
 
-    public static create(record: Record<InventoryItemID, number>): Inventory {
+    public static create(record: Record<GoodID, number>): Inventory {
         return new Inventory($itemsMap(record));
     }
 
@@ -36,7 +25,7 @@ export class Inventory {
      * @param item
      * @param amount
      */
-    public putItem(item: InventoryItemID, amount: number): number {
+    public putItem(item: GoodID, amount: number): number {
         if (! this.goods.has(item)) {
             this.goods.set(item, amount);
             return amount;
@@ -58,7 +47,7 @@ export class Inventory {
      * @param item
      * @param requested_amount
      */
-    public retrieveItem(item: InventoryItemID, requested_amount: number): number {
+    public retrieveItem(item: GoodID, requested_amount: number): number {
         const available_amount = this.getItem(item);
         if (available_amount < requested_amount) {
             throw new UnableToRetrieveItemsFromInventory(item, requested_amount, available_amount);
@@ -86,11 +75,11 @@ export class Inventory {
      * Retrieves a list of inventory goods and creates a new inventory with them
      * @param record
      */
-    public retrieveIntoNew(record: Record<InventoryItemID, number>): Inventory {
-        const recovery: [InventoryItemID, number][] = [];
+    public retrieveIntoNew(record: Record<GoodID, number>): Inventory {
+        const recovery: [GoodID, number][] = [];
 
         try {
-            for (const entry of Object.entries(record) as [InventoryItemID, number][]) {
+            for (const entry of Object.entries(record) as [GoodID, number][]) {
                 this.retrieveItem(entry[0], entry[1]);
                 recovery.push(entry);
             }
@@ -111,7 +100,7 @@ export class Inventory {
      *
      * @param item
      */
-    public getItem(item: InventoryItemID): number {
+    public getItem(item: GoodID): number {
         return this.goods.get(item) ?? 0;
     }
 
@@ -165,13 +154,26 @@ export class Inventory {
 
         return total;
     }
+
+    public getItemCountByGoodID(): Map<GoodID, number> {
+        const map = this.goods as Map<GoodID, number>;
+
+        for (const equipable_item of this.equipable_items) {
+            const good_id = (equipable_item.constructor as typeof EquippableItem).good_id;
+
+            const count = map.get(good_id) ?? 0;
+            map.set(good_id, count + 1);
+        }
+
+        return map;
+    }
 }
 
-export function $itemMap(item: InventoryItemID, amount: number): InventoryList {
+export function $itemMap(item: GoodID, amount: number): InventoryList {
     return new Map([[item, amount]]);
 }
 
-export function $itemsMap(record: Record<InventoryItemID, number>): InventoryList {
+export function $itemsMap(record: Record<GoodID, number>): InventoryList {
     return new Map(Object.entries(record).reduce((agg, value) => {
         // @ts-ignore
         agg.push(value);
@@ -181,7 +183,7 @@ export function $itemsMap(record: Record<InventoryItemID, number>): InventoryLis
 
 class UnableToRetrieveItemsFromInventory extends Error {
     constructor(
-        public readonly item: InventoryItemID,
+        public readonly item: GoodID,
         public readonly requested_amount: number,
         public readonly available_amount: number
     ) {

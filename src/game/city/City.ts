@@ -24,7 +24,6 @@ export class City {
     }
 
     handleTick(): void {
-        // this.transportService.tickTransports();
 
         // Let every building work before managing things in the city
         this.tickBuildings();

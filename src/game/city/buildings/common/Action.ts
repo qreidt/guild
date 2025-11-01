@@ -8,6 +8,7 @@ export enum ActionStatus {
 }
 
 export abstract class Action {
+    public name: string = '';
     public abstract total_ticks: number;
 
     public status: ActionStatus;
@@ -101,8 +102,19 @@ export abstract class TransportAction extends Action {
 }
 
 export class WaitAction extends Action {
+    action_name = 'Wait';
     public total_ticks: number = 1;
-    public building_id = null;
+    public building_id: BuildingID | null = null;
+
+    constructor(building_id: null|BuildingID = null) {
+        super();
+
+        if (building_id) this.building_id = building_id;
+    }
+
+    protected started() {
+        console.debug(`${this.building_id} is waiting.`);
+    }
 }
 
 export class ActionInputException extends Error {

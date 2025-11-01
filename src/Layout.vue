@@ -16,7 +16,7 @@
       </aside>
 
       <!-- Main Content -->
-      <main class="flex-1 p-4 overflow-y-auto">
+      <main class="flex-1 p-4 overflow-y-auto mb-16">
         <slot />
       </main>
 

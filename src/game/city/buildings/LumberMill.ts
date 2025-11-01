@@ -1,6 +1,6 @@
 import GameControllerSingleton from "../../controllers/GameController.ts";
 import {BaseBuilding, BuildingID} from "./common/Building.ts";
-import {$itemMap, $itemsMap, Inventory, InventoryItemIDs} from "../../common/Inventory.ts";
+import {Inventory} from "../../common/Inventory.ts";
 import {Action, TransportAction} from "./common/Action.ts";
 import type {City} from "../City.ts";
 import {Worker} from "./common/Worker.ts";

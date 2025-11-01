@@ -22,7 +22,7 @@
       </div>
     </template>
 
-    {{ activeBuilding }}
+    <pre>{{ activeBuilding }}</pre>
 
     <template #footer>
       <div class="flex h-full items-center justify-between">

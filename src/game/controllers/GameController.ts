@@ -29,7 +29,6 @@ export class GameController {
             return;
         }
 
-        // ToDO
         this.city.handleTick();
 
         this.tick++;
@@ -64,4 +63,4 @@ export class GameController {
     }
 }
 
-export default new GameController(2);
+export default new GameController(0.5);
