@@ -1,4 +1,4 @@
-import {GoodID, type IGood} from "../../common/Good.ts";
+import {GoodID, GoodType, type IGood} from "../../common/Good.ts";
 
 export interface IEquippableItem extends IGood {
     // buff_strength: number;
@@ -11,10 +11,13 @@ export interface IEquippableItem extends IGood {
     // buff_dexterity: number;
     // buff_stealth: number;
     current_wear: number;
+    good_id?: GoodID;
 }
 
 export abstract class EquippableItem implements IEquippableItem {
     public static readonly good_id: GoodID;
+    public good_type = GoodType.Equipable;
+
     public value: number = 0;
     public weight: number = 0;
 
@@ -64,6 +67,7 @@ export abstract class EquippableItem implements IEquippableItem {
         return {
             value: instance.value,
             weight: instance.weight,
+            good_type: GoodType.Equipable,
         };
     }
 }

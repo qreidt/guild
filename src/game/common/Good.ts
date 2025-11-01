@@ -4,6 +4,12 @@ import Armors from '../adventurer/gear/Armor.ts';
 export interface IGood {
     value: number;
     weight: number;
+    good_type: GoodType;
+}
+
+export enum GoodType {
+    Good = 1,
+    Equipable = 2,
 }
 
 export enum GoodID {
@@ -73,10 +79,10 @@ export enum GoodID {
 }
 
 export const AvailableGoods: Record<GoodID, IGood> = {
-    [GoodID.Lumber]: {value: 10, weight: 20},
-    [GoodID.WoodPlank]: {value: 1, weight: 1},
-    [GoodID.IronOre]: {value: 2, weight: 1},
-    [GoodID.IronIngot]: {value: 5, weight: 1},
+    [GoodID.Lumber]: {value: 10, weight: 20, good_type: GoodType.Good},
+    [GoodID.WoodPlank]: {value: 1, weight: 1, good_type: GoodType.Good},
+    [GoodID.IronOre]: {value: 2, weight: 1, good_type: GoodType.Good},
+    [GoodID.IronIngot]: {value: 5, weight: 1, good_type: GoodType.Good},
 
     // Weapons
     [GoodID.IronSword]: Weapons.IronSword.getGood(),
