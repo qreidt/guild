@@ -198,6 +198,38 @@ export class InventoryService {
             account.goods.set(good_id, current_amount - take_amount);
         });
     }
+
+    public getValue(building_id: BuildingID): number {
+        const account = this.getAccount(building_id);
+
+        let sum = 0;
+        account.goods.forEach((amount: number, good_id: GoodID) => {
+            const good_value = AvailableGoods[good_id].value;
+            sum += good_value * amount;
+        });
+
+        account.equipments.forEach((equipment: IEquippableItem) => {
+            sum += equipment.value;
+        });
+
+        return sum;
+    }
+
+    public getWeight(building_id: BuildingID): number {
+        const account = this.getAccount(building_id);
+
+        let sum = 0;
+        account.goods.forEach((amount: number, good_id: GoodID) => {
+            const good_weight = AvailableGoods[good_id].weight;
+            sum += good_weight * amount;
+        });
+
+        account.equipments.forEach((equipment: IEquippableItem) => {
+            sum += equipment.weight;
+        });
+
+        return sum;
+    }
 }
 
 export type GoodLedger = Map<GoodID, number>;

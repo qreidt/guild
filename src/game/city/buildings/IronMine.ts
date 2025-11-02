@@ -5,6 +5,8 @@ import {Action, TransportAction} from "./common/Action.ts";
 import GameControllerSingleton from "../../controllers/GameController.ts";
 import {Worker} from "./common/Worker.ts";
 import {GoodID} from "../../common/Good.ts";
+import InventoryService from "../../../modules/inventory/inventory.service.ts";
+
 
 export class IronMine extends BaseBuilding {
     name = "IronMine";
@@ -24,7 +26,7 @@ export class IronMine extends BaseBuilding {
     }
 
     protected chooseNextAction(): Action {
-        if (this.inventory.getItem(GoodID.IronOre) >= 80) {
+        if (InventoryService.getCount(BuildingID.IronMine, GoodID.IronOre) >= 80) {
             return new SellOres(80);
         }
 
@@ -41,7 +43,7 @@ class MineOres extends Action {
     }
 
     protected finished() {
-        this.getBuilding().inventory.putItem(GoodID.IronOre, 1);
+        InventoryService.putGood(BuildingID.IronMine, GoodID.IronOre, 1);
         console.debug('Iron Mine mined more ore');
     }
 }
@@ -53,9 +55,9 @@ class SellOres extends TransportAction {
     constructor(amount: number) {
         super();
 
-        this.action_input = new Inventory(new Map([
+        this.action_input = new Map([
             [GoodID.IronOre, amount],
-        ]));
+        ]);
     }
 
     protected started() {

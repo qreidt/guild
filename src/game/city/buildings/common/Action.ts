@@ -1,6 +1,7 @@
 import {type BaseBuilding, BuildingID} from "./Building.ts";
-import {Inventory, type InventoryList} from "../../../common/Inventory.ts";
 import gameController from "../../../controllers/GameController.ts";
+import InventoryService, {type GoodLedger} from "../../../../modules/inventory/inventory.service.ts";
+import {AvailableGoods} from "../../../common/Good.ts";
 
 export enum ActionStatus {
     ACTIVE = 0,
@@ -13,7 +14,7 @@ export abstract class Action {
 
     public status: ActionStatus;
     public ticks_remaining: number = 999;
-    public action_input: null | Inventory = null;
+    public action_input: null | GoodLedger = null;
 
     protected abstract building_id: BuildingID|null;
 
@@ -21,14 +22,16 @@ export abstract class Action {
         this.status = ActionStatus.ACTIVE;
     }
 
-    public validateInput(building: BaseBuilding): boolean {
+    public validateInput(): boolean {
         if (!this.action_input) return true;
-        return building.inventory.hasItems(this.action_input.goods);
+        return InventoryService.validateLedger(this.building_id!, this.action_input);
     }
 
     public start(): void {
-        const building = this.getBuilding();
-        if (! this.validateInput(building)) {
+        if (
+            this.action_input &&
+            ! InventoryService.validateLedger(this.building_id!, this.action_input)
+        ) {
             throw new ActionInputException(this);
         }
 
@@ -36,7 +39,7 @@ export abstract class Action {
         this.ticks_remaining = this.total_ticks;
 
         if (this.action_input) {
-            building.inventory.retrieveItems(this.action_input.goods);
+            InventoryService.takeGoods(this.building_id!, this.action_input);
         }
 
         if (this.started) this.started();
@@ -93,16 +96,23 @@ export abstract class Action {
 }
 
 export abstract class TransportAction extends Action {
+    name = 'Transport';
     public money: number = 0;
+
     get value(): number {
         if (! this.action_input) return this.money;
 
-        return this.action_input.value + this.money;
+        let value = 0;
+        this.action_input.forEach((amount, good_id) => {
+            value += AvailableGoods[good_id].value * amount;
+        });
+
+        return value;
     }
 }
 
 export class WaitAction extends Action {
-    action_name = 'Wait';
+    name = 'Wait';
     public total_ticks: number = 1;
     public building_id: BuildingID | null = null;
 
