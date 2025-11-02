@@ -5,6 +5,7 @@ import {Action, TransportAction} from "./common/Action.ts";
 import type {City} from "../City.ts";
 import {Worker} from "./common/Worker.ts";
 import {GoodID} from "../../common/Good.ts";
+import InventoryService from "../../../modules/inventory/inventory.service.ts";
 
 export class LumberMill extends BaseBuilding {
     name = "LumberMill";
@@ -49,7 +50,7 @@ class TakeDownTreeAction extends Action {
     }
 
     protected finished() {
-        this.getBuilding().inventory.putItem(GoodID.Lumber, 1);
+        InventoryService.putGood(this.building_id, GoodID.Lumber, 1);
         console.debug('LumberMill finished making lumber.');
     }
 }
@@ -75,7 +76,7 @@ class MakeWoodAction extends Action {
     }
 
     protected finished() {
-        this.getBuilding().inventory.putItem(GoodID.WoodPlank, 20);
+        InventoryService.putGood(this.building_id, GoodID.WoodPlank, 20);
         console.debug('LumberMill finished making wood.');
     }
 }

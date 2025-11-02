@@ -13,8 +13,6 @@ export abstract class BaseBuilding {
     public abstract level: number;
     public abstract money: number;
 
-    public inventory: Inventory = new Inventory();
-
     public workers: Worker[] = [];
 
     public handleTick(_city: City): void {
