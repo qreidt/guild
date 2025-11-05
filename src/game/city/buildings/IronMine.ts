@@ -1,15 +1,12 @@
-import {BaseBuilding, BuildingID} from "./common/Building.ts";
-import {Inventory} from "../../common/Inventory.ts";
-import {City} from "../City.ts";
-import {Action, TransportAction} from "./common/Action.ts";
+import transactionService from "../../../modules/inventory/transaction.service.ts";
 import GameControllerSingleton from "../../controllers/GameController.ts";
+import {BaseBuilding, BuildingID} from "./common/Building.ts";
+import {Action, TransportAction} from "./common/Action.ts";
 import {Worker} from "./common/Worker.ts";
 import {GoodID} from "../../common/Good.ts";
-import InventoryService from "../../../modules/inventory/inventory.service.ts";
-
 
 export class IronMine extends BaseBuilding {
-    name = "IronMine";
+    building_id = BuildingID.IronMine;
     level = 1;
     money = 100;
 
@@ -21,12 +18,8 @@ export class IronMine extends BaseBuilding {
         ];
     }
 
-    public handleTick(city: City): void {
-        super.handleTick(city);
-    }
-
     protected chooseNextAction(): Action {
-        if (InventoryService.getCount(BuildingID.IronMine, GoodID.IronOre) >= 80) {
+        if (this.inventory.getCount(GoodID.IronOre) >= 80) {
             return new SellOres(80);
         }
 
@@ -35,27 +28,36 @@ export class IronMine extends BaseBuilding {
 }
 
 class MineOres extends Action {
+    name = 'MineOres';
     total_ticks = 1; // 0.5 hours
     building_id = BuildingID.IronMine;
+
+    output_destination = BuildingID.IronMine;
+    output = new Map([
+        [GoodID.IronOre, 1],
+    ]);
 
     protected shouldTick(): boolean {
         return ! GameControllerSingleton.isNight();
     }
 
     protected finished() {
-        InventoryService.putGood(BuildingID.IronMine, GoodID.IronOre, 1);
+        super.finished();
         console.debug('Iron Mine mined more ore');
+        // InventoryService.putGood(BuildingID.IronMine, GoodID.IronOre, 1);
     }
 }
 
 class SellOres extends TransportAction {
+    name = 'SellOres';
     total_ticks = 44; // 22 hours
     building_id = BuildingID.IronMine;
 
     constructor(amount: number) {
         super();
 
-        this.action_input = new Map([
+        this.input_origin = this.building_id;
+        this.input = new Map([
             [GoodID.IronOre, amount],
         ]);
     }
@@ -69,7 +71,7 @@ class SellOres extends TransportAction {
     }
 
     protected finished() {
-        this.getBuilding().money += this.value;
+        super.finished();
         console.debug(`Iron Mine sold the ores for ${this.value} g.`);
     }
 }

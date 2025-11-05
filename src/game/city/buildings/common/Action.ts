@@ -1,7 +1,13 @@
 import {type BaseBuilding, BuildingID} from "./Building.ts";
 import gameController from "../../../controllers/GameController.ts";
-import InventoryService, {type GoodLedger} from "../../../../modules/inventory/inventory.service.ts";
+import {InventoryAccountService} from "../../../../modules/inventory/inventory.service.ts";
 import {AvailableGoods} from "../../../common/Good.ts";
+import type {GoodLedger, InventoryID} from "../../../../modules/inventory/common.ts";
+import transactionService, {
+    InsufficientTransactionContentsError
+} from "../../../../modules/inventory/transaction.service.ts";
+
+let global_id = 0;
 
 export enum ActionStatus {
     ACTIVE = 0,
@@ -9,37 +15,49 @@ export enum ActionStatus {
 }
 
 export abstract class Action {
+    public uid: string;
     public name: string = '';
     public abstract total_ticks: number;
 
     public status: ActionStatus;
     public ticks_remaining: number = 999;
-    public action_input: null | GoodLedger = null;
 
-    protected abstract building_id: BuildingID|null;
+    public inventory: InventoryAccountService;
+
+    public input: null | GoodLedger = null;
+    public input_origin: null | InventoryID = null;
+
+    public output: null | GoodLedger = null;
+    public output_destination: null | InventoryID = null;
+
+    public transaction_id: null | string = null;
+
+    protected abstract building_id: BuildingID | null;
 
     constructor() {
+        this.uid = `action:${global_id++}:${this.name}`;
         this.status = ActionStatus.ACTIVE;
+        this.inventory = new InventoryAccountService(this.uid);
+
+        if (!this.name) this.name = this.constructor.name;
     }
 
     public validateInput(): boolean {
-        if (!this.action_input) return true;
-        return InventoryService.validateLedger(this.building_id!, this.action_input);
+        if (!this.input) return true;
+        if (!this.input_origin) return false;
+
+        return this.inventory.validateTransaction(this.input_origin, this.input);
     }
 
     public start(): void {
-        if (
-            this.action_input &&
-            ! InventoryService.validateLedger(this.building_id!, this.action_input)
-        ) {
-            throw new ActionInputException(this);
-        }
-
         this.status = ActionStatus.ACTIVE;
         this.ticks_remaining = this.total_ticks;
 
-        if (this.action_input) {
-            InventoryService.takeGoods(this.building_id!, this.action_input);
+        if (this.input) {
+            this.transaction_id = transactionService
+                .createTransaction(this.input_origin!, this.output_destination!, {
+                    goods: this.input,
+                });
         }
 
         if (this.started) this.started();
@@ -50,7 +68,7 @@ export abstract class Action {
             return;
         }
 
-        if (! this.shouldTick()) {
+        if (!this.shouldTick()) {
             return;
         }
 
@@ -91,7 +109,9 @@ export abstract class Action {
     }
 
     protected finished(): void {
-        //
+        if (this.transaction_id) {
+            transactionService.commitTransaction(this.transaction_id);
+        }
     }
 }
 
@@ -100,14 +120,20 @@ export abstract class TransportAction extends Action {
     public money: number = 0;
 
     get value(): number {
-        if (! this.action_input) return this.money;
+        if (!this.input) return this.money;
 
         let value = 0;
-        this.action_input.forEach((amount, good_id) => {
+        this.input.forEach((amount, good_id) => {
             value += AvailableGoods[good_id].value * amount;
         });
 
         return value;
+    }
+
+    protected finished() {
+        super.finished();
+        this.getBuilding().money += this.value;
+        console.debug(`TransportAction finished transporting ${this.value} g.`);
     }
 }
 
@@ -116,7 +142,7 @@ export class WaitAction extends Action {
     public total_ticks: number = 1;
     public building_id: BuildingID | null = null;
 
-    constructor(building_id: null|BuildingID = null) {
+    constructor(building_id: null | BuildingID = null) {
         super();
 
         if (building_id) this.building_id = building_id;
@@ -127,8 +153,3 @@ export class WaitAction extends Action {
     }
 }
 
-export class ActionInputException extends Error {
-    constructor(public readonly action: Action) {
-        super('The building doesnt have enough input to execute the desired action.');
-    }
-}

@@ -1,11 +1,9 @@
 import GameControllerSingleton from "../../controllers/GameController.ts";
 import {BaseBuilding, BuildingID} from "./common/Building.ts";
-import {Inventory} from "../../common/Inventory.ts";
 import {Action, TransportAction} from "./common/Action.ts";
 import type {City} from "../City.ts";
 import {Worker} from "./common/Worker.ts";
 import {GoodID} from "../../common/Good.ts";
-import InventoryService from "../../../modules/inventory/inventory.service.ts";
 
 export class LumberMill extends BaseBuilding {
     name = "LumberMill";
@@ -25,11 +23,11 @@ export class LumberMill extends BaseBuilding {
     }
 
     protected chooseNextAction(): Action {
-        if (this.inventory.getItem(GoodID.WoodPlank) >= 80) {
+        if (this.inventory.getCount(GoodID.WoodPlank) >= 80) {
             return new SellWoodAction(80);
         }
 
-        if (this.inventory.getItem(GoodID.Lumber) > 0) {
+        if (this.inventory.getCount(GoodID.Lumber) > 0) {
             return new MakeWoodAction();
         }
 
@@ -41,6 +39,11 @@ class TakeDownTreeAction extends Action {
     total_ticks = 6; // 3 hours
     building_id = BuildingID.LumberMill;
 
+    input_origin = BuildingID.LumberMill;
+    input = new Map([
+        [GoodID.WoodPlank, 1],
+    ]);
+
     protected started() {
         console.debug('LumberMill started chopping a new tree');
     }
@@ -50,7 +53,6 @@ class TakeDownTreeAction extends Action {
     }
 
     protected finished() {
-        InventoryService.putGood(this.building_id, GoodID.Lumber, 1);
         console.debug('LumberMill finished making lumber.');
     }
 }
@@ -62,9 +64,14 @@ class MakeWoodAction extends Action {
     constructor() {
         super();
 
-        this.action_input = new Inventory(new Map([
+        this.input_origin = this.building_id;
+        this.output_destination = this.building_id;
+        this.input = new Map([
             [GoodID.Lumber, 1]
-        ]));
+        ]);
+        this.output = new Map([
+            [GoodID.WoodPlank, 20],
+        ]);
     };
 
     protected started() {
@@ -76,7 +83,6 @@ class MakeWoodAction extends Action {
     }
 
     protected finished() {
-        InventoryService.putGood(this.building_id, GoodID.WoodPlank, 20);
         console.debug('LumberMill finished making wood.');
     }
 }
@@ -88,9 +94,10 @@ class SellWoodAction extends TransportAction {
     constructor(amount: number) {
         super();
 
-        this.action_input = new Inventory(new Map([
+        this.input_origin = this.building_id;
+        this.input = new Map([
             [GoodID.WoodPlank, amount],
-        ]));
+        ]);
     }
 
     protected started() {
@@ -102,7 +109,7 @@ class SellWoodAction extends TransportAction {
     }
 
     protected finished() {
-        this.getBuilding().money += this.value;
+        super.finished();
         console.debug(`LumberMill sold the wood for ${this.value} g.`);
     }
 }

@@ -2,7 +2,7 @@ import {BaseBuilding, BuildingID} from "./common/Building.ts";
 import {GoodID} from "../../common/Good.ts";
 import {Worker} from "./common/Worker.ts";
 import {Action, WaitAction} from "./common/Action.ts";
-import InventoryService from "../../../modules/inventory/inventory.service.ts";
+import inventoryRepository from "../../../modules/inventory/inventory.repository.ts";
 
 
 export class BlackSmith extends BaseBuilding {
@@ -16,7 +16,7 @@ export class BlackSmith extends BaseBuilding {
             new Worker(),
         ];
 
-        InventoryService.put(
+        inventoryRepository.put(
             BuildingID.BlackSmith,
             {
                 goods: new Map([
@@ -28,7 +28,7 @@ export class BlackSmith extends BaseBuilding {
     }
 
     protected chooseNextAction(): Action {
-        const list = InventoryService.getCountByGoodId(BuildingID.BlackSmith);
+        const list = inventoryRepository.getCountByGoodId(BuildingID.BlackSmith);
 
         const make_ingot_action = new MakeIngotAction();
         const can_make_ingot = make_ingot_action.validateInput();
@@ -52,7 +52,7 @@ export class BlackSmith extends BaseBuilding {
             const action = new recipe.action();
 
             if (current_amount < recipe.desired_amount) {
-                if (! InventoryService.validateLedger(BuildingID.BlackSmith, action.action_input)) {
+                if (! inventoryRepository.validateLedger(BuildingID.BlackSmith, action.input)) {
                     if (can_make_ingot) {
                         return make_ingot_action;
                     }
@@ -64,7 +64,7 @@ export class BlackSmith extends BaseBuilding {
             }
         }
 
-        if (InventoryService.getCount(BuildingID.BlackSmith, GoodID.IronOre) >= 2) {
+        if (inventoryRepository.getCount(BuildingID.BlackSmith, GoodID.IronOre) >= 2) {
             return new MakeIngotAction();
         }
 
@@ -73,15 +73,16 @@ export class BlackSmith extends BaseBuilding {
 }
 
 class MakeIngotAction extends Action {
+    name = 'MakeIngot';
     total_ticks = 2; // 1h
     building_id = BuildingID.BlackSmith;
 
-    action_input = new Map([
+    input = new Map([
         [GoodID.IronOre, 2],
     ]);
 
     protected finished() {
-        InventoryService.putGood(BuildingID.BlackSmith, GoodID.IronIngot, 1);
+        inventoryRepository.putGood(BuildingID.BlackSmith, GoodID.IronIngot, 1);
         console.debug('Blacksmith melted an Iron Ingot.');
     }
 }
@@ -93,7 +94,7 @@ abstract class BaseMakeAction extends Action {
     amount: number = 1;
 
     protected finished() {
-        InventoryService.putGood(BuildingID.BlackSmith, this.good_id, this.amount);
+        inventoryRepository.putGood(BuildingID.BlackSmith, this.good_id, this.amount);
         console.debug(`Blacksmith finished making a [${this.good_id}].`);
     }
 }
@@ -104,7 +105,7 @@ class MakeIronSwordAction extends BaseMakeAction {
     building_id = BuildingID.BlackSmith;
 
     good_id = GoodID.IronSword;
-    action_input = new Map([[GoodID.IronIngot, 2]]);
+    input = new Map([[GoodID.IronIngot, 2]]);
 }
 
 class MakeIronShieldAction extends BaseMakeAction {
@@ -113,7 +114,7 @@ class MakeIronShieldAction extends BaseMakeAction {
     building_id = BuildingID.BlackSmith;
 
     good_id = GoodID.IronShield;
-    action_input = new Map([[GoodID.IronIngot, 4]]);
+    input = new Map([[GoodID.IronIngot, 4]]);
 }
 
 class MakeIronHelmetAction extends BaseMakeAction {
@@ -122,7 +123,7 @@ class MakeIronHelmetAction extends BaseMakeAction {
     building_id = BuildingID.BlackSmith;
 
     good_id = GoodID.IronHelmet;
-    action_input = new Map([[GoodID.IronIngot, 2]]);
+    input = new Map([[GoodID.IronIngot, 2]]);
 }
 
 class MakeIronPlateAction extends BaseMakeAction {
@@ -131,7 +132,7 @@ class MakeIronPlateAction extends BaseMakeAction {
     building_id = BuildingID.BlackSmith;
 
     good_id = GoodID.IronPlate;
-    action_input = new Map([[GoodID.IronIngot, 6]]);
+    input = new Map([[GoodID.IronIngot, 6]]);
 }
 
 class MakeIronMailAction extends BaseMakeAction {
@@ -140,7 +141,7 @@ class MakeIronMailAction extends BaseMakeAction {
     building_id = BuildingID.BlackSmith;
 
     good_id = GoodID.IronMail;
-    action_input = new Map([[GoodID.IronIngot, 3]]);
+    input = new Map([[GoodID.IronIngot, 3]]);
 }
 
 class MakeIronPantsAction extends BaseMakeAction {
@@ -149,7 +150,7 @@ class MakeIronPantsAction extends BaseMakeAction {
     building_id = BuildingID.BlackSmith;
 
     good_id = GoodID.IronPants;
-    action_input = new Map([[GoodID.IronIngot, 4]]);
+    input = new Map([[GoodID.IronIngot, 4]]);
 }
 
 class MakeIronBootsAction extends BaseMakeAction {
@@ -158,7 +159,7 @@ class MakeIronBootsAction extends BaseMakeAction {
     building_id = BuildingID.BlackSmith;
 
     good_id = GoodID.IronBoots;
-    action_input = new Map([[GoodID.IronIngot, 2]]);
+    input = new Map([[GoodID.IronIngot, 2]]);
 }
 
 class MakeIronGauntletAction extends BaseMakeAction {
@@ -167,7 +168,7 @@ class MakeIronGauntletAction extends BaseMakeAction {
     building_id = BuildingID.BlackSmith;
 
     good_id = GoodID.IronGauntlet;
-    action_input = new Map([[GoodID.IronIngot, 2]]);
+    input = new Map([[GoodID.IronIngot, 2]]);
 }
 
 class MakeIronSpearAction extends BaseMakeAction {
@@ -176,5 +177,5 @@ class MakeIronSpearAction extends BaseMakeAction {
     building_id = BuildingID.BlackSmith;
 
     good_id = GoodID.IronSpear;
-    action_input = new Map([[GoodID.IronIngot, 1]]);
+    input = new Map([[GoodID.IronIngot, 1]]);
 }
