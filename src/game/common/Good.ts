@@ -1,5 +1,5 @@
-import Weapons from '../adventurer/gear/Weapon.ts';
-import Armors from '../adventurer/gear/Armor.ts';
+
+console.log(`[Goods] Loaded`);
 
 export interface IGood {
     value: number;
@@ -77,68 +77,3 @@ export enum GoodID {
     // ToxicSporeSack,
     // RegrowthExtract,
 }
-
-export const AvailableGoods: Record<GoodID, IGood> = {
-    [GoodID.Lumber]: {value: 10, weight: 20, good_type: GoodType.Good},
-    [GoodID.WoodPlank]: {value: 1, weight: 1, good_type: GoodType.Good},
-    [GoodID.IronOre]: {value: 2, weight: 1, good_type: GoodType.Good},
-    [GoodID.IronIngot]: {value: 5, weight: 1, good_type: GoodType.Good},
-
-    // Weapons
-    [GoodID.IronSword]: Weapons.IronSword.getGood(),
-    [GoodID.IronSpear]: Weapons.IronSpear.getGood(),
-
-    // Armors
-    [GoodID.IronShield]: Armors.IronShield.getGood(),
-    [GoodID.IronHelmet]: Armors.IronHelmet.getGood(),
-    [GoodID.IronPlate]: Armors.IronPlate.getGood(),
-    [GoodID.IronMail]: Armors.IronMail.getGood(),
-    [GoodID.IronGauntlet]: Armors.IronGauntlet.getGood(),
-    [GoodID.IronPants]: Armors.IronPants.getGood(),
-    [GoodID.IronBoots]: Armors.IronBoot.getGood(),
-
-    // Weapons
-    // [GoodID.Deer]: {value: 1, weight: 0,},
-    // [GoodID.DeerPelt]: {value: 1, weight: 0,},
-    // [GoodID.DeerMeat]: {value: 1, weight: 0,},
-    // [GoodID.Boar]: {value: 1, weight: 0,},
-    // [GoodID.BoarPelt]: {value: 1, weight: 0,},
-    // [GoodID.BoarMeat]: {value: 1, weight: 0,},
-    // [GoodID.Wolf]: {value: 1, weight: 0,},
-    // [GoodID.WolfPelt]: {value: 1, weight: 0,},
-    // [GoodID.WolfMeat]: {value: 1, weight: 0,},
-    // [GoodID.SharpFang]: {value: 1, weight: 0,},
-    // [GoodID.BeastClaw]: {value: 1, weight: 0,},
-    // [GoodID.Bear]: {value: 1, weight: 0,},
-    // [GoodID.BearPelt]: {value: 1, weight: 0,},
-    // [GoodID.BearMeat]: {value: 1, weight: 0,},
-    // [GoodID.SlimeJelly]: {value: 1, weight: 0,},
-    // [GoodID.MonsterCore]: {value: 1, weight: 0,},
-    // [GoodID.RustyDagger]: {value: 1, weight: 0,},
-    // [GoodID.TatteredCloth]: {value: 1, weight: 0,},
-    // [GoodID.RatTail]: {value: 1, weight: 0,},
-    // [GoodID.ChewedLeather]: {value: 1, weight: 0,},
-    // [GoodID.BoneShard]: {value: 1, weight: 0,},
-    // [GoodID.BatWing]: {value: 1, weight: 0,},
-    // [GoodID.EchoCrystal]: {value: 1, weight: 0,},
-    // [GoodID.BoneFragment]: {value: 1, weight: 0,},
-    // [GoodID.RustedSword]: {value: 1, weight: 0,},
-    // [GoodID.SoulDust]: {value: 1, weight: 0,},
-    // [GoodID.WispEssence]: {value: 1, weight: 0,},
-    // [GoodID.GhostlightShard]: {value: 1, weight: 0,},
-    // [GoodID.Spores]: {value: 1, weight: 0,},
-    // [GoodID.FungalCap]: {value: 1, weight: 0,},
-    // [GoodID.HealingHerb]: {value: 1, weight: 0,},
-    // [GoodID.RatKingFang]: {value: 1, weight: 0,},
-    // [GoodID.ToxicGland]: {value: 1, weight: 0,},
-    // [GoodID.WardenBlade]: {value: 1, weight: 0,},
-    // [GoodID.BoneCrest]: {value: 1, weight: 0,},
-    // [GoodID.CursedAsh]: {value: 1, weight: 0,},
-    // [GoodID.EmberCore]: {value: 1, weight: 0,},
-    // [GoodID.FlickeringFlame]: {value: 1, weight: 0,},
-    // [GoodID.ArcaneOre]: {value: 1, weight: 0,},
-    // [GoodID.ShardOfAwakening]: {value: 1, weight: 0,},
-    // [GoodID.FungalCrown]: {value: 1, weight: 0,},
-    // [GoodID.ToxicSporeSack]: {value: 1, weight: 0,},
-    // [GoodID.RegrowthExtract]: {value: 1, weight: 0,},
-} as const;

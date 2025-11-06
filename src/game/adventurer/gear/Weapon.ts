@@ -17,6 +17,8 @@ export interface IWeapon extends IEquippableItem {
     can_dual_wield: boolean;
 }
 
+console.log(`[Weapon] Loaded`);
+
 export abstract class Weapon extends EquippableItem implements Partial<IWeapon> {
 
     public readonly value: number = 0;

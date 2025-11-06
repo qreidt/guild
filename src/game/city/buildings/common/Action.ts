@@ -1,11 +1,9 @@
 import {type BaseBuilding, BuildingID} from "./Building.ts";
 import gameController from "../../../controllers/GameController.ts";
 import {InventoryAccountService} from "../../../../modules/inventory/inventory.service.ts";
-import {AvailableGoods} from "../../../common/Good.ts";
+import {AvailableGoods} from "../../../common/AvailableGoods.ts";
 import type {GoodLedger, InventoryID} from "../../../../modules/inventory/common.ts";
-import transactionService, {
-    InsufficientTransactionContentsError
-} from "../../../../modules/inventory/transaction.service.ts";
+import transactionService from "../../../../modules/inventory/transaction.service.ts";
 
 let global_id = 0;
 

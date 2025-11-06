@@ -1,6 +1,8 @@
 import {EquippableItem} from "./EquippableItem.ts";
 import type {IEquippableItem} from "./EquippableItem.ts";
 
+console.log(`[Armor] Loaded`);
+
 export enum ArmorType {
     Head,
     Chest,

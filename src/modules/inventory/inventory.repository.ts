@@ -1,9 +1,11 @@
-import {AvailableGoods, GoodID, GoodType} from "../../game/common/Good.ts";
+import {GoodID, GoodType} from "../../game/common/Good.ts";
+import { AvailableGoods } from "../../game/common/AvailableGoods";
 import type {GoodLedger, InventoryAccount, InventoryID, Transaction, TransactionID} from "./common.ts";
 import type {IEquippableItem} from "../../game/adventurer/gear/EquippableItem.ts";
 
 let global_transaction_id = 0;
 
+console.log(`[InventoryRepository] Loaded`);
 /**
  * InventoryService
  *
@@ -13,6 +15,11 @@ let global_transaction_id = 0;
  * validate and remove goods.
  */
 export class InventoryRepository {
+
+    constructor() {
+        console.log(`[InventoryRepository] OK`);
+    }
+
     /** Map of building id -> inventory account */
     public readonly accounts: Map<InventoryID, InventoryAccount> = new Map();
 

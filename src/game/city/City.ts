@@ -4,6 +4,8 @@ import {BlackSmith} from "./buildings/BlackSmith.ts";
 import {Inventory} from "../common/Inventory.ts";
 import {LumberMill} from "./buildings/LumberMill.ts";
 
+console.log(`[City] Loaded`);
+
 export class City {
     public citizens_count: number;
     public money: number;
@@ -21,6 +23,8 @@ export class City {
             [BuildingID.IronMine, new IronMine()],
             [BuildingID.BlackSmith, new BlackSmith()],
         ]);
+
+        console.log(`[EquippableItem] OK`);
     }
 
     handleTick(): void {

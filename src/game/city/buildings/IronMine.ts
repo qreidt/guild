@@ -5,6 +5,8 @@ import {Action, TransportAction} from "./common/Action.ts";
 import {Worker} from "./common/Worker.ts";
 import {GoodID} from "../../common/Good.ts";
 
+console.log(`[IronMine] Loaded`);
+
 export class IronMine extends BaseBuilding {
     building_id = BuildingID.IronMine;
     level = 1;
@@ -12,10 +14,14 @@ export class IronMine extends BaseBuilding {
 
     constructor() {
         super();
+
+        this.setup();
         this.workers = [
             new Worker(),
             //new Worker(),
         ];
+
+        console.log(`[IronMine] OK`);
     }
 
     protected chooseNextAction(): Action {

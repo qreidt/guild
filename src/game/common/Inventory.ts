@@ -1,5 +1,6 @@
-import {AvailableGoods, GoodID} from "./Good.ts";
+import {GoodID} from "./Good.ts";
 import {EquippableItem, type IEquippableItem} from "../adventurer/gear/EquippableItem.ts";
+import { AvailableGoods } from "./AvailableGoods";
 
 export type InventoryList = Map<GoodID, number>;
 

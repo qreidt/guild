@@ -5,17 +5,25 @@ import type {City} from "../City.ts";
 import {Worker} from "./common/Worker.ts";
 import {GoodID} from "../../common/Good.ts";
 
+console.log(`[LumberMill] Loaded`);
+
 export class LumberMill extends BaseBuilding {
-    name = "LumberMill";
-    level = 1;
-    money = 100;
+    public name = "LumberMill";
+    public level = 1;
+    public money = 100;
+
+    public building_id = BuildingID.LumberMill;
 
     constructor() {
         super();
+
+        this.setup();
         this.workers = [
             new Worker(),
             //new Worker(),
         ];
+
+        console.log(`[LumberMill] OK`);
     }
 
     handleTick(city: City) {

@@ -3,6 +3,8 @@ import type {Action} from "./Action.ts";
 import {Worker} from "./Worker.ts";
 import {InventoryAccountService} from "../../../../modules/inventory/inventory.service.ts";
 
+console.log(`[Building] Loaded`);
+
 export enum BuildingID {
     BlackSmith = 'BlackSmith',
     IronMine = 'IronMine',
@@ -13,17 +15,16 @@ export abstract class BaseBuilding {
     public abstract level: number;
     public abstract money: number;
 
-    public name: string;
+    public name!: string;
     public building_id: null|BuildingID = null;
-    public inventory: InventoryAccountService;
+    public inventory!: InventoryAccountService;
 
     public workers: Worker[] = [];
 
-    constructor() {
+    protected setup(): void {
         this.name = this.building_id!.toString();
         this.inventory = new InventoryAccountService(this.building_id!.toString());
     }
-
 
     public handleTick(_city: City): void {
         const availableWorkers = this.workers.filter((w) => w.isAvailable());

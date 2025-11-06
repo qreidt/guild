@@ -4,13 +4,18 @@ import {Worker} from "./common/Worker.ts";
 import {Action, WaitAction} from "./common/Action.ts";
 import inventoryRepository from "../../../modules/inventory/inventory.repository.ts";
 
+console.log(`[BlackSmith] Loaded`);
 
 export class BlackSmith extends BaseBuilding {
     level = 1;
     money = 100;
 
+    building_id = BuildingID.BlackSmith;
+
     constructor() {
         super();
+
+        this.setup();
         this.workers = [
             new Worker(),
             new Worker(),
@@ -22,9 +27,11 @@ export class BlackSmith extends BaseBuilding {
                 goods: new Map([
                     [GoodID.IronOre, 400],
                     [GoodID.IronSword, 1],
-                ])
+                ]),
             }
         );
+
+        console.log(`[BlackSmith] OK`);
     }
 
     protected chooseNextAction(): Action {
