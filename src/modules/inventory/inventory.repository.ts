@@ -50,7 +50,7 @@ export class InventoryRepository {
             return 0;
         }
 
-        if (good.good_type === GoodType.Good) {
+        if (! good.base_class) {
             return account.goods.get(good_id) ?? 0;
         }
 
@@ -116,11 +116,6 @@ export class InventoryRepository {
      * @param amount - quantity to add (can be negative to subtract)
      */
     public putGood(id: InventoryID, good_id: GoodID, amount: number): void {
-        const good = AvailableGoods[good_id];
-        if (good.good_type !== GoodType.Good) {
-            throw new WrongGoodTypeError(GoodType.Good, good.good_type);
-        }
-
         const account = this.getAccount(id);
 
         const count = account.goods.get(good_id) ?? 0;
@@ -171,7 +166,7 @@ export class InventoryRepository {
     public validateLedger(id: InventoryID, ledger: GoodLedger): boolean {
         const account_ledger = this.getCountByGoodId(id);
         ledger.forEach((required_amount: number, good_id: GoodID) => {
-            if (AvailableGoods[good_id].good_type !== GoodType.Good) {
+            if (AvailableGoods[good_id].base_class) {
                 return false;
             }
 

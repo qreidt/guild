@@ -65,12 +65,12 @@ export abstract class EquippableItem implements IEquippableItem {
         return this.current_wear / this.max_durability;
     }
 
-    public static getGood(this: {new (): IGood}): IGood {
+    public static getGood(this: { new(): EquippableItem }): IGood {
         const instance = new this();
         return {
             value: instance.value,
             weight: instance.weight,
-            good_type: GoodType.Equipable,
+            base_class: this as unknown as EquippableItem,
         };
     }
 }

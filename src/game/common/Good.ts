@@ -1,10 +1,11 @@
+import type {EquippableItem} from "../adventurer/gear/EquippableItem.ts";
 
 console.log(`[Goods] Loaded`);
 
 export interface IGood {
     value: number;
     weight: number;
-    good_type: GoodType;
+    base_class?: { new(): EquippableItem };
 }
 
 export enum GoodType {

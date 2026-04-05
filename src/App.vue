@@ -49,10 +49,12 @@ import Layout from "./Layout.vue";
 import Button from "./components/Button.vue";
 import {computed, reactive, ref} from "vue";
 import GameControllerSingleton, {GameController} from "./game/controllers/GameController.ts";
+import inventoryRepository, {InventoryRepository} from "./modules/inventory/inventory.repository.ts";
 import BuildingsList from "./components/left-menu/BuildingsList.vue";
 import {BaseBuilding, BuildingID} from "./game/city/buildings/common/Building.ts";
 
 const c = reactive(GameControllerSingleton) as GameController;
+const inventory = reactive(inventoryRepository) as InventoryRepository;
 const city = c.city;
 const buildings = city.buildings;
 

@@ -6,10 +6,10 @@ import Armors from "../adventurer/gear/Armor.ts";
 console.log('[AvailableGoods] Loaded');
 
 export const AvailableGoods: Record<GoodID, IGood> = {
-    [GoodID.Lumber]: {value: 10, weight: 20, good_type: GoodType.Good},
-    [GoodID.WoodPlank]: {value: 1, weight: 1, good_type: GoodType.Good},
-    [GoodID.IronOre]: {value: 2, weight: 1, good_type: GoodType.Good},
-    [GoodID.IronIngot]: {value: 5, weight: 1, good_type: GoodType.Good},
+    [GoodID.Lumber]: {value: 10, weight: 20},
+    [GoodID.WoodPlank]: {value: 1, weight: 1},
+    [GoodID.IronOre]: {value: 2, weight: 1},
+    [GoodID.IronIngot]: {value: 5, weight: 1},
 
     // Weapons
     [GoodID.IronSword]: Weapons.IronSword.getGood(),
