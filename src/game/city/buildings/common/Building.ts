@@ -2,6 +2,7 @@ import {City} from "../../City.ts";
 import type {Action} from "./Action.ts";
 import {Worker} from "./Worker.ts";
 import {InventoryAccountService} from "../../../../modules/inventory/inventory.service.ts";
+import type {IArmor} from "../../../../modules/items/values/armor.ts";
 
 console.log(`[Building] Loaded`);
 
@@ -11,19 +12,28 @@ export enum BuildingID {
     LumberMill = 'LumberMill',
 }
 
+export interface IBuilding {
+    name: string;
+    building_id: BuildingID;
+}
+
 export abstract class BaseBuilding {
     public abstract level: number;
     public abstract money: number;
 
-    public name!: string;
-    public building_id: null|BuildingID = null;
+    static name: string;
+    static building_id: BuildingID;
     public inventory!: InventoryAccountService;
 
     public workers: Worker[] = [];
 
+    /** Shortcut to access static props from the subclass */
+    get static(): IBuilding {
+        return this.constructor as unknown as IBuilding;
+    }
+
     protected setup(): void {
-        this.name = this.building_id!.toString();
-        this.inventory = new InventoryAccountService(this.building_id!.toString());
+        this.inventory = new InventoryAccountService(this.static.building_id.toString());
     }
 
     public handleTick(_city: City): void {

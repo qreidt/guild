@@ -1,31 +1,44 @@
-import type {InventoryAccount, InventoryID, Transaction, TransactionID} from "./common.ts";
+import {
+    type InventoryAccount,
+    type InventoryID,
+    type TransactionID,
+} from "./common.ts";
 import {InventoryAccountService} from "./inventory.service.ts";
 import {ToBeImplemented} from "../../exceptions/ToBeImplemented.ts";
 import inventoryRepository from "./inventory.repository.ts";
 
 
 export class TransactionService {
-    public createTransaction(origin: InventoryID|null, destination: InventoryID, contents: Partial<InventoryAccount>): TransactionID {
+    public createTransaction(
+        origin: InventoryID|null,
+        destination: InventoryID,
+        input: null| Partial<InventoryAccount> = null,
+        output: null| Partial<InventoryAccount> = null,
+    ): TransactionID {
         if (origin) {
             const inventory_origin = new InventoryAccountService(origin);
 
-            if (contents.stacks && ! inventory_origin.validateLedger(contents.stacks)) {
-                throw new InsufficientTransactionContentsError(origin, destination, contents);
+            if (input?.stacks && ! inventory_origin.validateLedger(input.stacks)) {
+                throw new InsufficientTransactionContentsError(origin, destination, input);
             }
 
-            if (contents.instances) {
-                // ToDo: Implement equipments validations
-                throw new ToBeImplemented('EquipmentsTransactions');
+            if (input?.instances) {
+                // ToDo: Implement instances validations
+                throw new ToBeImplemented('Instances Transactions');
             }
         }
 
         const transaction = {
             origin,
             destination,
-            contents: {
-                stacks: contents.stacks ?? new Map(),
-                instances: contents.instances ?? [],
-            } as InventoryAccount,
+            input: {
+                stacks: input?.stacks ?? new Map(),
+                instances: input?.instances ?? []
+            },
+            output: {
+                stacks: output?.stacks ?? new Map(),
+                instances: output?.instances ?? []
+            },
         };
 
         return inventoryRepository.createTransaction(transaction);

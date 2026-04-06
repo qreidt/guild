@@ -9,6 +9,13 @@ import {ItemRegistry} from "../items/registry.ts";
 export class InventoryAccountService {
     constructor(private readonly id: InventoryID) {}
 
+    static init(id: InventoryID, items: null|Partial<InventoryAccount> = null): InventoryAccountService {
+        const service = new InventoryAccountService(id);
+        if (items) service.put(items);
+
+        return service;
+    }
+
     /**
      * Get count of a specific good for a building.
      *

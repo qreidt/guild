@@ -3,16 +3,16 @@ import {BaseBuilding, BuildingID} from "./common/Building.ts";
 import {Action, TransportAction} from "./common/Action.ts";
 import type {City} from "../City.ts";
 import {Worker} from "./common/Worker.ts";
-import {GoodID} from "../../common/Good.ts";
+import {ItemID} from "../../../modules/items/id.ts";
 
 console.log(`[LumberMill] Loaded`);
 
 export class LumberMill extends BaseBuilding {
-    public name = "LumberMill";
+    static name = "LumberMill";
+    static building_id = BuildingID.LumberMill;
+
     public level = 1;
     public money = 100;
-
-    public building_id = BuildingID.LumberMill;
 
     constructor() {
         super();
@@ -31,11 +31,11 @@ export class LumberMill extends BaseBuilding {
     }
 
     protected chooseNextAction(): Action {
-        if (this.inventory.getCount(GoodID.WoodPlank) >= 80) {
+        if (this.inventory.getCount(ItemID.WoodPlank) >= 80) {
             return new SellWoodAction(80);
         }
 
-        if (this.inventory.getCount(GoodID.Lumber) > 0) {
+        if (this.inventory.getCount(ItemID.Lumber) > 0) {
             return new MakeWoodAction();
         }
 
@@ -44,12 +44,13 @@ export class LumberMill extends BaseBuilding {
 }
 
 class TakeDownTreeAction extends Action {
+    static name = 'TakeDownTree';
+    static building_id = BuildingID.LumberMill;
     total_ticks = 6; // 3 hours
-    building_id = BuildingID.LumberMill;
 
-    input_origin = BuildingID.LumberMill;
+    static input_origin = BuildingID.LumberMill;
     input = new Map([
-        [GoodID.WoodPlank, 1],
+        [ItemID.WoodPlank, 1],
     ]);
 
     protected started() {
@@ -66,20 +67,23 @@ class TakeDownTreeAction extends Action {
 }
 
 class MakeWoodAction extends Action {
+    static name = 'MakeWood';
+    static building_id = BuildingID.LumberMill;
+
     total_ticks = 14; // 7 hours
-    building_id = BuildingID.LumberMill;
+
+    static input_origin = BuildingID.LumberMill;
+    static input = new Map([
+        [ItemID.Lumber, 1]
+    ]);
+
+    static output_destination = BuildingID.LumberMill;
+    static output = new Map([
+        [ItemID.WoodPlank, 20],
+    ]);
 
     constructor() {
         super();
-
-        this.input_origin = this.building_id;
-        this.output_destination = this.building_id;
-        this.input = new Map([
-            [GoodID.Lumber, 1]
-        ]);
-        this.output = new Map([
-            [GoodID.WoodPlank, 20],
-        ]);
     };
 
     protected started() {
@@ -96,15 +100,18 @@ class MakeWoodAction extends Action {
 }
 
 class SellWoodAction extends TransportAction {
-    total_ticks = 44; // 22 hours
-    building_id = BuildingID.LumberMill;
+    static name = 'SellWood';
+    static building_id = BuildingID.LumberMill;
+
+    total_ticks = 14; // 7 hours
+
+    static input_origin = BuildingID.LumberMill;
 
     constructor(amount: number) {
         super();
 
-        this.input_origin = this.building_id;
         this.input = new Map([
-            [GoodID.WoodPlank, amount],
+            [ItemID.WoodPlank, amount],
         ]);
     }
 

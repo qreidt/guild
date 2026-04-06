@@ -218,10 +218,9 @@ export class InventoryRepository {
         this.transactions.set(id, transaction);
 
         if (transaction.origin) {
-            this.takeGoods(transaction.origin, transaction.contents.stacks);
+            if (transaction.input.stacks) this.takeGoods(transaction.origin, transaction.input.stacks);
+            // if (transaction.input.instances) // ToDo take instances from origin.
         }
-
-        // ToDo take equipments from origin.
 
         return id;
     }
@@ -238,7 +237,7 @@ export class InventoryRepository {
         const transaction = this.transactions.get(id);
         if (! transaction) throw new TransactionNotFoundError(id);
 
-        this.put(transaction.destination, transaction.contents);
+        this.put(transaction.destination, transaction.output);
         this.transactions.delete(id);
     }
 

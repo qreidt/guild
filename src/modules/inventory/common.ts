@@ -16,5 +16,6 @@ export type Transaction = {
     id: TransactionID,
     origin: null|InventoryID,
     destination: InventoryID,
-    contents: InventoryAccount,
+    input: InventoryAccount,
+    output: InventoryAccount,
 }

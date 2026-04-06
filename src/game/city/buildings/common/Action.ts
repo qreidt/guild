@@ -1,9 +1,9 @@
 import {type BaseBuilding, BuildingID} from "./Building.ts";
 import gameController from "../../../controllers/GameController.ts";
 import {InventoryAccountService} from "../../../../modules/inventory/inventory.service.ts";
-import {AvailableGoods} from "../../../common/AvailableGoods.ts";
 import type {GoodLedger, InventoryID} from "../../../../modules/inventory/common.ts";
 import transactionService from "../../../../modules/inventory/transaction.service.ts";
+import {ItemRegistry} from "../../../../modules/items/registry.ts";
 
 let global_id = 0;
 
@@ -12,9 +12,15 @@ export enum ActionStatus {
     FINISHED = 1,
 }
 
+export interface IAction {
+    name: string;
+    input_origin: null | InventoryID;
+    building_id: BuildingID | null;
+}
+
 export abstract class Action {
-    public uid: string;
-    public name: string = '';
+    public gid: string;
+    public static name: string = '';
     public abstract total_ticks: number;
 
     public status: ActionStatus;
@@ -23,28 +29,31 @@ export abstract class Action {
     public inventory: InventoryAccountService;
 
     public input: null | GoodLedger = null;
-    public input_origin: null | InventoryID = null;
+    public static input_origin: null | InventoryID = null;
 
     public output: null | GoodLedger = null;
     public output_destination: null | InventoryID = null;
 
     public transaction_id: null | string = null;
 
-    protected abstract building_id: BuildingID | null;
+    static building_id: BuildingID | null = null;
 
     constructor() {
-        this.uid = `action:${global_id++}:${this.name}`;
+        this.gid = `action:${global_id++}:${this.static.name}`;
         this.status = ActionStatus.ACTIVE;
-        this.inventory = new InventoryAccountService(this.uid);
+        this.inventory = new InventoryAccountService(this.gid);
+    }
 
-        if (!this.name) this.name = this.constructor.name;
+    /** Shortcut to access static props from the subclass */
+    get static(): IAction {
+        return this.constructor as unknown as IAction;
     }
 
     public validateInput(): boolean {
         if (!this.input) return true;
-        if (!this.input_origin) return false;
+        if (!this.static.input_origin) return false;
 
-        return this.inventory.validateTransaction(this.input_origin, this.input);
+        return this.inventory.validateTransaction(this.static.input_origin, this.input);
     }
 
     public start(): void {
@@ -53,12 +62,13 @@ export abstract class Action {
 
         if (this.input) {
             this.transaction_id = transactionService
-                .createTransaction(this.input_origin!, this.output_destination!, {
-                    goods: this.input,
-                });
+                .createTransaction(this.static.input_origin, this.output_destination!,
+                    { stacks: this.input },
+                    this.output ? { stacks: this.output } : null
+                );
         }
 
-        if (this.started) this.started();
+        this.started();
     }
 
     public tick(): void {
@@ -78,12 +88,13 @@ export abstract class Action {
 
         if (this.ticks_remaining <= 0) {
             this.status = ActionStatus.FINISHED;
+            this.commitTransaction();
             this.finished();
         }
     }
 
     protected getBuilding(): BaseBuilding {
-        return gameController.getBuilding(this.building_id!)!;
+        return gameController.getBuilding(this.static.building_id!)!;
     }
 
     public isDone(): boolean {
@@ -106,10 +117,14 @@ export abstract class Action {
         //
     }
 
-    protected finished(): void {
+    protected commitTransaction(): void {
         if (this.transaction_id) {
             transactionService.commitTransaction(this.transaction_id);
         }
+    }
+
+    protected finished(): void {
+        //
     }
 }
 
@@ -121,8 +136,8 @@ export abstract class TransportAction extends Action {
         if (!this.input) return this.money;
 
         let value = 0;
-        this.input.forEach((amount, good_id) => {
-            value += AvailableGoods[good_id].value * amount;
+        this.input.forEach((amount, item_id) => {
+            value += ItemRegistry[item_id].value * amount;
         });
 
         return value;
@@ -138,16 +153,10 @@ export abstract class TransportAction extends Action {
 export class WaitAction extends Action {
     name = 'Wait';
     public total_ticks: number = 1;
-    public building_id: BuildingID | null = null;
-
-    constructor(building_id: null | BuildingID = null) {
-        super();
-
-        if (building_id) this.building_id = building_id;
-    }
+    static building_id = null;
 
     protected started() {
-        console.debug(`${this.building_id} is waiting.`);
+        // console.debug(`${this.building_id} is waiting.`);
     }
 }
 

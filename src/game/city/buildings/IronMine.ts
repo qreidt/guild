@@ -1,14 +1,14 @@
-import transactionService from "../../../modules/inventory/transaction.service.ts";
 import GameControllerSingleton from "../../controllers/GameController.ts";
 import {BaseBuilding, BuildingID} from "./common/Building.ts";
 import {Action, TransportAction} from "./common/Action.ts";
 import {Worker} from "./common/Worker.ts";
-import {GoodID} from "../../common/Good.ts";
+import {ItemID} from "../../../modules/items/id.ts";
 
 console.log(`[IronMine] Loaded`);
 
 export class IronMine extends BaseBuilding {
-    building_id = BuildingID.IronMine;
+    static name = "Iron Mine";
+    static building_id = BuildingID.IronMine;
     level = 1;
     money = 100;
 
@@ -25,7 +25,7 @@ export class IronMine extends BaseBuilding {
     }
 
     protected chooseNextAction(): Action {
-        if (this.inventory.getCount(GoodID.IronOre) >= 80) {
+        if (this.inventory.getCount(ItemID.IronOre) >= 80) {
             return new SellOres(80);
         }
 
@@ -34,13 +34,13 @@ export class IronMine extends BaseBuilding {
 }
 
 class MineOres extends Action {
-    name = 'MineOres';
+    static name = 'MineOres';
+    static building_id = BuildingID.IronMine;
     total_ticks = 1; // 0.5 hours
-    building_id = BuildingID.IronMine;
 
     output_destination = BuildingID.IronMine;
     output = new Map([
-        [GoodID.IronOre, 1],
+        [ItemID.IronOre, 1],
     ]);
 
     protected shouldTick(): boolean {
@@ -50,21 +50,21 @@ class MineOres extends Action {
     protected finished() {
         super.finished();
         console.debug('Iron Mine mined more ore');
-        // InventoryService.putGood(BuildingID.IronMine, GoodID.IronOre, 1);
     }
 }
 
 class SellOres extends TransportAction {
-    name = 'SellOres';
-    total_ticks = 44; // 22 hours
-    building_id = BuildingID.IronMine;
+    static name = 'SellOres';
+    static building_id = BuildingID.IronMine;
+    total_ticks = 14; // 7 hours
+
+    static input_origin = BuildingID.IronMine;
 
     constructor(amount: number) {
         super();
 
-        this.input_origin = this.building_id;
         this.input = new Map([
-            [GoodID.IronOre, amount],
+            [ItemID.IronOre, amount],
         ]);
     }
 
