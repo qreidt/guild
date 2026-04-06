@@ -9,11 +9,11 @@ export class TransactionService {
         if (origin) {
             const inventory_origin = new InventoryAccountService(origin);
 
-            if (contents.goods && ! inventory_origin.validateLedger(contents.goods)) {
+            if (contents.stacks && ! inventory_origin.validateLedger(contents.stacks)) {
                 throw new InsufficientTransactionContentsError(origin, destination, contents);
             }
 
-            if (contents.equipments) {
+            if (contents.instances) {
                 // ToDo: Implement equipments validations
                 throw new ToBeImplemented('EquipmentsTransactions');
             }
@@ -23,8 +23,8 @@ export class TransactionService {
             origin,
             destination,
             contents: {
-                goods: contents.goods ?? new Map(),
-                equipments: contents.equipments ?? [],
+                stacks: contents.stacks ?? new Map(),
+                instances: contents.instances ?? [],
             } as InventoryAccount,
         };
 

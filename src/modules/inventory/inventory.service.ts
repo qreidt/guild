@@ -1,8 +1,10 @@
-import {type GoodID, GoodType} from "../../game/common/Good.ts";
+import type {ItemID} from "../items/id.ts";
 import {AvailableGoods} from "../../game/common/AvailableGoods.ts";
 import type {IEquippableItem} from "../../game/adventurer/gear/EquippableItem.ts";
 import type {GoodLedger, InventoryAccount, InventoryID} from "./common.ts";
 import inventoryRepository from "./inventory.repository.ts";
+import type {EquippableItem} from "../items/item.ts";
+import {ItemRegistry} from "../items/registry.ts";
 
 export class InventoryAccountService {
     constructor(private readonly id: InventoryID) {}
@@ -12,16 +14,16 @@ export class InventoryAccountService {
      *
      * For simple goods (GoodType.Good) this returns the amount stored in the
      * account's `goods` ledger. For equippable items the method counts how
-     * many equipments in the account match the requested `good_id`.
+     * many equipments in the account match the requested `item_id`.
      *
      * If the building account does not exist yet it will be created and
      * this method returns 0.
      *
-     * @param good_id - id of the good to count
+     * @param item_id - id of the good to count
      * @returns number of items of the given good in the building account
      */
-    getCount(good_id: GoodID): number {
-        return inventoryRepository.getCount(this.id, good_id);
+    getCount(item_id: ItemID): number {
+        return inventoryRepository.getCount(this.id, item_id);
     }
 
     /**
@@ -29,9 +31,9 @@ export class InventoryAccountService {
      *
      * This returns a new Map (GoodLedger) aggregating counts from the
      * account's `goods` ledger and the `equipments` array. Equipments are
-     * counted by their `good_id` and added to the ledger counts.
+     * counted by their `item_id` and added to the ledger counts.
      *
-     * @returns GoodLedger mapping GoodID -> total count available
+     * @returns GoodLedger mapping ItemID -> total count available
      */
     public getCountByGoodId(): GoodLedger {
         return inventoryRepository.getCountByGoodId(this.id);
@@ -53,14 +55,14 @@ export class InventoryAccountService {
     /**
      * Add a quantity of a non-equippable good to the building account.
      *
-     * Throws WrongGoodTypeError if the provided good_id is not of type
+     * Throws WrongGoodTypeError if the provided item_id is not of type
      * GoodType.Good (i.e., it's an equipment type).
      *
-     * @param good_id - id of the good to add
+     * @param item_id - id of the good to add
      * @param amount - quantity to add
      */
-    public putGood(good_id: GoodID, amount: number): void {
-        inventoryRepository.putGood(this.id, good_id, amount);
+    public putGood(item_id: ItemID, amount: number): void {
+        inventoryRepository.putGood(this.id, item_id, amount);
     }
 
     /**
@@ -68,7 +70,7 @@ export class InventoryAccountService {
      *
      * @param equipment - equippable item instance to store
      */
-    public putEquipment(equipment: IEquippableItem): void {
+    public putEquipment(equipment: EquippableItem): void {
         inventoryRepository.putEquipment(this.id, equipment);
     }
 
@@ -80,7 +82,7 @@ export class InventoryAccountService {
      * - If a requested good id is not a simple good (GoodType.Good), the
      *   function treats that as a validation failure.
      *
-     * @param ledger - GoodLedger mapping GoodID -> required amount
+     * @param ledger - GoodLedger mapping ItemID -> required amount
      * @returns boolean indicating whether the account satisfies the ledger
      */
     public validateLedger(ledger: GoodLedger): boolean {
@@ -99,13 +101,13 @@ export class InventoryAccountService {
         const account = inventoryRepository.getAccount(this.id);
 
         let sum = 0;
-        account.goods.forEach((amount: number, good_id: GoodID) => {
-            const good_value = AvailableGoods[good_id].value;
+        account.stacks.forEach((amount: number, item_id: ItemID) => {
+            const good_value = ItemRegistry[item_id].value;
             sum += good_value * amount;
         });
 
-        account.equipments.forEach((equipment: IEquippableItem) => {
-            sum += equipment.value;
+        account.instances.forEach((equipment: EquippableItem) => {
+            sum += equipment.static.value;
         });
 
         return sum;
@@ -120,13 +122,13 @@ export class InventoryAccountService {
         const account = inventoryRepository.getAccount(this.id);
 
         let sum = 0;
-        account.goods.forEach((amount: number, good_id: GoodID) => {
-            const good_weight = AvailableGoods[good_id].weight;
+        account.stacks.forEach((amount: number, item_id: ItemID) => {
+            const good_weight = ItemRegistry[item_id].weight;
             sum += good_weight * amount;
         });
 
-        account.equipments.forEach((equipment: IEquippableItem) => {
-            sum += equipment.weight;
+        account.instances.forEach((equipment: EquippableItem) => {
+            sum += equipment.static.weight;
         });
 
         return sum;
@@ -140,7 +142,7 @@ export class InventoryAccountService {
      * InsufficientGoodsError is thrown. On success the goods ledger is
      * decremented by the requested amounts.
      *
-     * @param goods - GoodLedger mapping GoodID -> amount to take
+     * @param goods - GoodLedger mapping ItemID -> amount to take
      * @throws InsufficientGoodsError when an account does not have enough goods
      */
     public takeGoods(goods: GoodLedger): void {
