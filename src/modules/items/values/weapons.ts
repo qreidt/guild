@@ -46,7 +46,7 @@ export abstract class Weapon extends EquippableItem {
 
 
     /** Shortcut to access static props from the subclass */
-    protected get static(): IWeapon {
+    get static(): IWeapon {
         return this.constructor as unknown as IWeapon;
     }
 

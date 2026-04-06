@@ -1,6 +1,4 @@
 import type {ItemID} from "../items/id.ts";
-import {AvailableGoods} from "../../game/common/AvailableGoods.ts";
-import type {IEquippableItem} from "../../game/adventurer/gear/EquippableItem.ts";
 import type {GoodLedger, InventoryAccount, InventoryID} from "./common.ts";
 import inventoryRepository from "./inventory.repository.ts";
 import type {EquippableItem} from "../items/item.ts";

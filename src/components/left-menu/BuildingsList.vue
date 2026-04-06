@@ -4,7 +4,7 @@ import type {PropType} from "vue";
 
 const {buildings} = defineProps({
   buildings: Object as PropType<Map<BuildingID, BaseBuilding>>,
-  activeBuildingId: Number as PropType<BuildingID|null>,
+  activeBuildingId: String as PropType<BuildingID|null>,
 });
 
 const emit = defineEmits<{
@@ -17,7 +17,7 @@ const emit = defineEmits<{
 <div class="">
   <div class="pt-3 border-y border-gray-700 divide-y divide-gray-500">
     <h3 class="pl-2 pb-3 text-lg">Buildings</h3>
-    <div class="flex flex-col divide-y divide-neutral-600">
+    <div v-if="buildings" class="flex flex-col divide-y divide-neutral-600">
       <div
           v-for="[id, building] in buildings.entries()" :key="id"
           class="p-2 pl-4 cursor-pointer hover:bg-gray-700"
