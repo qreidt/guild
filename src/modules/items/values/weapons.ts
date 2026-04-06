@@ -1,4 +1,4 @@
-import {EquippableItem} from "../item.ts";
+import {EquippableItem, type IItem} from "../item.ts";
 import {ItemID} from "../id.ts";
 
 export enum WeaponType {
@@ -19,6 +19,15 @@ export enum WeaponID {
     //IronArrow,
 }
 
+interface IWeapon extends IItem {
+    type: WeaponType;
+    weapon_id: WeaponID;
+    base_damage_value: number;
+    range: number;
+    dual_handed: boolean;
+    can_dual_wield: boolean;
+}
+
 export abstract class Weapon extends EquippableItem {
 
     public static type: WeaponType;
@@ -37,8 +46,8 @@ export abstract class Weapon extends EquippableItem {
 
 
     /** Shortcut to access static props from the subclass */
-    protected get static(): typeof Weapon {
-        return this.constructor as typeof Weapon;
+    protected get static(): IWeapon {
+        return this.constructor as unknown as IWeapon;
     }
 
     /**
@@ -50,78 +59,79 @@ export abstract class Weapon extends EquippableItem {
 }
 
 export class WoodBow extends Weapon {
-    id = ItemID.WoodBow;
-    name = 'Wood Bow';
-    type = WeaponType.Bow;
-    value = 10;
-    range = 25;
-    base_damage_value = 10;
-    weight = 5;
-    dual_handed = true;
-    can_dual_wield = false;
+    static id = ItemID.WoodBow;
+    static name = 'Wood Bow';
+    static type = WeaponType.Bow;
+    static weapon_id = WeaponID.WoodBow;
+    static value = 10;
+    static range = 25;
+    static base_damage_value = 10;
+    static weight = 5;
+    static dual_handed = true;
+    static can_dual_wield = false;
 }
 
 export class ReinforcedWoodBow extends Weapon {
-    id = ItemID.ReinforcedWoodBow;
-    name = 'Reinforced Wood Bow';
-    type = WeaponType.Bow;
-    value = 10;
-    range = 30;
-    base_damage_value = 10;
-    weight = 5;
-    dual_handed = true;
-    can_dual_wield = false;
+    static id = ItemID.ReinforcedWoodBow;
+    static name = 'Reinforced Wood Bow';
+    static type = WeaponType.Bow;
+    static value = 10;
+    static range = 30;
+    static base_damage_value = 10;
+    static weight = 5;
+    static dual_handed = true;
+    static can_dual_wield = false;
 }
 
 export class WoodStaff extends Weapon {
-    id = ItemID.WoodStaff;
-    name = 'Wood Staff';
-    type = WeaponType.Staff;
-    value = 30;
-    range = 10;
-    base_damage_value = 10;
-    weight = 5;
-    dual_handed = false;
-    can_dual_wield = false;
+    static id = ItemID.WoodStaff;
+    static name = 'Wood Staff';
+    static type = WeaponType.Staff;
+    static value = 30;
+    static range = 10;
+    static base_damage_value = 10;
+    static weight = 5;
+    static dual_handed = false;
+    static can_dual_wield = false;
 }
 
 export class IronSword extends Weapon {
-    id = ItemID.IronSword;
-    name = 'Iron Sword';
-    type = WeaponType.Sword;
-    value = 10;
-    range = 2;
-    base_damage_value = 10;
-    weight = 5;
-    dual_handed = false;
-    can_dual_wield = true;
+    static id = ItemID.IronSword;
+    static name = 'Iron Sword';
+    static type = WeaponType.Sword;
+    static value = 10;
+    static range = 2;
+    static base_damage_value = 10;
+    static weight = 5;
+    static dual_handed = false;
+    static can_dual_wield = true;
 }
 
 export class IronDagger extends Weapon {
-    id = ItemID.IronDagger;
-    name = 'Iron Dagger';
-    type = WeaponType.Dagger;
-    value = 10;
-    range = 2;
-    base_damage_value = 10;
-    weight = 5;
-    dual_handed = false;
-    can_dual_wield = true;
+    static id = ItemID.IronDagger;
+    static name = 'Iron Dagger';
+    static type = WeaponType.Dagger;
+    static value = 10;
+    static range = 2;
+    static base_damage_value = 10;
+    static weight = 5;
+    static dual_handed = false;
+    static can_dual_wield = true;
 }
 
 export class IronSpear extends Weapon {
-    id = ItemID.IronSpear;
-    name = 'Iron Spear';
-    type = WeaponType.Spear;
-    value = 10;
-    range = 4;
-    base_damage_value = 10;
-    weight = 5;
-    dual_handed = true;
-    can_dual_wield = false;
+    static id = ItemID.IronSpear;
+    static name = 'Iron Spear';
+    static type = WeaponType.Spear;
+    static value = 10;
+    static range = 4;
+    static base_damage_value = 10;
+    static weight = 5;
+    static dual_handed = true;
+    static can_dual_wield = false;
 }
 
-export const WeaponRegistry: Record<WeaponID, new () => Weapon> = {
+export const WeaponRegistry: Record<WeaponID, IWeapon> = {
     [WeaponID.WoodBow]: WoodBow,
     [WeaponID.ReinforcedWoodBow]: ReinforcedWoodBow,
     [WeaponID.WoodStaff]: WoodStaff,

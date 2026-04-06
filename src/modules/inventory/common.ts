@@ -1,13 +1,13 @@
-import type {IEquippableItem} from "../../game/adventurer/gear/EquippableItem.ts";
-import type {GoodID} from "../../game/common/Good.ts";
+import type {ItemID} from "../items/id.ts";
+import type {EquippableItem} from "../items/item.ts";
 
 export type InventoryID = string;
 
-export type GoodLedger = Map<GoodID, number>;
+export type GoodLedger = Map<ItemID, number>;
 
 export type InventoryAccount = {
-    goods: GoodLedger,
-    equipments: IEquippableItem[]
+    stacks: GoodLedger,
+    instances: EquippableItem[];
 }
 
 export type TransactionID = string;

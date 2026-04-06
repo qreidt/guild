@@ -1,7 +1,7 @@
-import {GoodID, GoodType} from "../../game/common/Good.ts";
-import { AvailableGoods } from "../../game/common/AvailableGoods";
 import type {GoodLedger, InventoryAccount, InventoryID, Transaction, TransactionID} from "./common.ts";
-import type {IEquippableItem} from "../../game/adventurer/gear/EquippableItem.ts";
+import {ItemRegistry} from "../items/registry.ts";
+import type {ItemID} from "../items/id.ts";
+import type {EquippableItem} from "../items/item.ts";
 
 let global_transaction_id = 0;
 
@@ -28,34 +28,34 @@ export class InventoryRepository {
      *
      * For simple goods (GoodType.Good) this returns the amount stored in the
      * account's `goods` ledger. For equippable items the method counts how
-     * many equipments in the account match the requested `good_id`.
+     * many equipments in the account match the requested `item_id`.
      *
      * If the building account does not exist yet it will be created and
      * this method returns 0.
      *
      * @param id - id of the building/account to query
-     * @param good_id - id of the good to count
+     * @param item_id - id of the good to count
      * @returns number of items of the given good in the building account
      */
-    public getCount(id: InventoryID, good_id: GoodID): number {
-        const good = AvailableGoods[good_id];
+    public getCount(id: InventoryID, item_id: ItemID): number {
+        const item = ItemRegistry[item_id];
         const account = this.accounts.get(id);
 
         if (! account) {
             this.accounts.set(id, {
-                goods: new Map(),
-                equipments: [],
+                stacks: new Map(),
+                instances: [],
             });
 
             return 0;
         }
 
-        if (! good.base_class) {
-            return account.goods.get(good_id) ?? 0;
+        if (item.stackable) {
+            return account.stacks.get(item_id) ?? 0;
         }
 
-        return account.equipments.reduce((sum, equipment) => {
-            return equipment.good_id === good_id ? sum + 1 : sum;
+        return account.instances.reduce((sum, equipment) => {
+            return equipment.static.id === item_id ? sum + 1 : sum;
         }, 0);
     }
 
@@ -64,18 +64,18 @@ export class InventoryRepository {
      *
      * This returns a new Map (GoodLedger) aggregating counts from the
      * account's `goods` ledger and the `equipments` array. Equipments are
-     * counted by their `good_id` and added to the ledger counts.
+     * counted by their `item_id` and added to the ledger counts.
      *
      * @param id - id of the building/account to build the ledger for
      * @returns GoodLedger mapping GoodID -> total count available
      */
     public getCountByGoodId(id: InventoryID): GoodLedger {
         const account = this.getAccount(id);
-        const ledger = structuredClone(account.goods);
+        const ledger = structuredClone(account.stacks);
 
-        account.equipments.forEach(equipment => {
-            const count = ledger.get(equipment.good_id!) ?? 0;
-            ledger.set(equipment.good_id!, count+1);
+        account.instances.forEach(equipment => {
+            const count = ledger.get(equipment.static.id) ?? 0;
+            ledger.set(equipment.static.id, count+1);
         });
 
         return ledger;
@@ -92,14 +92,14 @@ export class InventoryRepository {
      * @param items - partial account describing goods and/or equipments to add
      */
     public put(id: InventoryID, items: Partial<InventoryAccount>): void {
-        if (items.goods) {
-            items.goods.forEach((amount: number, good_id: GoodID) => {
-                this.putGood(id, good_id, amount);
+        if (items.stacks) {
+            items.stacks.forEach((amount: number, item_id: ItemID) => {
+                this.putGood(id, item_id, amount);
             });
         }
 
-        if (items.equipments) {
-            items.equipments.forEach(equipment => {
+        if (items.instances) {
+            items.instances.forEach(equipment => {
                 this.putEquipment(id, equipment);
             });
         }
@@ -108,18 +108,18 @@ export class InventoryRepository {
     /**
      * Add a quantity of a non-equippable good to the building account.
      *
-     * Throws WrongGoodTypeError if the provided good_id is not of type
+     * Throws WrongGoodTypeError if the provided item_id is not of type
      * GoodType.Good (i.e., it's an equipment type).
      *
      * @param id - id of the building/account
-     * @param good_id - id of the good to add
+     * @param item_id - id of the good to add
      * @param amount - quantity to add (can be negative to subtract)
      */
-    public putGood(id: InventoryID, good_id: GoodID, amount: number): void {
+    public putGood(id: InventoryID, item_id: ItemID, amount: number): void {
         const account = this.getAccount(id);
 
-        const count = account.goods.get(good_id) ?? 0;
-        account.goods.set(good_id, count + amount);
+        const count = account.stacks.get(item_id) ?? 0;
+        account.stacks.set(item_id, count + amount);
     }
 
     /**
@@ -128,9 +128,9 @@ export class InventoryRepository {
      * @param id - id of the building/account
      * @param equipment - equippable item instance to store
      */
-    public putEquipment(id: InventoryID, equipment: IEquippableItem): void {
+    public putEquipment(id: InventoryID, equipment: EquippableItem): void {
         const account = this.getAccount(id);
-        account.equipments.push(equipment);
+        account.instances.push(equipment);
     }
 
     /**
@@ -144,8 +144,8 @@ export class InventoryRepository {
         if (account) return account;
 
         this.accounts.set(id, {
-            goods: new Map(),
-            equipments: [],
+            stacks: new Map(),
+            instances: [],
         });
 
         return this.accounts.get(id)!;
@@ -155,9 +155,7 @@ export class InventoryRepository {
      * Validate that the building account contains at least the amounts
      * specified by `ledger` for each good id.
      *
-     * Returns true when all requested amounts can be satisfied. Note:
-     * - If a requested good id is not a simple good (GoodType.Good), the
-     *   function treats that as a validation failure.
+     * Returns true when all requested amounts can be satisfied.
      *
      * @param id - id of the building/account to validate against
      * @param ledger - GoodLedger mapping GoodID -> required amount
@@ -165,12 +163,9 @@ export class InventoryRepository {
      */
     public validateLedger(id: InventoryID, ledger: GoodLedger): boolean {
         const account_ledger = this.getCountByGoodId(id);
-        ledger.forEach((required_amount: number, good_id: GoodID) => {
-            if (AvailableGoods[good_id].base_class) {
-                return false;
-            }
+        ledger.forEach((required_amount: number, item_id: ItemID) => {
 
-            const account_amount = account_ledger.get(good_id) ?? 0;
+            const account_amount = account_ledger.get(item_id) ?? 0;
             if (required_amount > account_amount) {
                 return false;
             }
@@ -197,9 +192,9 @@ export class InventoryRepository {
         }
 
         const account = this.getAccount(id);
-        goods.forEach((take_amount: number, good_id: GoodID) => {
-            const current_amount = account.goods.get(good_id) ?? 0;
-            account.goods.set(good_id, current_amount - take_amount);
+        goods.forEach((take_amount: number, item_id: ItemID) => {
+            const current_amount = account.stacks.get(item_id) ?? 0;
+            account.stacks.set(item_id, current_amount - take_amount);
         });
     }
 
@@ -223,7 +218,7 @@ export class InventoryRepository {
         this.transactions.set(id, transaction);
 
         if (transaction.origin) {
-            this.takeGoods(transaction.origin, transaction.contents.goods);
+            this.takeGoods(transaction.origin, transaction.contents.stacks);
         }
 
         // ToDo take equipments from origin.
@@ -251,12 +246,6 @@ export class InventoryRepository {
 }
 
 type BaseTransaction = Omit<Transaction, 'id'>;
-
-class WrongGoodTypeError extends Error {
-    constructor(expected: GoodType, actual: GoodType) {
-        super(`Expected ${expected} to be ${actual}`);
-    }
-}
 
 class InsufficientGoodsError extends Error{
     constructor(expected: GoodLedger, actual: GoodLedger) {

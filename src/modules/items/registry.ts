@@ -1,12 +1,12 @@
-import type {Item} from "./item.ts";
 import {ItemID} from "./id.ts";
+import type {IItem, Item} from "./item.ts";
 import Goods from "./values/goods.ts";
 import Weapons from "./values/weapons.ts";
 import Armors from "./values/armor.ts";
 
 
 // Registry maps enum → constructor
-export const ItemRegistry: Record<ItemID, new () => Item> = {
+export const ItemRegistry: Record<ItemID, IItem> = {
     // Goods
     [ItemID.Lumber]: Goods.Lumber,
     [ItemID.WoodPlank]: Goods.WoodPlank,

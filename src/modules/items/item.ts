@@ -1,15 +1,26 @@
 import {ItemID} from "./id.ts";
+import type {IArmor} from "./values/armor.ts";
+
+export interface IItem {
+    readonly id: ItemID;
+    readonly name: string;
+    readonly weight: number;
+    readonly value: number;
+    readonly stackable: boolean;
+    new (...args: any[]): Item;
+}
 
 export abstract class Item {
-    abstract readonly id: ItemID;
-    abstract readonly name: string;
-    abstract readonly weight: number;
-    abstract readonly value: number;
-    readonly stackable: boolean = true;
+    static readonly stackable: boolean = true;
 }
 
 export abstract class ItemInstance extends Item {
-    readonly stackable: boolean = false;
+    static readonly stackable: boolean = false;
+
+    /** Shortcut to access static props from the subclass */
+    get static(): IItem {
+        return this.constructor as unknown as IItem;
+    }
 }
 
 export abstract class EquippableItem extends ItemInstance {
