@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/city-market/requirements.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2026-04-07T00:46:09.473Z",
+      "trigger": "initial",
+      "approvalId": "approval_1775522769460_4j772bqlc",
+      "approvalTitle": "city-market requirements"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2026-04-07T00:48:20.108Z",
+      "trigger": "approved",
+      "approvalId": "approval_1775522769460_4j772bqlc",
+      "approvalTitle": "city-market requirements"
+    }
+  ]
+}
