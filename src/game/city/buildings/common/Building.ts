@@ -10,6 +10,7 @@ export enum BuildingID {
     BlackSmith = 'BlackSmith',
     IronMine = 'IronMine',
     LumberMill = 'LumberMill',
+    Market = 'market',
 }
 
 export interface IBuilding {
@@ -30,6 +31,10 @@ export abstract class BaseBuilding {
     /** Shortcut to access static props from the subclass */
     get static(): IBuilding {
         return this.constructor as unknown as IBuilding;
+    }
+
+    get id(): BuildingID {
+        return this.static.building_id;
     }
 
     protected setup(): void {

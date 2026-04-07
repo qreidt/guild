@@ -4,6 +4,8 @@ import {InventoryAccountService} from "../../../../modules/inventory/inventory.s
 import type {GoodLedger, InventoryID} from "../../../../modules/inventory/common.ts";
 import transactionService from "../../../../modules/inventory/transaction.service.ts";
 import {ItemRegistry} from "../../../../modules/items/registry.ts";
+import marketService from "../../../../modules/market/market.service.ts";
+import {MarketInsufficientFundsError, type Wallet} from "../../../../modules/market/common.ts";
 
 let global_id = 0;
 
@@ -143,10 +145,29 @@ export abstract class TransportAction extends Action {
         return value;
     }
 
+    /** Override: goods stay with seller until finished(); MarketService handles the transaction. */
+    public start(): void {
+        this.status = ActionStatus.ACTIVE;
+        this.ticks_remaining = this.total_ticks;
+        this.started();
+    }
+
     protected finished() {
-        super.finished();
-        this.getBuilding().money += this.value;
-        console.debug(`TransportAction finished transporting ${this.value} g.`);
+        const building = this.getBuilding();
+        const wallet: Wallet = {
+            get: () => building.money,
+            add: (n: number) => { building.money += n; },
+        };
+        try {
+            marketService.sell(building.id, wallet, this.input!);
+            console.debug(`TransportAction finished transporting ${this.value} g.`);
+        } catch (e) {
+            if (e instanceof MarketInsufficientFundsError) {
+                console.warn(`[TransportAction] Market insufficient funds: ${e.message}`);
+            } else {
+                throw e;
+            }
+        }
     }
 }
 

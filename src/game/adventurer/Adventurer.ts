@@ -2,6 +2,9 @@ import {ArmorType, Armor} from "../../modules/items/values/armor.ts";
 import {Weapon} from "../../modules/items/values/weapons.ts";
 import type {EquippableItem} from "../../modules/items/item.ts";
 import {InventoryAccountService} from "../../modules/inventory/inventory.service.ts";
+import type {ItemID} from "../../modules/items/id.ts";
+import marketService from "../../modules/market/market.service.ts";
+import type {Wallet} from "../../modules/market/common.ts";
 
 let global_id = 1;
 
@@ -161,5 +164,21 @@ export class Adventurer {
         this.equipment.delete(slot);
 
         return item;
+    }
+
+    public buyFromMarket(items: Map<ItemID, number>): void {
+        const wallet: Wallet = {
+            get: () => this.money,
+            add: (n: number) => { this.money += n; },
+        };
+        marketService.buy(`adventurer:${this.id}`, wallet, items);
+    }
+
+    public sellToMarket(items: Map<ItemID, number>): void {
+        const wallet: Wallet = {
+            get: () => this.money,
+            add: (n: number) => { this.money += n; },
+        };
+        marketService.sell(`adventurer:${this.id}`, wallet, items);
     }
 }

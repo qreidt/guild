@@ -4,6 +4,8 @@ import {Action, WaitAction} from "./common/Action.ts";
 import {InventoryAccountService} from "../../../modules/inventory/inventory.service.ts";
 import {ItemID} from "../../../modules/items/id.ts";
 import inventoryRepository from "../../../modules/inventory/inventory.repository.ts";
+import {BuyFromMarketAction} from "./actions/BuyFromMarketAction.ts";
+import marketService from "../../../modules/market/market.service.ts";
 
 console.log(`[BlackSmith] Loaded`);
 
@@ -33,6 +35,14 @@ export class BlackSmith extends BaseBuilding {
     }
 
     protected chooseNextAction(): Action {
+        const ironOreCount = this.inventory.getCount(ItemID.IronOre);
+        const ORE_BUY_THRESHOLD = 80;
+        const ORE_BUY_BATCH = 80;
+        const orePrice = marketService.getPrice(ItemID.IronOre);
+        if (ironOreCount < ORE_BUY_THRESHOLD && this.money >= orePrice * ORE_BUY_BATCH) {
+            return new BuyFromMarketAction(this, new Map([[ItemID.IronOre, ORE_BUY_BATCH]]), 14);
+        }
+
         const list = this.inventory.getCountByGoodId();
 
         const make_ingot_action = new MakeIngotAction();

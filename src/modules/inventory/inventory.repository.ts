@@ -163,13 +163,12 @@ export class InventoryRepository {
      */
     public validateLedger(id: InventoryID, ledger: GoodLedger): boolean {
         const account_ledger = this.getCountByGoodId(id);
-        ledger.forEach((required_amount: number, item_id: ItemID) => {
-
+        for (const [item_id, required_amount] of ledger) {
             const account_amount = account_ledger.get(item_id) ?? 0;
             if (required_amount > account_amount) {
                 return false;
             }
-        });
+        }
 
         return true;
     }

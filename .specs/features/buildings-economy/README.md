@@ -39,7 +39,9 @@ An action:
 
 ### TransportAction
 
-A transport action computes sale value from the value of its input goods and adds that value to the owning building's local money counter when finished.
+A transport action computes sale value from the value of its input goods and, when finished, settles the trade through `MarketService.sell` — transferring goods into the city Market's inventory and crediting the building's local money counter. See `.specs/features/city-market/README.md` for the full Market spec.
+
+> **Prior behaviour (superseded):** Before the City Market feature, `TransportAction.finished()` credited `building.money` directly with no real buyer counterparty.
 
 ## Building catalog
 

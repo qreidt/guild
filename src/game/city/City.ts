@@ -2,7 +2,9 @@ import {BaseBuilding, BuildingID} from "./buildings/common/Building.ts";
 import {IronMine} from "./buildings/IronMine.ts";
 import {BlackSmith} from "./buildings/BlackSmith.ts";
 import {LumberMill} from "./buildings/LumberMill.ts";
+import {Market} from "./buildings/Market.ts";
 import {InventoryAccountService} from "../../modules/inventory/inventory.service.ts";
+import marketService from "../../modules/market/market.service.ts";
 
 console.log(`[City] Loaded`);
 
@@ -14,15 +16,22 @@ export class City {
 
     public inventory: InventoryAccountService = new InventoryAccountService('City');
 
+    public market: Market;
+
     constructor(citizens: number, money: number) {
         this.citizens_count = citizens;
         this.money = money;
+
+        this.market = new Market();
 
         this.buildings = new Map<BuildingID, BaseBuilding>([
             [BuildingID.LumberMill, new LumberMill()],
             [BuildingID.IronMine, new IronMine()],
             [BuildingID.BlackSmith, new BlackSmith()],
+            [BuildingID.Market, this.market],
         ]);
+
+        marketService.init(this.market);
 
         console.log(`[EquippableItem] OK`);
     }
