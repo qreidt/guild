@@ -1,8 +1,10 @@
 import {BaseBuilding, BuildingID} from "./buildings/common/Building.ts";
 import {IronMine} from "./buildings/IronMine.ts";
 import {BlackSmith} from "./buildings/BlackSmith.ts";
-import {Inventory} from "../common/Inventory.ts";
 import {LumberMill} from "./buildings/LumberMill.ts";
+import {InventoryAccountService} from "../../modules/inventory/inventory.service.ts";
+
+console.log(`[City] Loaded`);
 
 export class City {
     public citizens_count: number;
@@ -10,7 +12,7 @@ export class City {
 
     public buildings: Map<BuildingID, BaseBuilding>;
 
-    public inventory: Inventory = new Inventory();
+    public inventory: InventoryAccountService = new InventoryAccountService('City');
 
     constructor(citizens: number, money: number) {
         this.citizens_count = citizens;
@@ -21,6 +23,8 @@ export class City {
             [BuildingID.IronMine, new IronMine()],
             [BuildingID.BlackSmith, new BlackSmith()],
         ]);
+
+        console.log(`[EquippableItem] OK`);
     }
 
     handleTick(): void {

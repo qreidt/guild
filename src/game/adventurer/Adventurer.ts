@@ -1,7 +1,9 @@
-import {Inventory} from "../common/Inventory.ts";
-import {ArmorType, Armor} from "./gear/Armor.ts";
-import {Weapon} from "./gear/Weapon.ts";
-import type {EquippableItem} from "./gear/EquippableItem.ts";
+import {ArmorType, Armor} from "../../modules/items/values/armor.ts";
+import {Weapon} from "../../modules/items/values/weapons.ts";
+import type {EquippableItem} from "../../modules/items/item.ts";
+import {InventoryAccountService} from "../../modules/inventory/inventory.service.ts";
+
+let global_id = 1;
 
 export enum AdventurerRank {
     Iron,
@@ -35,6 +37,7 @@ export enum AdventurerEquipmentSlot {
 type AdventurerEquipment = Map<AdventurerEquipmentSlot, EquippableItem>;
 
 export class Adventurer {
+    public id: number = global_id++;
     public rank: AdventurerRank = AdventurerRank.Iron;
     public class: AdventurerClass = AdventurerClass.Scout;
 
@@ -79,9 +82,13 @@ export class Adventurer {
     public proficiency_survival: number = 0;
     public proficiency_tracking: number = 0;
 
-    public inventory: Inventory = new Inventory();
+    public inventory: InventoryAccountService;
 
     public equipment: AdventurerEquipment = new Map();
+
+    constructor() {
+        this.inventory = new InventoryAccountService(`adventurer:${this.id}`);
+    }
 
     /**
      * Adds an item to the desired slot.
@@ -119,7 +126,7 @@ export class Adventurer {
                     [AdventurerEquipmentSlot.Pants]: ArmorType.Pants,
                     [AdventurerEquipmentSlot.Gloves]: ArmorType.Glove,
                     [AdventurerEquipmentSlot.Boots]: ArmorType.Shoes,
-                }[slot]) === item.type;
+                }[slot]) === item.static.type;
 
             case AdventurerEquipmentSlot.FirstArm:
                 if (! (item instanceof Weapon)) {
@@ -127,7 +134,7 @@ export class Adventurer {
                 }
 
                 // Check if item in the secondary hand if equipping a dual handed weapon
-                if (item.dual_handed && ! this.equipment.has(AdventurerEquipmentSlot.SecondArm)) {
+                if (item.static.dual_handed && ! this.equipment.has(AdventurerEquipmentSlot.SecondArm)) {
                     return true;
                 }
 
@@ -140,12 +147,12 @@ export class Adventurer {
                 }
 
                 // Only allow shield as armor
-                if (item instanceof Armor && item.type !== ArmorType.Shield) {
+                if (item instanceof Armor && item.static.type !== ArmorType.Shield) {
                     return false;
                 }
 
                 // Allow only goods that can be dual weld.
-                return item instanceof Weapon && item.can_dual_wield;
+                return item instanceof Weapon && item.static.can_dual_wield;
         }
     }
 

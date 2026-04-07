@@ -38,7 +38,7 @@
 
 <script lang="ts" setup>
 import {reactive, ref} from 'vue';
-import City from "./game/city/City.ts";
+import { City } from "./game/city/City.ts";
 import {Adventurer} from "./game/adventurer/Adventurer.ts";
 
 const showLeft = ref(true);

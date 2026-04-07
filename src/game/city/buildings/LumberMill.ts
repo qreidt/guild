@@ -1,22 +1,29 @@
 import GameControllerSingleton from "../../controllers/GameController.ts";
 import {BaseBuilding, BuildingID} from "./common/Building.ts";
-import {Inventory} from "../../common/Inventory.ts";
 import {Action, TransportAction} from "./common/Action.ts";
 import type {City} from "../City.ts";
 import {Worker} from "./common/Worker.ts";
-import {GoodID} from "../../common/Good.ts";
+import {ItemID} from "../../../modules/items/id.ts";
+
+console.log(`[LumberMill] Loaded`);
 
 export class LumberMill extends BaseBuilding {
-    name = "LumberMill";
-    level = 1;
-    money = 100;
+    static name = "LumberMill";
+    static building_id = BuildingID.LumberMill;
+
+    public level = 1;
+    public money = 100;
 
     constructor() {
         super();
+
+        this.setup();
         this.workers = [
             new Worker(),
             //new Worker(),
         ];
+
+        console.log(`[LumberMill] OK`);
     }
 
     handleTick(city: City) {
@@ -24,11 +31,11 @@ export class LumberMill extends BaseBuilding {
     }
 
     protected chooseNextAction(): Action {
-        if (this.inventory.getItem(GoodID.WoodPlank) >= 80) {
+        if (this.inventory.getCount(ItemID.WoodPlank) >= 80) {
             return new SellWoodAction(80);
         }
 
-        if (this.inventory.getItem(GoodID.Lumber) > 0) {
+        if (this.inventory.getCount(ItemID.Lumber) > 0) {
             return new MakeWoodAction();
         }
 
@@ -37,8 +44,14 @@ export class LumberMill extends BaseBuilding {
 }
 
 class TakeDownTreeAction extends Action {
+    static name = 'TakeDownTree';
+    static building_id = BuildingID.LumberMill;
     total_ticks = 6; // 3 hours
-    building_id = BuildingID.LumberMill;
+
+    static input_origin = BuildingID.LumberMill;
+    input = new Map([
+        [ItemID.WoodPlank, 1],
+    ]);
 
     protected started() {
         console.debug('LumberMill started chopping a new tree');
@@ -49,21 +62,28 @@ class TakeDownTreeAction extends Action {
     }
 
     protected finished() {
-        this.getBuilding().inventory.putItem(GoodID.Lumber, 1);
         console.debug('LumberMill finished making lumber.');
     }
 }
 
 class MakeWoodAction extends Action {
+    static name = 'MakeWood';
+    static building_id = BuildingID.LumberMill;
+
     total_ticks = 14; // 7 hours
-    building_id = BuildingID.LumberMill;
+
+    static input_origin = BuildingID.LumberMill;
+    static input = new Map([
+        [ItemID.Lumber, 1]
+    ]);
+
+    static output_destination = BuildingID.LumberMill;
+    static output = new Map([
+        [ItemID.WoodPlank, 20],
+    ]);
 
     constructor() {
         super();
-
-        this.action_input = new Inventory(new Map([
-            [GoodID.Lumber, 1]
-        ]));
     };
 
     protected started() {
@@ -75,21 +95,24 @@ class MakeWoodAction extends Action {
     }
 
     protected finished() {
-        this.getBuilding().inventory.putItem(GoodID.WoodPlank, 20);
         console.debug('LumberMill finished making wood.');
     }
 }
 
 class SellWoodAction extends TransportAction {
-    total_ticks = 44; // 22 hours
-    building_id = BuildingID.LumberMill;
+    static name = 'SellWood';
+    static building_id = BuildingID.LumberMill;
+
+    total_ticks = 14; // 7 hours
+
+    static input_origin = BuildingID.LumberMill;
 
     constructor(amount: number) {
         super();
 
-        this.action_input = new Inventory(new Map([
-            [GoodID.WoodPlank, amount],
-        ]));
+        this.input = new Map([
+            [ItemID.WoodPlank, amount],
+        ]);
     }
 
     protected started() {
@@ -101,7 +124,7 @@ class SellWoodAction extends TransportAction {
     }
 
     protected finished() {
-        this.getBuilding().money += this.value;
+        super.finished();
         console.debug(`LumberMill sold the wood for ${this.value} g.`);
     }
 }

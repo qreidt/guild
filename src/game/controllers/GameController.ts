@@ -1,6 +1,8 @@
 import {City} from "../city/City.ts";
 import {BaseBuilding, type BuildingID} from "../city/buildings/common/Building.ts";
 
+console.log(`[GameController] Loaded`);
+
 export class GameController {
     public running: boolean = false;
     public tick = 5;
@@ -9,6 +11,7 @@ export class GameController {
 
     constructor(public auto_tick_interval: number) {
         this.city = new City(100, 500);
+        console.log(`[GameController] OK`);
     }
 
     private timeout_id: null | number = null;

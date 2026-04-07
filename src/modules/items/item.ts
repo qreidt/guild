@@ -1,30 +1,37 @@
-import {GoodID, type IGood} from "../../common/Good.ts";
+import {ItemID} from "./id.ts";
+import type {IArmor} from "./values/armor.ts";
 
-export interface IEquippableItem extends IGood {
-    // buff_strength: number;
-    // buff_intelligence: number;
-    // buff_agility: number;
-    // buff_mana: number;
-    // buff_vitality: number;
-    // buff_wisdom: number;
-    // buff_perception: number;
-    // buff_dexterity: number;
-    // buff_stealth: number;
-    current_wear: number;
+export interface IItem {
+    readonly id: ItemID;
+    readonly name: string;
+    readonly weight: number;
+    readonly value: number;
+    readonly stackable: boolean;
+    new (...args: any[]): Item;
 }
 
-export abstract class EquippableItem implements IEquippableItem {
-    public static readonly good_id: GoodID;
-    public value: number = 0;
-    public weight: number = 0;
+export abstract class Item {
+    static readonly stackable: boolean = true;
+}
 
+export abstract class ItemInstance extends Item {
+    static readonly stackable: boolean = false;
+
+    /** Shortcut to access static props from the subclass */
+    get static(): IItem {
+        return this.constructor as unknown as IItem;
+    }
+}
+
+export abstract class EquippableItem extends ItemInstance {
     public current_wear: number = 0;
     public max_durability: number = 100;
 
     private readonly _linear_degradation_value: number = 0.5;
     private readonly _linear_degradation_threshold: number = 0.3;
 
-    constructor(wear: number = 0) {
+    protected constructor(wear: number = 0) {
+        super();
         this.current_wear = wear;
     }
 
@@ -57,19 +64,5 @@ export abstract class EquippableItem implements IEquippableItem {
         }
 
         return this.current_wear / this.max_durability;
-    }
-
-    public static getGood(this: {new (): IGood}): IGood {
-        const instance = new this();
-        return {
-            value: instance.value,
-            weight: instance.weight,
-        };
-    }
-}
-
-class WrongEquippableItemTypeError extends Error {
-    constructor(expected: string, got: string) {
-        super(`[WrongEquippableItemType] Expected: ${expected} and got: ${got}.`);
     }
 }
