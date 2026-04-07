@@ -8,7 +8,12 @@
       "mcp__claude_ai_Linear__save_project",
       "mcp__claude_ai_Linear__create_document",
       "Bash(npx vue-tsc:*)",
-      "Bash(claude mcp:*)"
+      "Bash(claude mcp:*)",
+      "mcp__spec-workflow__spec-workflow-guide",
+      "mcp__6f9bf89d-44b5-4a13-8af6-8bd6c1a86a6f__list_teams",
+      "mcp__6f9bf89d-44b5-4a13-8af6-8bd6c1a86a6f__list_projects",
+      "mcp__6f9bf89d-44b5-4a13-8af6-8bd6c1a86a6f__save_issue",
+      "mcp__spec-workflow__approvals"
     ]
   }
 }

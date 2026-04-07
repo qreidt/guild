@@ -1,0 +1,76 @@
+# Tasks — City Market
+
+- [ ] 1. Fix `InventoryRepository.validateLedger` forEach bug
+  - File: `src/modules/inventory/inventory.repository.ts`
+  - Replace the `forEach` loop (line ~164) with `for...of` or `Array.prototype.every` so a missing-goods check actually returns `false` and short-circuits.
+  - _Leverage: `src/modules/inventory/inventory.repository.ts:164`_
+  - _Requirements: R6_
+  - _Prompt: Implement the task for spec city-market, first run spec-workflow-guide to get the workflow guide then implement the task: Role: TypeScript developer | Task: In `src/modules/inventory/inventory.repository.ts` find `validateLedger` (around line 164). It currently uses `forEach` with an inner `return false` that never short-circuits the outer function. Replace the `forEach` with `for...of` (or convert to `Array.prototype.every`) so that the method returns `false` as soon as any required item is missing or insufficient. Do not change any other logic. | Restrictions: Do not change the method signature or any other methods. | _Leverage: existing `validateLedger` implementation_ | _Requirements: R6_ | Success: Calling `validateLedger` with a ledger containing an item the account doesn't have returns `false`. Mark task in-progress in tasks.md first, log implementation with log-implementation tool after, then mark complete._
+
+- [ ] 2. Add `MarketInsufficientFundsError`, `MarketInsufficientStockError`, `TradeRecord`, `Wallet` to `src/modules/market/common.ts`
+  - File: `src/modules/market/common.ts` (new file)
+  - Create the shared types as specified in design.md § Data Models and § Components.
+  - _Leverage: `src/modules/items/id.ts` (ItemID), `src/modules/inventory/common.ts` (InventoryID)_
+  - _Requirements: R2, R3, R4_
+  - _Prompt: Implement the task for spec city-market, first run spec-workflow-guide to get the workflow guide then implement the task: Role: TypeScript developer | Task: Create `src/modules/market/common.ts`. Export: `Wallet` interface (`get(): number; add(n: number): void`), `TradeRecord` type (`tick: number; side: 'buy'|'sell'; counterpartyId: string; items: Map<ItemID, number>; total: number`), `MarketInsufficientFundsError extends Error`, `MarketInsufficientStockError extends Error`. | Restrictions: No imports from `BaseBuilding` or `Adventurer`. | _Leverage: `src/modules/items/id.ts`, `src/modules/inventory/common.ts`_ | _Requirements: R2, R3, R4_ | Success: File compiles cleanly; types are importable from other modules._
+
+- [ ] 3. Add `BuildingID.Market` / `'market'` inventory ID constant
+  - File: `src/modules/inventory/common.ts`
+  - Add a `'market'` string to the `InventoryID` type or `BuildingID` union so Market has a valid account key.
+  - _Leverage: `src/modules/inventory/common.ts`_
+  - _Requirements: R1_
+  - _Prompt: Implement the task for spec city-market, first run spec-workflow-guide to get the workflow guide then implement the task: Role: TypeScript developer | Task: Open `src/modules/inventory/common.ts`, find where `BuildingID` or the `InventoryID` union is defined, and add `'market'` as a valid value. | Restrictions: Minimal change — only add the new value, touch nothing else. | _Leverage: existing `InventoryID`/`BuildingID` definition_ | _Requirements: R1_ | Success: `'market'` is a valid `InventoryID` / `BuildingID`; `tsc --noEmit` passes._
+
+- [ ] 4. Create `Market` building class
+  - File: `src/game/city/buildings/Market.ts` (new file)
+  - Extends `BaseBuilding`. `id = 'market'`, `money = MARKET_INITIAL_MONEY` (constant 1000), no workers, `chooseNextAction()` returns `new WaitAction()`.
+  - _Leverage: `src/game/city/buildings/common/Building.ts`, `src/game/city/buildings/common/Action.ts` (WaitAction)_
+  - _Requirements: R1_
+  - _Prompt: Implement the task for spec city-market, first run spec-workflow-guide to get the workflow guide then implement the task: Role: TypeScript game developer | Task: Create `src/game/city/buildings/Market.ts`. Export `Market extends BaseBuilding` with `id = 'market' as const`, `money = 1000`, `workers = []`, `chooseNextAction() { return new WaitAction() }`. Provision `InventoryAccountService` keyed `'market'` via `InventoryAccountService.init('market')` in the constructor (follow the pattern of existing buildings). | Restrictions: Do not add autonomous worker logic. | _Leverage: `LumberMill.ts` constructor pattern, `WaitAction` from `Action.ts`_ | _Requirements: R1_ | Success: `new Market()` compiles; `market.chooseNextAction()` returns a `WaitAction`; `market.inventory` is initialised._
+
+- [ ] 5. Create `MarketService` singleton
+  - File: `src/modules/market/market.service.ts` (new file)
+  - Implements `init(market)`, `getStock()`, `getPrice(itemId)`, `sell(sellerId, sellerWallet, items)`, `buy(buyerId, buyerWallet, items)`, `recentTrades` ring buffer (cap 20). See design.md § sell flow and § buy flow for step-by-step logic.
+  - _Leverage: `src/modules/inventory/transaction.service.ts`, `src/modules/items/registry.ts`, `src/modules/market/common.ts`_
+  - _Requirements: R2, R3, R4_
+  - _Prompt: Implement the task for spec city-market, first run spec-workflow-guide to get the workflow guide then implement the task: Role: TypeScript game developer | Task: Create `src/modules/market/market.service.ts` as a singleton (`export default new MarketService()`). Implement: `init(market: Market): void` (stores ref), `getStock(): Map<ItemID,number>` (delegates to market.inventory.getCountByGoodId()), `getPrice(id: ItemID): number` (returns `ItemRegistry[id].value`), `sell(sellerId, sellerWallet, items)` per design.md sell flow (createTransaction → validate market.money → commitTransaction → adjust wallets → push TradeRecord), `buy(buyerId, buyerWallet, items)` per design.md buy flow (validateLedger → validate wallet → createTransaction → commitTransaction → adjust wallets → push TradeRecord). Ring buffer: if `recentTrades.length >= 20` shift before push. Throw typed errors from `common.ts` on failures. | Restrictions: Must NOT import `BaseBuilding` or `Adventurer`. All goods movement via `TransactionService`. | _Leverage: `transaction.service.ts:12,47`, `inventory.service.ts:105`, `ItemRegistry`, `common.ts`_ | _Requirements: R2, R3, R4_ | Success: `sell` and `buy` settle atomically; errors thrown on bad balances/stock; `recentTrades` populated._
+
+- [ ] 6. Instantiate `Market` in `City` and call `marketService.init`
+  - File: `src/game/city/City.ts`
+  - Add `market = new Market()` field, include in `buildings` array, call `marketService.init(this.market)` in constructor.
+  - _Leverage: `src/game/city/City.ts`, `src/modules/market/market.service.ts`_
+  - _Requirements: R1_
+  - _Prompt: Implement the task for spec city-market, first run spec-workflow-guide to get the workflow guide then implement the task: Role: TypeScript game developer | Task: In `src/game/city/City.ts` add `market = new Market()`, include it in the `buildings` array, and call `marketService.init(this.market)` in the constructor. | Restrictions: Minimal change — follow the pattern used for existing buildings. | _Leverage: existing `City.ts` building instantiation pattern_ | _Requirements: R1_ | Success: `city.buildings` contains the Market; `city.handleTick()` ticks the Market; `tsc --noEmit` passes._
+
+- [ ] 7. Refactor `TransportAction.finished()` to delegate to `MarketService.sell`
+  - File: `src/game/city/buildings/common/Action.ts`
+  - Replace `this.building.money += this.value` in `TransportAction.finished()` with a `MarketService.sell(...)` call using an inline `Wallet` adapter. Keep the `value` getter for display.
+  - _Leverage: `src/game/city/buildings/common/Action.ts:131`, `src/modules/market/market.service.ts`, `src/modules/market/common.ts` (Wallet)_
+  - _Requirements: R2_
+  - _Prompt: Implement the task for spec city-market, first run spec-workflow-guide to get the workflow guide then implement the task: Role: TypeScript game developer | Task: In `TransportAction.finished()` (`Action.ts` ~line 146) replace the direct `building.money +=` mutation with: build a `Wallet` adapter for `this.building`, then call `marketService.sell(this.building.id, wallet, this.input)`. Wrap in try/catch — on `MarketInsufficientFundsError` log a warning and return without crashing the game loop. Keep the `value` getter unchanged. | Restrictions: Do not change any other action classes. Do not remove `value` getter. | _Leverage: `Wallet` interface from `common.ts`, `marketService` singleton_ | _Requirements: R2_ | Success: LumberMill and IronMine sell actions credit building money via MarketService; Market inventory grows; `tsc --noEmit` passes._
+
+- [ ] 8. Create `BuyFromMarketAction` and wire into `BlackSmith`
+  - Files: `src/game/city/buildings/actions/BuyFromMarketAction.ts` (new), `src/game/city/buildings/BlackSmith.ts`
+  - Action mirrors `TransportAction` structure but calls `MarketService.buy` on `finished()`. Add branch in `BlackSmith.chooseNextAction()`: if `IronOre < 80 && money >= getPrice(IronOre) * 80` return `new BuyFromMarketAction(this, Map{IronOre: 80}, 14)`.
+  - _Leverage: `TransportAction` pattern (`Action.ts:131`), `MarketService.buy`, `Wallet` adapter_
+  - _Requirements: R3 (5, 6)_
+  - _Prompt: Implement the task for spec city-market, first run spec-workflow-guide to get the workflow guide then implement the task: Role: TypeScript game developer | Task: 1) Create `src/game/city/buildings/actions/BuyFromMarketAction.ts` extending `Action`. Constructor takes `(building, items: Map<ItemID,number>, ticks)`. `start()` does NOT create a transaction (no pre-deduction). `finished()` builds a Wallet adapter for `building` and calls `marketService.buy(building.id, wallet, items)`; catch typed errors and log warnings. 2) In `BlackSmith.chooseNextAction()` add a branch (before existing logic) that returns `new BuyFromMarketAction(...)` when IronOre < 80 and `this.money >= marketService.getPrice(ItemID.IronOre) * 80`. | Restrictions: Do not modify existing BlackSmith production actions. | _Leverage: `TransportAction` structure, `Action.ts` lifecycle, `marketService`_ | _Requirements: R3 (5,6)_ | Success: BlackSmith buys IronOre from Market when stock low; money flows correctly; tsc passes._
+
+- [ ] 9. Build `MarketPanel.vue` and wire into `BuildingsList` / `App.vue`
+  - Files: `src/components/buildings/MarketPanel.vue` (new), `src/components/left-menu/BuildingsList.vue`, `src/App.vue`
+  - Panel shows: stock table (item name + count + unit price), Market money, recent trades list. Reactive via `reactive()`. Add Market to sidebar list. Wire panel into building selection switch in `App.vue`.
+  - _Leverage: existing building panel SFC patterns, `reactive()` usage in `App.vue:56-57`, `MarketService.getStock()`, `MarketService.getPrice()`, `MarketService.recentTrades`, `ItemRegistry`_
+  - _Requirements: R5 (1–3)_
+  - _Prompt: Implement the task for spec city-market, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Vue 3 TypeScript developer | Task: 1) Create `src/components/buildings/MarketPanel.vue` using Composition API. Props: `market` (Market) and `marketService` (MarketService). Display a stock table (item id → count + price from `marketService.getPrice`), `market.money`, and the last 20 trades from `marketService.recentTrades`. 2) Add Market entry to `BuildingsList.vue`. 3) In `App.vue` wrap `city.market` and `marketService` in `reactive()`; add a case in the building-selection logic to render `<MarketPanel>`. | Restrictions: No store library. Use `reactive()` / `computed()` only. Panel is read-only in this iteration. | _Leverage: `reactive()` pattern from `App.vue:56-57`, `BuildingsList.vue` entry pattern_ | _Requirements: R5 (1-3)_ | Success: Market appears in sidebar; panel updates live during game loop; tsc passes._
+
+- [ ] 10. Add adventurer temporary buy/sell control
+  - Files: `src/game/adventurer/Adventurer.ts`, relevant adventurer UI component (or `App.vue` stub)
+  - Add `buyFromMarket(items)` and `sellToMarket(items)` methods to `Adventurer` that build a Wallet adapter and call `MarketService`. Expose a minimal button in the UI for manual testing.
+  - _Leverage: `src/game/adventurer/Adventurer.ts`, `Wallet` adapter pattern, `MarketService`_
+  - _Requirements: R3 (7), R5 (4)_
+  - _Prompt: Implement the task for spec city-market, first run spec-workflow-guide to get the workflow guide then implement the task: Role: Vue 3 TypeScript developer | Task: 1) In `Adventurer.ts` add `buyFromMarket(items: Map<ItemID,number>): void` and `sellToMarket(items: Map<ItemID,number>): void`. Each builds a `Wallet` adapter over `this.money` and calls `marketService.buy` / `marketService.sell`. 2) In the adventurer section of `App.vue` (or wherever adventurers are displayed) add a temporary hardcoded "Test Buy" button that calls `adventurer.buyFromMarket(new Map([[ItemID.IronOre, 1]]))` for manual verification. Mark it visually as a test control. | Restrictions: This is explicitly a test affordance — keep it minimal, no polish. Do not build full adventurer trade UX. | _Leverage: `Adventurer.ts`, `Wallet` from `common.ts`, `MarketService`_ | _Requirements: R3(7), R5(4)_ | Success: Clicking the button moves IronOre to adventurer inventory and deducts money; `tsc --noEmit` passes._
+
+- [ ] 11. Verify end-to-end and `tsc --noEmit`
+  - Run `npm run dev` (or equivalent), exercise all flows manually per the Testing Strategy in design.md, confirm `tsc --noEmit` is clean.
+  - _Requirements: All_
+  - _Prompt: Implement the task for spec city-market, first run spec-workflow-guide to get the workflow guide then implement the task: Role: QA / TypeScript developer | Task: Run `tsc --noEmit` and fix any type errors. Then start the dev server and manually verify: (a) producers sell → Market stock grows, Market.money decreases; (b) BlackSmith buy branch triggers when IronOre low; (c) adventurer test button works; (d) error paths (insufficient funds/stock) log warnings without crashing. Log all findings. | Restrictions: Fix only type errors and obvious bugs — do not refactor. | Success: `tsc --noEmit` exits 0; all manual checks pass; no console errors during normal game loop._
