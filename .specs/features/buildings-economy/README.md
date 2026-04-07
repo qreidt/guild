@@ -121,43 +121,37 @@ Fallback behavior:
 
 ## Goods catalog in active economy
 
-### Raw and refined materials
+Items are defined in `src/modules/items/` and identified by `ItemID`. Stackable goods have `stackable = true` and are tracked by count in a `GoodLedger`. Equipment instances are tracked individually in the `instances` array.
 
-| Good | Value | Notes |
-| --- | ---: | --- |
-| Lumber | 10 | raw wood resource |
-| WoodPlank | 1 | processed wood output |
-| IronOre | 2 | mined metal resource |
-| IronIngot | 5 | refined metal input |
+### Raw and refined materials (`modules/items/values/goods.ts`)
 
-### Produced equipment
+| ItemID | Name | Value | Weight |
+| --- | --- | ---: | ---: |
+| Lumber | Lumber | 10 | 20 |
+| WoodPlank | Wood Plank | 1 | 1 |
+| IronOre | Iron Ore | 2 | 1 |
+| IronIngot | Iron Ingot | 5 | 1 |
 
-The current available iron equipment set is:
+### Produced equipment (`modules/items/values/weapons.ts`, `armor.ts`)
 
-- Iron Sword
-- Iron Spear
-- Iron Shield
-- Iron Helmet
-- Iron Plate
-- Iron Mail
-- Iron Gauntlet
-- Iron Pants
-- Iron Boots
+The current available equipment set — all with placeholder stats pending differentiation:
 
-All currently ship with placeholder values and weights inherited from their item classes.
+**Weapons:** Iron Sword, Iron Dagger, Iron Spear, Wood Bow, Reinforced Wood Bow, Wood Staff
+
+**Armor:** Iron Helmet, Iron Plate, Iron Mail, Iron Gauntlet, Iron Pants, Iron Boots, Iron Shield, Leather Helmet, Leather Chest, Leather Pants, Leather Glove, Leather Boots, Wood Shield, Reinforced Wood Shield
 
 ## Inventory accounting model
 
 The active economy uses an in-memory account system.
 
-- every building gets an inventory account keyed by its building ID
-- actions may also create temporary inventory accounts keyed by action UID
+- every building and entity gets an inventory account keyed by a string `InventoryID`
+- `InventoryAccount` stores stackable goods as `GoodLedger` (`Map<ItemID, number>`) and equipment as `EquippableItem[]`
 - transactions reserve goods from an origin account and commit them to a destination account on completion
-- equipment is modeled separately from stackable goods
+- equipment instance transactions are marked as not yet implemented
 
 ## Economy rules that are already present
 
-- sale value is derived from `AvailableGoods`
+- item value and weight are defined on item classes in the items module
 - buildings can track their own earned money
 - production can branch based on current inventory state
 - multiple workers can run building actions in parallel

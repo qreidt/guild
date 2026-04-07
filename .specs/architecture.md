@@ -31,8 +31,16 @@ The application is a client-only SPA.
 - `game/controllers/GameController.ts`: global simulation clock and pause/resume behavior
 - `game/city/City.ts`: root city aggregate
 - `game/city/buildings/**`: concrete building implementations, workers, and actions
-- `game/common/**`: goods and a legacy inventory implementation
-- `game/adventurer/**`: future adventurer and equipment model
+- `game/adventurer/**`: adventurer and equipment domain model
+
+### Items module
+
+- `modules/items/id.ts`: `ItemID` enum covering all goods, weapons, and armor
+- `modules/items/item.ts`: abstract base classes — `Item`, `ItemInstance`, `EquippableItem`
+- `modules/items/registry.ts`: `ItemRegistry` mapping every `ItemID` to its class constructor
+- `modules/items/values/goods.ts`: stackable goods (Lumber, WoodPlank, IronOre, IronIngot)
+- `modules/items/values/weapons.ts`: weapon classes, `WeaponType`, `WeaponID`, `WeaponRegistry`
+- `modules/items/values/armor.ts`: armor classes, `ArmorType`, `ArmorID`, `ArmorRegistry`
 
 ### Inventory/accounting layer
 
@@ -120,22 +128,15 @@ This keeps the prototype simple, but it tightly couples the UI to mutable single
 
 ## Known technical gaps
 
-### Current build failures
-
-The current repository snapshot fails `npm run build` because of TypeScript errors in:
-
-- `src/components/left-menu/BuildingsList.vue`
-- `src/game/adventurer/Adventurer.ts`
-- `src/game/adventurer/gear/EquippableItem.ts`
-- `src/Layout.vue`
-
 ### Architectural limitations
 
 - No persistence layer exists, so the game cannot be saved or resumed.
 - No formal state management library is used, so cross-component growth will increase coupling pressure.
-- The city owns a legacy `Inventory` instance while buildings use the newer account-based inventory module, so inventory ownership is split across two models.
 - The day/night API exists but always returns `false`, so time-of-day behavior is not active.
 - Several action classes rely on partially configured transaction metadata, so accounting behavior is not yet robust enough to serve as a stable economy foundation.
+- `validateLedger` in `InventoryRepository` uses `forEach` with an early `return false` inside the callback, which exits only the callback — validation always returns `true`. Economy integrity is not enforced until this is fixed.
+- Equipment stats (damage, armor value, weight, value) are uniform placeholders across all item classes; differentiation by tier is needed before combat or crafting comparisons are meaningful.
+- `damage_value` and `armor_value` are computed once in the constructor and never updated; they should be getters so they reflect wear changes over time.
 
 ## Intended evolution
 

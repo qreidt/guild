@@ -100,7 +100,7 @@ Utility:
 
 Each adventurer currently owns:
 
-- a legacy `Inventory`
+- an `InventoryAccountService` keyed as `adventurer:{id}` (migrated from legacy `Inventory` in PR #1)
 - an equipment map keyed by slot
 
 Slots:
@@ -163,12 +163,22 @@ The intent is for item effectiveness to decay with wear:
 - linearly up to a threshold
 - then more sharply after the threshold
 
+## Item module location
+
+All equipment classes now live in `src/modules/items/`:
+
+- `modules/items/id.ts` — `ItemID` enum
+- `modules/items/item.ts` — `Item`, `ItemInstance`, `EquippableItem` base classes
+- `modules/items/registry.ts` — `ItemRegistry` (ItemID → constructor)
+- `modules/items/values/weapons.ts` — concrete weapon classes + `WeaponType`, `WeaponID`
+- `modules/items/values/armor.ts` — concrete armor classes + `ArmorType`, `ArmorID`
+
 ## Known implementation gaps
 
 - The adventurer system is not connected to the city or UI.
-- Several TypeScript errors currently prevent the adventurer and equipment code from type-checking cleanly.
 - There is no combat, loadout screen, or item transfer flow between buildings and adventurers.
 - The code models attributes and proficiencies, but no gameplay formulas consume them yet.
+- `damage_value` and `armor_value` are stored properties set in the constructor rather than getters, so they do not update when wear increases.
 
 ## Design intent from notes
 

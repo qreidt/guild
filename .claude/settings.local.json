@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__claude_ai_Linear__list_documents",
+      "mcp__claude_ai_Linear__list_projects",
+      "mcp__claude_ai_Linear__list_teams",
+      "mcp__claude_ai_Linear__list_issues",
+      "mcp__claude_ai_Linear__save_project",
+      "mcp__claude_ai_Linear__create_document",
+      "Bash(npx vue-tsc:*)",
+      "Bash(claude mcp:*)"
+    ]
+  }
+}

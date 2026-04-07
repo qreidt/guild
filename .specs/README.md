@@ -1,6 +1,6 @@
 # Guild Canonical Spec
 
-Snapshot date: 2026-04-01
+Snapshot date: 2026-04-06
 
 This directory is the canonical product and architecture spec for the current `guild` repository state. It describes what the prototype is trying to be, what is already implemented, what is only partially implemented, and which parts are still planned.
 
@@ -12,7 +12,7 @@ This directory is the canonical product and architecture spec for the current `g
 - Current simulation scope: city state, building workers, time-based actions, in-memory inventory accounts, and a starter item economy
 - Implemented but not player-facing yet: adventurer domain model, equipment catalog, transaction-based inventory plumbing
 - Not implemented yet: persistence, quests, recruitment, combat, expeditions, dungeon exploration, save/load
-- Build status: `npm run build` currently fails because of TypeScript errors in the checked-out codebase
+- Build status: `npm run build` passes cleanly after the items and inventory refactor (PR #1)
 
 ## Document map
 
@@ -45,13 +45,13 @@ This directory is the canonical product and architecture spec for the current `g
 - Selecting a building shows a raw `<pre>` dump of that building object.
 - The simulation currently runs entirely in memory and resets on refresh.
 
-## Current build blockers
+## Items and inventory refactor (PR #1)
 
-The current branch does not type-check successfully. The main issues are:
+The following structural changes were introduced in the inventory and items refactor:
 
-- incorrect prop typing in `BuildingsList.vue`
-- type mismatches in `Adventurer.ts` when reading weapon and armor properties from abstract base classes
-- an invalid return type in `EquippableItem.ts`
-- an incorrect default import of `City` in `Layout.vue`
-
-These blockers do not prevent the spec from describing the intended prototype structure, but they do mean the repo is not currently in a clean releasable state.
+- All item definitions moved from `src/game/` to a dedicated `src/modules/items/` module.
+- A proper class hierarchy is now in place: `Item` → `ItemInstance` → `EquippableItem` → `Weapon` / `Armor`.
+- `ItemID` enum and `ItemRegistry` provide a single lookup map from ID to class constructor.
+- `City.inventory` migrated from the legacy `Inventory` class to `InventoryAccountService`.
+- `Adventurer.inventory` migrated from the legacy `Inventory` class to `InventoryAccountService` keyed as `adventurer:{id}`.
+- TypeScript build errors from `review-2026-04-03.md` are resolved; `npm run build` now passes.
