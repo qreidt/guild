@@ -3,9 +3,11 @@ import {BaseBuilding, type BuildingID} from "../city/buildings/common/Building.t
 
 console.log(`[GameController] Loaded`);
 
+const autoTickInterval = 1;
+
 export class GameController {
     public running: boolean = false;
-    public tick = 5;
+    public tick = 0;
 
     public city: City;
 
@@ -45,7 +47,7 @@ export class GameController {
 
     public resume(): void {
         this.running = true;
-        this.autoTick(0.5);
+        this.autoTick(autoTickInterval);
     }
 
     private clearTimeout(): void {
@@ -66,4 +68,4 @@ export class GameController {
     }
 }
 
-export default new GameController(0.5);
+export default new GameController(autoTickInterval);

@@ -4,6 +4,7 @@ import {Action, TransportAction} from "./common/Action.ts";
 import type {City} from "../City.ts";
 import {Worker} from "./common/Worker.ts";
 import {ItemID} from "../../../modules/items/id.ts";
+import {InventoryAccountService} from "../../../modules/inventory/inventory.service.ts";
 
 console.log(`[LumberMill] Loaded`);
 
@@ -22,6 +23,8 @@ export class LumberMill extends BaseBuilding {
             new Worker(),
             //new Worker(),
         ];
+
+        this.inventory = InventoryAccountService.init(BuildingID.LumberMill);
 
         console.log(`[LumberMill] OK`);
     }
@@ -49,8 +52,11 @@ class TakeDownTreeAction extends Action {
     total_ticks = 6; // 3 hours
 
     static input_origin = BuildingID.LumberMill;
-    input = new Map([
-        [ItemID.WoodPlank, 1],
+    input = new Map();
+
+    output_destination = BuildingID.LumberMill;
+    output = new Map([
+        [ItemID.Lumber, 1],
     ]);
 
     protected started() {
@@ -73,12 +79,12 @@ class MakeWoodAction extends Action {
     total_ticks = 14; // 7 hours
 
     static input_origin = BuildingID.LumberMill;
-    static input = new Map([
+    input = new Map([
         [ItemID.Lumber, 1]
     ]);
 
-    static output_destination = BuildingID.LumberMill;
-    static output = new Map([
+    output_destination = BuildingID.LumberMill;
+    output = new Map([
         [ItemID.WoodPlank, 20],
     ]);
 
