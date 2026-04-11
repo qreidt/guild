@@ -16,7 +16,9 @@
       "mcp__spec-workflow__approvals",
       "mcp__spec-workflow__spec-status",
       "Bash(npx tsc:*)",
-      "mcp__spec-workflow__log-implementation"
+      "mcp__spec-workflow__log-implementation",
+      "Bash(npm --version)",
+      "Bash(npm run:*)"
     ]
   }
 }
