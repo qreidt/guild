@@ -22,6 +22,11 @@ export class Market extends BaseBuilding {
     }
 
     protected chooseNextAction(): Action {
+        // TODO: Autonomous market export lives in
+        // `src/modules/market/market.console.ts` (marketConsole.decide).
+        // For now exports are player-triggered from MarketPanel; this method
+        // intentionally stays a no-op. See `.specs/features/city-market/README.md`
+        // → "Autonomous market export" for the policy discussion.
         return new WaitAction();
     }
 }

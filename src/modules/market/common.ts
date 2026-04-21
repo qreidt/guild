@@ -7,7 +7,7 @@ export interface Wallet {
 
 export type TradeRecord = {
     tick: number;
-    side: 'buy' | 'sell';
+    side: 'buy' | 'sell' | 'export';
     counterpartyId: string;
     items: Map<ItemID, number>;
     total: number;
