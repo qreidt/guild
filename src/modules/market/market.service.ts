@@ -1,3 +1,4 @@
+import { reactive } from 'vue';
 import { ItemRegistry } from '../items/registry.ts';
 import type { ItemID } from '../items/id.ts';
 import transactionService from '../inventory/transaction.service.ts';
@@ -203,4 +204,7 @@ class MarketService {
     }
 }
 
-export default new MarketService();
+// Reactive singleton: engine writes (recentTrades push/shift, market.money via
+// the shared reactive Market instance) flow through the Vue proxy so the
+// MarketPanel re-renders on every tick instead of staying frozen.
+export default reactive(new MarketService()) as MarketService;

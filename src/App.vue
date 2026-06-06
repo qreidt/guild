@@ -29,12 +29,6 @@
     />
     <pre v-else>{{ activeBuilding }}</pre>
 
-    <!-- [TEST] Temporary adventurer market test controls -->
-    <div class="mt-4 p-2 border border-dashed border-yellow-600 text-yellow-400 text-sm">
-      <div class="font-bold mb-1">[TEST] Adventurer #{{ testAdventurer.id }} — money: {{ testAdventurer.money }}g — IronOre: {{ testAdventurer.inventory.getCount(ItemID.IronOre) }}</div>
-      <button class="px-2 py-1 bg-yellow-700 text-white rounded" @click="testAdventurerBuy">Test Buy 1 IronOre</button>
-    </div>
-
     <template #footer>
       <div class="flex h-full items-center justify-between">
         <div class="flex gap-x-16">
@@ -66,24 +60,15 @@ import {BaseBuilding, BuildingID} from "./game/city/buildings/common/Building.ts
 import {Market} from "./game/city/buildings/Market.ts";
 import marketServiceSingleton from "./modules/market/market.service.ts";
 import MarketPanel from "./components/buildings/MarketPanel.vue";
-import {Adventurer} from "./game/adventurer/Adventurer.ts";
-import {ItemID} from "./modules/items/id.ts";
 
 const c = reactive(GameControllerSingleton) as GameController;
 const inventory = reactive(inventoryRepository) as InventoryRepository;
-const marketServiceReactive = reactive(marketServiceSingleton);
+// marketServiceSingleton is already a reactive singleton at its source, so the
+// engine and UI share the exact same proxy — engine writes (money, recentTrades,
+// inventory) now invalidate the MarketPanel bindings each tick.
+const marketServiceReactive = marketServiceSingleton;
 const city = c.city;
 const buildings = city.buildings;
-
-// [TEST] Temporary adventurer for manual market verification
-const testAdventurer = reactive(new Adventurer());
-function testAdventurerBuy() {
-  try {
-    testAdventurer.buyFromMarket(new Map([[ItemID.IronOre, 1]]));
-  } catch (e) {
-    console.warn('[TestAdventurer] Buy failed:', e);
-  }
-}
 
 const active_building_id = ref<(BuildingID)|null>(null);
 

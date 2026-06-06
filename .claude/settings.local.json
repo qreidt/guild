@@ -20,7 +20,8 @@
       "Bash(npm --version)",
       "Bash(npm run:*)",
       "Skill(mempalace:init)",
-      "Skill(mempalace:mempalace)"
+      "Skill(mempalace:mempalace)",
+      "mcp__Claude_Preview__preview_start"
     ]
   }
 }
