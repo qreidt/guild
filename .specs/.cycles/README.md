@@ -18,5 +18,5 @@ generated spec · `.specs/*` = canonical current-state docs.
 
 - [CQR-53](https://linear.app/cqr/issue/CQR-53/read-only-environment-interfaces-2d-vs-3d-bake-off-vertical-slice)
   — [cqr-53-read-only-environment-interfaces/](./cqr-53-read-only-environment-interfaces/)
-  — read-only environment interfaces, 2D-vs-3D bake-off. **Status:** refined,
-  pending spec-workflow hand-off.
+  — read-only environment interfaces, 2D-vs-3D bake-off. **Status:** spec authored
+  in-cycle (`requirements.md` + `plan.md` + `tasks.md`); ready to implement.
