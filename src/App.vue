@@ -22,7 +22,12 @@
       </div>
     </template>
 
-    <pre>{{ activeBuilding }}</pre>
+    <MarketPanel
+        v-if="activeBuilding instanceof Market"
+        :market="activeBuilding"
+        :market-service="marketServiceReactive"
+    />
+    <pre v-else>{{ activeBuilding }}</pre>
 
     <template #footer>
       <div class="flex h-full items-center justify-between">
@@ -52,9 +57,16 @@ import GameControllerSingleton, {GameController} from "./game/controllers/GameCo
 import inventoryRepository, {InventoryRepository} from "./modules/inventory/inventory.repository.ts";
 import BuildingsList from "./components/left-menu/BuildingsList.vue";
 import {BaseBuilding, BuildingID} from "./game/city/buildings/common/Building.ts";
+import {Market} from "./game/city/buildings/Market.ts";
+import marketServiceSingleton from "./modules/market/market.service.ts";
+import MarketPanel from "./components/buildings/MarketPanel.vue";
 
 const c = reactive(GameControllerSingleton) as GameController;
 const inventory = reactive(inventoryRepository) as InventoryRepository;
+// marketServiceSingleton is already a reactive singleton at its source, so the
+// engine and UI share the exact same proxy — engine writes (money, recentTrades,
+// inventory) now invalidate the MarketPanel bindings each tick.
+const marketServiceReactive = marketServiceSingleton;
 const city = c.city;
 const buildings = city.buildings;
 

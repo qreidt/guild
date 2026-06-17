@@ -24,6 +24,7 @@ This directory is the canonical product and architecture spec for the current `g
 - [features/interface-controls/README.md](./features/interface-controls/README.md): current screen layout and player controls
 - [features/adventurers-equipment/README.md](./features/adventurers-equipment/README.md): adventurer model, equipment rules, and gear definitions
 - [features/world-expeditions/README.md](./features/world-expeditions/README.md): planned world, mission, monster, and zone systems
+- [features/console-harness/README.md](./features/console-harness/README.md): planned headless `npm run console` entrypoint for driving and inspecting the simulation from a terminal
 
 ## Source of truth rules
 

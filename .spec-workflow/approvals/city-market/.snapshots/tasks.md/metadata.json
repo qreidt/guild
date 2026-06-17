@@ -1,0 +1,22 @@
+{
+  "filePath": ".spec-workflow/specs/city-market/tasks.md",
+  "currentVersion": 2,
+  "snapshots": [
+    {
+      "version": 1,
+      "filename": "snapshot-001.json",
+      "timestamp": "2026-04-07T00:57:46.140Z",
+      "trigger": "initial",
+      "approvalId": "approval_1775523466131_2w4q43607",
+      "approvalTitle": "city-market tasks"
+    },
+    {
+      "version": 2,
+      "filename": "snapshot-002.json",
+      "timestamp": "2026-04-07T00:59:47.497Z",
+      "trigger": "approved",
+      "approvalId": "approval_1775523466131_2w4q43607",
+      "approvalTitle": "city-market tasks"
+    }
+  ]
+}

@@ -10,6 +10,7 @@ export enum BuildingID {
     BlackSmith = 'BlackSmith',
     IronMine = 'IronMine',
     LumberMill = 'LumberMill',
+    Market = 'market',
 }
 
 export interface IBuilding {
@@ -27,9 +28,15 @@ export abstract class BaseBuilding {
 
     public workers: Worker[] = [];
 
+    _data: any = {};
+
     /** Shortcut to access static props from the subclass */
     get static(): IBuilding {
         return this.constructor as unknown as IBuilding;
+    }
+
+    get id(): BuildingID {
+        return this.static.building_id;
     }
 
     protected setup(): void {
@@ -37,12 +44,13 @@ export abstract class BaseBuilding {
     }
 
     public handleTick(_city: City): void {
+        this._data.inventory = this.inventory.getCountByGoodId();
         const availableWorkers = this.workers.filter((w) => w.isAvailable());
 
         if (availableWorkers.length > 0) {
             for (const worker of availableWorkers) {
                 worker.active_action = this.chooseNextAction();
-                console.log(`Action Chosen is: ${worker.active_action.constructor.name}`);
+                console.log(`[${worker.active_action?.static?.building_id}] Action Chosen is: ${worker.active_action.constructor.name}`);
                 worker.active_action.start();
             }
         }

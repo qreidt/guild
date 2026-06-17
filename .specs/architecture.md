@@ -115,13 +115,14 @@ This keeps the prototype simple, but it tightly couples the UI to mutable single
 
 - `npm run dev`: local Vite development server
 - `npm run build`: `vue-tsc -b && vite build`
+- `npm run console` (planned): run `src/console.ts` via `tsx` for a headless REPL that drives the same `GameController` singleton the browser uses. See [features/console-harness](./features/console-harness/README.md).
 - Vite base path: `/guild/`
 - The configured base path indicates intended GitHub Pages deployment under a repository subpath
 
 ## Non-functional characteristics
 
 - Persistence: none
-- Testing: none in the repository
+- Testing: no automated test runner; a headless console harness (`npm run console`, planned) provides a manual REPL against the same domain singletons used by the UI
 - Networking: none at runtime
 - Save compatibility: not applicable yet
 - Performance: trivial current state; all simulation is local and low-volume

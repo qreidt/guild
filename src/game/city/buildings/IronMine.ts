@@ -36,7 +36,10 @@ export class IronMine extends BaseBuilding {
 class MineOres extends Action {
     static name = 'MineOres';
     static building_id = BuildingID.IronMine;
-    total_ticks = 1; // 0.5 hours
+    total_ticks = 2; // 1 hours
+
+    static input_origin = BuildingID.IronMine;
+    input = new Map();
 
     output_destination = BuildingID.IronMine;
     output = new Map([

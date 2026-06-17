@@ -1,3 +1,4 @@
+import {reactive} from "vue";
 import type {GoodLedger, InventoryAccount, InventoryID, Transaction, TransactionID} from "./common.ts";
 import {ItemRegistry} from "../items/registry.ts";
 import type {ItemID} from "../items/id.ts";
@@ -71,7 +72,10 @@ export class InventoryRepository {
      */
     public getCountByGoodId(id: InventoryID): GoodLedger {
         const account = this.getAccount(id);
-        const ledger = structuredClone(account.stacks);
+        // Shallow copy (values are primitive counts). Iterating account.stacks
+        // here also registers the Vue reactive read dependency, and avoids
+        // structuredClone throwing on a reactive Map proxy.
+        const ledger = new Map(account.stacks);
 
         account.instances.forEach(equipment => {
             const count = ledger.get(equipment.static.id) ?? 0;
@@ -163,13 +167,12 @@ export class InventoryRepository {
      */
     public validateLedger(id: InventoryID, ledger: GoodLedger): boolean {
         const account_ledger = this.getCountByGoodId(id);
-        ledger.forEach((required_amount: number, item_id: ItemID) => {
-
+        for (const [item_id, required_amount] of ledger) {
             const account_amount = account_ledger.get(item_id) ?? 0;
             if (required_amount > account_amount) {
                 return false;
             }
-        });
+        }
 
         return true;
     }
@@ -258,4 +261,6 @@ class TransactionNotFoundError extends Error {
     }
 }
 
-export default new InventoryRepository();
+// Reactive singleton: ledger mutations (put/take/transactions) flow through
+// the Vue proxy so building panels re-render when inventory changes each tick.
+export default reactive(new InventoryRepository()) as InventoryRepository;
