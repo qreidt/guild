@@ -27,7 +27,7 @@
         :market="activeBuilding"
         :market-service="marketServiceReactive"
     />
-    <pre v-else>{{ activeBuilding }}</pre>
+    <EnvironmentView v-else :building-id="active_building_id" />
 
     <template #footer>
       <div class="flex h-full items-center justify-between">
@@ -60,6 +60,7 @@ import {BaseBuilding, BuildingID} from "./game/city/buildings/common/Building.ts
 import {Market} from "./game/city/buildings/Market.ts";
 import marketServiceSingleton from "./modules/market/market.service.ts";
 import MarketPanel from "./components/buildings/MarketPanel.vue";
+import EnvironmentView from "./components/environment/EnvironmentView.vue";
 
 const c = reactive(GameControllerSingleton) as GameController;
 const inventory = reactive(inventoryRepository) as InventoryRepository;

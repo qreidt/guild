@@ -10,11 +10,14 @@
     "console": "tsx src/console.ts"
   },
   "dependencies": {
+    "@tresjs/core": "^5.8.1",
+    "three": "^0.184.0",
     "vue": "^3.5.13"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.6",
     "@types/node": "^25.6.0",
+    "@types/three": "^0.184.1",
     "@vitejs/plugin-vue": "^5.2.3",
     "@vue/tsconfig": "^0.7.0",
     "tailwindcss": "^4.1.6",
