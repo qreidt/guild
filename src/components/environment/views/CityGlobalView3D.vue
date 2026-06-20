@@ -10,11 +10,13 @@ import MarketMesh from "./city/MarketMesh.vue";
 import BlacksmithMesh from "./city/BlacksmithMesh.vue";
 import LumberMillMesh from "./city/LumberMillMesh.vue";
 import MineMesh from "./city/MineMesh.vue";
+import MountainMesh from "./city/MountainMesh.vue";
 import {
   DECORATIVE_HOUSES,
   GROUND_PATCHES,
   GROUND_SIZE,
   HERO_PLOTS,
+  MOUNTAINS,
   PALETTE,
   TREES,
   WALL_BOXES,
@@ -84,16 +86,25 @@ onMounted(() => {
 <template>
   <div class="relative w-full h-[72vh] min-h-[380px] rounded-lg overflow-hidden border border-gray-700">
     <TresCanvas :clear-color="PALETTE.sky" shadows>
-      <TresPerspectiveCamera :position="[22, 29, 22]" :look-at="[-5, 1, 0]" :fov="45" />
+      <TresPerspectiveCamera :position="[26, 33, 26]" :look-at="[-9, 2, -6]" :fov="48" />
       <TresAmbientLight :intensity="0.75" />
       <TresDirectionalLight ref="sun" :position="[26, 34, 14]" :intensity="1.45" color="#fff2dd" />
-      <TresFog :args="[PALETTE.sky, 52, 120]" />
+      <TresFog :args="[PALETTE.sky, 60, 150]" />
 
       <!-- grass ground -->
       <TresMesh :rotation="GROUND_ROT" receive-shadow>
         <TresPlaneGeometry :args="[GROUND_SIZE, GROUND_SIZE]" />
         <TresMeshStandardMaterial :color="PALETTE.grass" />
       </TresMesh>
+
+      <!-- background mountains (north-west) -->
+      <MountainMesh
+        v-for="m in MOUNTAINS"
+        :key="m.id"
+        :position="[m.position[0], 0, m.position[1]]"
+        :radius="m.radius"
+        :height="m.height"
+      />
 
       <!-- water / fields / paths: flat plates just above the grass -->
       <TresMesh

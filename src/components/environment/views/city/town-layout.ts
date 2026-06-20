@@ -59,6 +59,14 @@ export interface GroundPatch {
     color: string;
 }
 
+export interface Mountain {
+    id: string;
+    /** (x, z) base centre. */
+    position: Vec2;
+    radius: number;
+    height: number;
+}
+
 export const PALETTE = {
     sky: "#bfe1ff",
     grass: "#74ad57",
@@ -86,7 +94,7 @@ export const PALETTE = {
 
 /** Half-extent of the walled town (walls sit at ±TOWN_HALF). */
 const TOWN_HALF = 15;
-export const GROUND_SIZE = 72;
+export const GROUND_SIZE = 100;
 
 /**
  * Hero plot centres (x, z), shared by HERO_PLOTS and the scatter so houses /
@@ -97,8 +105,8 @@ export const GROUND_SIZE = 72;
  */
 const MARKET_POS: Vec2 = [8, 8];
 const BLACKSMITH_POS: Vec2 = [-5, -2];
-const LUMBER_POS: Vec2 = [-19, 7];
-const MINE_POS: Vec2 = [-20, -7];
+const LUMBER_POS: Vec2 = [-22, -20];
+const MINE_POS: Vec2 = [-28, -26];
 
 /** Buildings inside vs outside the walls — used to keep the scatter clear. */
 const INSIDE_HEROES: Vec2[] = [MARKET_POS, BLACKSMITH_POS];
@@ -115,6 +123,13 @@ export const HERO_PLOTS: Partial<Record<BuildingID, HeroPlot>> = {
     [BuildingID.LumberMill]: { position: LUMBER_POS, scale: 1.0, tone: "#8a6038" },
     [BuildingID.IronMine]: { position: MINE_POS, scale: 1.1, tone: "#8a8f94" },
 };
+
+/** Background mountain range out to the north-west (-x, -z). */
+export const MOUNTAINS: Mountain[] = [
+    { id: "mtn-1", position: [-38, -36], radius: 10, height: 16 },
+    { id: "mtn-2", position: [-29, -43], radius: 7, height: 11 },
+    { id: "mtn-3", position: [-44, -31], radius: 6.5, height: 10 },
+];
 
 /** Deterministic PRNG so the scatter is stable across renders (no flicker). */
 function mulberry32(seed: number): () => number {
@@ -135,6 +150,11 @@ function pick<T>(rnd: () => number, arr: T[]): T {
 /** True if (x, z) is within `min` of any of the given points. */
 function nearAny(x: number, z: number, points: Vec2[], min: number): boolean {
     return points.some((p) => Math.hypot(p[0] - x, p[1] - z) < min);
+}
+
+/** True if (x, z) lies on (or right next to) a mountain footprint. */
+function onMountain(x: number, z: number): boolean {
+    return MOUNTAINS.some((m) => Math.hypot(m.position[0] - x, m.position[1] - z) < m.radius + 1.5);
 }
 
 /** Decorative houses clustered inside the walls, behind/around the Market. */
@@ -183,21 +203,32 @@ function buildTrees(seed: number): TreeTransform[] {
     const trees: TreeTransform[] = [];
     const tooClose = (x: number, z: number, min: number): boolean =>
         trees.some((t) => Math.hypot(t.position[0] - x, t.position[1] - z) < min);
+    const blocked = (x: number, z: number): boolean =>
+        nearAny(x, z, OUTSIDE_HEROES, 5.5) || onMountain(x, z);
 
-    // Forest belt further out west, sitting behind the Lumber Mill / Iron Mine.
+    // Forest belt west of the town.
     let attempts = 0;
-    while (trees.length < 24 && attempts < 700) {
+    while (trees.length < 20 && attempts < 700) {
         attempts++;
         const x = -24 - rnd() * 9; // -24 .. -33
-        const z = (rnd() * 2 - 1) * 26;
-        if (tooClose(x, z, 1.7)) continue;
-        if (nearAny(x, z, OUTSIDE_HEROES, 5.5)) continue;
+        const z = (rnd() * 2 - 1) * 22;
+        if (tooClose(x, z, 1.7) || blocked(x, z)) continue;
         trees.push({ id: `tree-${trees.length}`, position: [x, z], scale: 0.85 + rnd() * 0.7 });
+    }
+
+    // North-west: scattered trees out toward the mountains.
+    attempts = 0;
+    while (trees.length < 32 && attempts < 900) {
+        attempts++;
+        const x = -18 - rnd() * 24; // -18 .. -42
+        const z = -15 - rnd() * 25; // -15 .. -40
+        if (tooClose(x, z, 2.4) || blocked(x, z)) continue;
+        trees.push({ id: `tree-${trees.length}`, position: [x, z], scale: 0.8 + rnd() * 0.7 });
     }
 
     // A few inside for greenery.
     attempts = 0;
-    while (trees.length < 30 && attempts < 300) {
+    while (trees.length < 38 && attempts < 300) {
         attempts++;
         const x = (rnd() * 2 - 1) * 12;
         const z = (rnd() * 2 - 1) * 12;
@@ -211,41 +242,59 @@ function buildTrees(seed: number): TreeTransform[] {
     return trees;
 }
 
-/** Perimeter wall (gate gap on the south, camera-facing side) + corner towers. */
+/**
+ * Partial perimeter wall: open on the water (east) side, with a south gate, an
+ * NW gate (opened corner framed by bastions) and an NE gate (gap + lintel).
+ */
 function buildWalls(): BoxRect[] {
     const W = TOWN_HALF;
     const T = 0.6; // thickness
     const H = 2.4; // height
-    const span = 2 * W + T;
-    const gate = 2.6; // half-width of the south gate gap
-    const segHalf = (W - gate) / 2;
-    const segLen = W - gate;
-    const segCentre = gate + segLen / 2;
-
     const stone = PALETTE.stone;
-    const walls: BoxRect[] = [
-        { id: "wall-n", position: [0, H / 2, -W], size: [span, H, T], color: stone },
-        { id: "wall-e", position: [W, H / 2, 0], size: [T, H, span], color: stone },
-        { id: "wall-w", position: [-W, H / 2, 0], size: [T, H, span], color: stone },
-        // South wall split around the gate.
-        { id: "wall-s-l", position: [-segCentre, H / 2, W], size: [segLen, H, T], color: stone },
-        { id: "wall-s-r", position: [segCentre, H / 2, W], size: [segLen, H, T], color: stone },
-    ];
+    const boxes: BoxRect[] = [];
 
+    // South wall (z = +W) split around the central gate.
+    const sGate = 2.6;
+    const sLen = W - sGate;
+    const sCentre = sGate + sLen / 2;
+    boxes.push({ id: "wall-s-l", position: [-sCentre, H / 2, W], size: [sLen, H, T], color: stone });
+    boxes.push({ id: "wall-s-r", position: [sCentre, H / 2, W], size: [sLen, H, T], color: stone });
+
+    // West wall (x = -W) stops short at the north, opening the NW corner.
+    const NW_OPEN = -10;
+    boxes.push({ id: "wall-w", position: [-W, H / 2, (NW_OPEN + W) / 2], size: [T, H, W - NW_OPEN], color: stone });
+
+    // North wall (z = -W): from the NW opening eastward, with an NE gate gap.
+    const neA = 7;
+    const neB = 11;
+    boxes.push({ id: "wall-n-w", position: [(NW_OPEN + neA) / 2, H / 2, -W], size: [neA - NW_OPEN, H, T], color: stone });
+    boxes.push({ id: "wall-n-e", position: [(neB + W) / 2, H / 2, -W], size: [W - neB, H, T], color: stone });
+
+    // (East wall removed — the city opens onto the water.)
+
+    // Towers at the standing corners (the NW corner is now an open gate).
     const towerH = 3.6;
     const towerW = 2.0;
-    for (const sx of [-1, 1]) {
-        for (const sz of [-1, 1]) {
-            walls.push({
-                id: `tower-${sx}-${sz}`,
-                position: [sx * W, towerH / 2, sz * W],
-                size: [towerW, towerH, towerW],
-                color: PALETTE.towerStone,
-            });
-        }
+    const corners: Vec2[] = [
+        [-W, W], // SW
+        [W, W], // SE
+        [W, -W], // NE
+    ];
+    for (const [tx, tz] of corners) {
+        boxes.push({ id: `tower-${tx}-${tz}`, position: [tx, towerH / 2, tz], size: [towerW, towerH, towerW], color: PALETTE.towerStone });
     }
 
-    return walls;
+    // NW gate: bastion towers framing the opened corner.
+    boxes.push({ id: "nw-bastion-n", position: [NW_OPEN, towerH / 2, -W], size: [towerW, towerH, towerW], color: PALETTE.towerStone });
+    boxes.push({ id: "nw-bastion-w", position: [-W, towerH / 2, NW_OPEN], size: [towerW, towerH, towerW], color: PALETTE.towerStone });
+
+    // NE gate: posts + a timber lintel across the gap.
+    const gateH = 2.8;
+    boxes.push({ id: "ne-post-a", position: [neA, gateH / 2, -W], size: [0.8, gateH, 0.9], color: PALETTE.towerStone });
+    boxes.push({ id: "ne-post-b", position: [neB, gateH / 2, -W], size: [0.8, gateH, 0.9], color: PALETTE.towerStone });
+    boxes.push({ id: "ne-lintel", position: [(neA + neB) / 2, gateH + 0.15, -W], size: [neB - neA + 0.9, 0.35, 0.9], color: PALETTE.wood });
+
+    return boxes;
 }
 
 /** Water (east coast), farmland (north), and dirt paths — flat plates over grass. */
