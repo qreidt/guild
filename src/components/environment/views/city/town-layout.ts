@@ -16,10 +16,10 @@ export type Vec3 = [number, number, number];
 export interface HeroPlot {
     /** (x, z) plot centre. */
     position: Vec2;
-    /** Size multiplier — hero buildings are bigger than decorative houses. */
+    /** Size multiplier for the building model (authored at real size, ~1.0). */
     scale: number;
-    roofColor: string;
-    wallColor: string;
+    /** Legend swatch colour (each model defines its own materials internally). */
+    tone: string;
 }
 
 export interface HouseTransform {
@@ -74,6 +74,14 @@ export const PALETTE = {
     walls: ["#e8dcc2", "#dccaa8", "#d6c19c", "#cdb89e", "#e3d2b0"],
     /** Roof tints (terracotta / red / brown). */
     roofs: ["#b4502c", "#9c3f24", "#c2613a", "#a8472a", "#8f3a20", "#6b4f3a"],
+    /** Hero-model materials. */
+    wood: "#8a6038",
+    plank: "#caa86a",
+    rock: "#8a8f94",
+    ironDark: "#3b3f44",
+    forge: "#ff6a00",
+    /** Muted Manor Lords–style market-stall canopy cloths. */
+    cloth: ["#e0d4b4", "#b5524a", "#caa14e", "#6f8fa8", "#7d8a5a", "#9c6b43"],
 };
 
 /** Half-extent of the walled town (walls sit at ±TOWN_HALF). */
@@ -102,10 +110,10 @@ const OUTSIDE_HEROES: Vec2[] = [LUMBER_POS, MINE_POS];
  * Keyed by id so render order is irrelevant.
  */
 export const HERO_PLOTS: Partial<Record<BuildingID, HeroPlot>> = {
-    [BuildingID.Market]: { position: MARKET_POS, scale: 2.1, roofColor: "#b5532f", wallColor: "#e7d9ba" },
-    [BuildingID.BlackSmith]: { position: BLACKSMITH_POS, scale: 1.7, roofColor: "#8f3a20", wallColor: "#cdb79a" },
-    [BuildingID.LumberMill]: { position: LUMBER_POS, scale: 1.7, roofColor: "#7a4a2a", wallColor: "#cda877" },
-    [BuildingID.IronMine]: { position: MINE_POS, scale: 1.7, roofColor: "#5b6066", wallColor: "#b9c0c7" },
+    [BuildingID.Market]: { position: MARKET_POS, scale: 1.0, tone: "#b5524a" },
+    [BuildingID.BlackSmith]: { position: BLACKSMITH_POS, scale: 1.05, tone: "#3b3f44" },
+    [BuildingID.LumberMill]: { position: LUMBER_POS, scale: 1.0, tone: "#8a6038" },
+    [BuildingID.IronMine]: { position: MINE_POS, scale: 1.1, tone: "#8a8f94" },
 };
 
 /** Deterministic PRNG so the scatter is stable across renders (no flicker). */
@@ -183,7 +191,7 @@ function buildTrees(seed: number): TreeTransform[] {
         const x = -24 - rnd() * 9; // -24 .. -33
         const z = (rnd() * 2 - 1) * 26;
         if (tooClose(x, z, 1.7)) continue;
-        if (nearAny(x, z, OUTSIDE_HEROES, 4.5)) continue;
+        if (nearAny(x, z, OUTSIDE_HEROES, 5.5)) continue;
         trees.push({ id: `tree-${trees.length}`, position: [x, z], scale: 0.85 + rnd() * 0.7 });
     }
 

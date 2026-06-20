@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { computed, onMounted, shallowRef } from "vue";
+import { computed, onMounted, shallowRef, type Component } from "vue";
 import { TresCanvas } from "@tresjs/core";
 import type { DirectionalLight } from "three";
-import type { BuildingID } from "../../../game/city/buildings/common/Building.ts";
+import { BuildingID } from "../../../game/city/buildings/common/Building.ts";
 import type { CityView } from "../../../modules/environment-view/types.ts";
 import HouseMesh from "./city/HouseMesh.vue";
 import TreeMesh from "./city/TreeMesh.vue";
+import MarketMesh from "./city/MarketMesh.vue";
+import BlacksmithMesh from "./city/BlacksmithMesh.vue";
+import LumberMillMesh from "./city/LumberMillMesh.vue";
+import MineMesh from "./city/MineMesh.vue";
 import {
   DECORATIVE_HOUSES,
   GROUND_PATCHES,
@@ -46,6 +50,17 @@ const heroBuildings = computed(() => {
   }
   return out;
 });
+
+// A distinct model per building id, kept out of reactive state.
+const HERO_MODELS: Partial<Record<BuildingID, Component>> = {
+  [BuildingID.Market]: MarketMesh,
+  [BuildingID.BlackSmith]: BlacksmithMesh,
+  [BuildingID.LumberMill]: LumberMillMesh,
+  [BuildingID.IronMine]: MineMesh,
+};
+function heroModel(id: BuildingID): Component | undefined {
+  return HERO_MODELS[id];
+}
 
 // Configure the sun's shadow camera imperatively — pierced props alone don't
 // re-run updateProjectionMatrix(), so the frustum wouldn't take effect.
@@ -105,20 +120,15 @@ onMounted(() => {
         <TresMeshStandardMaterial :color="w.color" />
       </TresMesh>
 
-      <!-- hero buildings (real game data) -->
-      <HouseMesh
-        v-for="h in heroBuildings"
-        :key="h.id"
-        :position="[h.plot.position[0], 0, h.plot.position[1]]"
-        :width="2.2 * h.plot.scale"
-        :depth="2.2 * h.plot.scale"
-        :base-height="2.0 * h.plot.scale"
-        :roof-height="1.6 * h.plot.scale"
-        :wall-color="h.plot.wallColor"
-        :roof-color="h.plot.roofColor"
-        flag
-        :flag-color="PALETTE.flag"
-      />
+      <!-- hero buildings (real game data) — a distinct model per building -->
+      <template v-for="h in heroBuildings" :key="h.id">
+        <component
+          :is="heroModel(h.id)"
+          v-if="heroModel(h.id)"
+          :position="[h.plot.position[0], 0, h.plot.position[1]]"
+          :scale="h.plot.scale"
+        />
+      </template>
 
       <!-- decorative houses -->
       <HouseMesh
@@ -158,7 +168,7 @@ onMounted(() => {
         :key="h.id"
         class="text-xs px-2 py-1 rounded bg-black/50 backdrop-blur-sm"
       >
-        <span :style="{ color: h.plot.roofColor }">■</span> {{ h.name }}
+        <span :style="{ color: h.plot.tone }">■</span> {{ h.name }}
       </span>
     </div>
   </div>
