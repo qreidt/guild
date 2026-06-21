@@ -14,6 +14,11 @@ const isTresCustomElement = (tag: string): boolean =>
 
 export default defineConfig({
     base: '/guild/',
+    server: {
+        // Honour the preview harness's assigned port (autoPort) via PORT env;
+        // falls back to Vite's default for a plain `npm run dev`.
+        port: Number(process.env.PORT) || 5173,
+    },
     plugins: [
         vue({
             template: {
