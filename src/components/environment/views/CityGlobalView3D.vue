@@ -5,6 +5,7 @@ import type { DirectionalLight } from "three";
 import { BuildingID } from "../../../game/city/buildings/common/Building.ts";
 import type { CityView } from "../../../modules/environment-view/types.ts";
 import HouseMesh from "./city/HouseMesh.vue";
+import HouseDenseMesh from "./city/HouseDenseMesh.vue";
 import TreeMesh from "./city/TreeMesh.vue";
 import MarketMesh from "./city/MarketMesh.vue";
 import BlacksmithMesh from "./city/BlacksmithMesh.vue";
@@ -13,6 +14,7 @@ import MineMesh from "./city/MineMesh.vue";
 import MountainMesh from "./city/MountainMesh.vue";
 import {
   DECORATIVE_HOUSES,
+  DENSE_HOUSES,
   GROUND_PATCHES,
   GROUND_SIZE,
   HERO_PLOTS,
@@ -153,6 +155,15 @@ onMounted(() => {
         :roof-height="d.roofHeight"
         :wall-color="d.wallColor"
         :roof-color="d.roofColor"
+      />
+
+      <!-- dense "5+" housing blocks (a merged 2×2 of houses) -->
+      <HouseDenseMesh
+        v-for="b in DENSE_HOUSES"
+        :key="b.id"
+        :position="[b.position[0], 0, b.position[1]]"
+        :rotation-y="b.rotationY"
+        :seed="b.seed"
       />
 
       <!-- trees -->
