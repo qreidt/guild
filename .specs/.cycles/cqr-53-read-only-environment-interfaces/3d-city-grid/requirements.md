@@ -22,8 +22,9 @@ cells spans the whole ground plane; every wall, path tile, house and main buildi
 occupies a whole number of cells, at most one occupant per cell; trees are
 non-occupying decoration. The current look is **carried over** by snapping today's
 positions onto the grid (max drift ≤ 1 cell). The view stays a **read-only, authored
-static backdrop** — only the 4 hero buildings and the money/citizens overlay reflect
-live state (parent R4.1–R4.2, R6).
+static backdrop** — only *which* of the 4 hero buildings exist reflects live state
+(parent R4.1–R4.2, R6). City money/citizens are shown in the app top bar; the former
+on-canvas overlay and the hero legend were removed (see R9, R12).
 
 The grid is an **authoring/layout** construct, not gameplay: there is no placement UI,
 no engine mutation, and no coupling to `city.citizens_count`. It exists so the map can
@@ -71,8 +72,9 @@ so that an authoring mistake fails loudly instead of rendering two overlapping m
 #### Acceptance Criteria
 
 1. The system SHALL define occupant kinds `wall` (variant `wall` | `tower`), `building`
-   (2×2, keyed by `BuildingID`), `house` (1×1), and `house-dense` (2×2); **trees are
-   not occupants**.
+   (2×2, keyed by `BuildingID`), `house` (1×1), `house-dense` (2×2), and `structure`
+   (decorative authored block keyed by a `model` string, any footprint — see R10);
+   **trees are not occupants**.
 2. WHEN the authored map is assembled at module load THEN the system SHALL build a
    cell→occupant map and SHALL assert that no cell is claimed by more than one occupant.
 3. IF two occupants claim the same cell, OR a `building`/`house`/`house-dense` occupant
@@ -105,9 +107,12 @@ path square occupies one cell.
 
 #### Acceptance Criteria
 
-1. The roads SHALL be authored as `road` terrain cells: the gate path as the column
-   `(0, 0..5)` and the E–W road as the row `(−4..4, 0)`, rendered as flat plates just
-   above the grass (reusing the current path colour).
+1. The roads SHALL be authored as `road` terrain cells: the **full** gate column
+   `(0, −5..5)` — connecting the centre to the **west** gate `(0, 5)` **and** the
+   **east** gate `(0, −5)` — plus the N–S road row `(−4..4, 0)`, rendered as flat
+   `CELL×CELL` plates just above the grass (current path colour). A narrower **trail**
+   of cells `(−5..−9, 0)` SHALL run from the north gate out to the LumberMill, rendered
+   as thin plates (see R10.5).
 2. A `road` cell SHALL be non-buildable (no `house`/`building`/`house-dense` may be
    authored on it) and SHALL NOT host a tree.
 3. WHERE a `building` occupant covers a cell that the road would otherwise tile (e.g.
@@ -122,9 +127,12 @@ sits today, so that the four real buildings keep their recognised places on the 
 #### Acceptance Criteria
 
 1. Market, Blacksmith, LumberMill and IronMine SHALL each be authored as a **2×2**
-   `building` occupant anchored at the min-corner cell from the snapping table
-   (Market `(2,2)`, Blacksmith `(-2,-1)`, LumberMill `(-11,-1)`, IronMine `(-10,-9)`),
-   placing each within ≤ 1 cell of its current world centre.
+   `building` occupant anchored at the min-corner cell
+   (Market `(2,2)`→`[7.5,7.5]`, Blacksmith `(-2,-2)`→`[-4.5,-4.5]`,
+   LumberMill `(-11,-1)`→`[-31.5,-1.5]` with a `[-1.0, 0]` mesh offset,
+   IronMine `(-10,-9)`→`[-28.5,-25.5]`). **The Blacksmith was moved one cell north from
+   its original `(-2,-1)` so it no longer sits on the E–W road** — the prior C9
+   road-overlap (R4.3) is thereby resolved and is now moot.
 2. Each building SHALL render its existing per-building mesh
    (`MarketMesh`/`BlacksmithMesh`/`LumberMillMesh`/`MineMesh`) at the block centre, with
    a per-building centring offset and scale tuned so the model sits within its 6×6
@@ -143,8 +151,9 @@ so that grouped housing shows "5 or more" dwellings instead of four separate hut
 #### Acceptance Criteria
 
 1. Houses SHALL be authored as `house` (1×1) occupants on buildable `grass` cells,
-   snapped from the current scatter; their positions SHALL approximate today's interior
-   cluster.
+   confined to the interior band `i ∈ [-4, 2]` (the southern rows `i ≥ 3` are reserved —
+   R11), clear of the road plus and the Market/Blacksmith plots. The authored set is
+   **dense** (~41 cells → a mix of single houses and several 2×2 dense blocks).
 2. WHEN four `house` cells form a 2×2 block THEN the system SHALL replace them with a
    single `house-dense` occupant over those four cells, rendered by a **new**
    `HouseDenseMesh` depicting 5+ dwellings.
@@ -197,12 +206,64 @@ backdrop is authored, so that the read-only and reactivity guarantees are untouc
 1. The grid data and all meshes SHALL perform **no** engine mutation and SHALL read no
    engine state directly; the component SHALL consume only the `CityView` prop (parent
    R4.2, R6).
-2. The authored town geometry SHALL be built **once** at module load; only the
-   money/citizens overlay (and the hero legend derived from `CityView`) SHALL update on
-   a tick — the town SHALL NOT rebuild per tick.
+2. The authored town geometry SHALL be built **once** at module load and SHALL NOT
+   rebuild per tick. The only live-derived part is *which* hero meshes render (from
+   `CityView.buildings`). The on-canvas money/citizens overlay and the hero legend have
+   been **removed** — those values live in the app top bar (see R12).
 3. `three` / `@tresjs/core` SHALL remain imported only by the 3D component and its
    meshes; the 2D/initial bundle SHALL still build with them uninstalled (parent
    R4.3, NFR Dependency Isolation).
+
+### Requirement 10 — Decorative port + storage structures (added during iteration)
+
+**User Story:** As a viewer, I want a harbour and a storage warehouse by the sea, so the
+coastal town reads as a working port near the farm.
+
+#### Acceptance Criteria
+
+1. The system SHALL support a `structure` occupant (R2.1): a decorative, collision-checked
+   authored block keyed by a `model` string, placed on `grass` and validated by the same
+   single-occupant / buildable-terrain assertion as buildings/houses.
+2. A **Port** structure (2×2) SHALL sit on the reserved southern band by the sea
+   (anchor `(3,-2)` → `[10.5,-4.5]`), rendered by a new `PortMesh`; its dock / boat /
+   crane geometry MAY extend past the 2×2 footprint over the water.
+3. A **Storage** warehouse structure (2×2) SHALL sit just east of the port
+   (anchor `(3,-4)` → `[10.5,-10.5]`), between the port and the farm fields, rendered by
+   a new `StorageMesh`.
+4. Both meshes SHALL align with the medieval theme (timber/stone, reusing `PALETTE`),
+   SHALL be strictly read-only, and SHALL dispatch by `model` string via a
+   `STRUCTURE_MODELS` map in the view (mirroring the hero-mesh dispatch).
+5. A narrow **trail** (R4.1) SHALL connect the LumberMill to the town via the north gate.
+
+### Requirement 11 — Reserved sea-side space for a future port (added during iteration)
+
+**User Story:** As a designer, I want open space toward the sea, so a port and its future
+expansion have room.
+
+#### Acceptance Criteria
+
+1. The southern interior band `i ∈ [3, 4]` (toward the open sea, `+x`) SHALL be kept clear
+   of houses (R6.1) and of trees (a port-reserve guard in tree placement), leaving room
+   for the port/storage and future coastal structures.
+2. The N–S road SHALL reach the southern edge (`(4,0)`) so the port connects to the sea
+   opening.
+
+### Requirement 12 — On-canvas UI: debug grid + overlays removed (added during iteration)
+
+**User Story:** As a developer, I want to toggle a cell grid and keep the canvas free of
+duplicated HUD, so the view is clean and easy to debug.
+
+#### Acceptance Criteria
+
+1. `CityGlobalView3D.vue` SHALL expose a boolean `SHOW_GRID` flag that, when `true`,
+   overlays a cell grid (a `TresGridHelper` whose lines fall on **cell boundaries**, one
+   square per cell) for visualising placement; it SHALL be purely cosmetic (no engine
+   effect) and trivially toggleable.
+2. The on-canvas money/citizens overlay and the hero-building legend SHALL be **removed**;
+   the canvas SHALL show only the 3D scene (those values live in the app top bar).
+3. The app's **"City"** top-bar label SHALL be clickable to deselect any building and
+   return to the 3D city view (`active_building_id = null`), highlighting while the city
+   view is active (implemented in `App.vue`; parent-cycle container — see parent R2).
 
 ## Non-Functional Requirements
 
@@ -216,7 +277,8 @@ backdrop is authored, so that the read-only and reactivity guarantees are untouc
   iterating the assembled occupancy/terrain/tree data — no per-structure literals in the
   template beyond the occupant→mesh dispatch.
 - **Reuse over reinvention:** reuse the existing `PALETTE`, `HouseMesh`, `TreeMesh`,
-  `MountainMesh`, and the four hero meshes; the only new mesh is `HouseDenseMesh`.
+  `MountainMesh`, and the four hero meshes; the new meshes are `HouseDenseMesh`,
+  `PortMesh` and `StorageMesh`.
 
 ### Performance
 - The grid (≤ ~1100 cells) and all geometry SHALL be computed once at module load; the

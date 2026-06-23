@@ -97,6 +97,9 @@ that I see its state instead of a raw object dump.
 5. The registry SHALL map `BuildingID → art component` and SHALL be the single place a
    new environment art view is registered (adding one art view = one component + one
    registry entry, no view-model change).
+6. The "no active tab" city scene SHALL also be reachable by clicking the **"City"**
+   top-bar label, which deselects any building (`active_building_id = null`) and
+   highlights while the city view is active ([App.vue](../../../src/App.vue)).
 
 ### Requirement 3 — 2D Blacksmith art prototype (SVG/CSS)
 
@@ -128,13 +131,16 @@ selected, so that the game has an ambient sense of place.
 #### Acceptance Criteria
 
 1. WHEN no building tab is active THEN the system SHALL render a **3D (Three.js/TresJS)**
-   ambient scene showing the city in the background, with `city.money` and
-   `city.citizens_count` surfaced as an overlay.
+   ambient scene showing the city in the background. (City money / citizens are shown in
+   the app top bar; the earlier on-canvas overlay was removed.) **This arm has been
+   substantially advanced into a grid-based map** — see the
+   [`3d-city-grid`](./3d-city-grid/request.md) sub-feature (grid model, walls/roads,
+   denser housing, a port + storage, and a debug grid toggle).
 2. The 3D scene SHALL read **exclusively** from the shared `CityView` (no direct engine
    access) and SHALL be strictly read-only.
-3. The 3D arm SHALL introduce `three` and `@tresjs/core` as new runtime dependencies
-   (absent from [package.json](../../../package.json) today), **isolated** behind a
-   lazy-loaded component so the 2D path and initial bundle do not pull in `three`.
+3. The 3D arm introduced `three` and `@tresjs/core` as runtime dependencies (now present
+   in [package.json](../../../package.json)), **isolated** behind a lazy-loaded component
+   so the 2D path and initial bundle do not pull in `three`.
 4. IF the 2D arm is judged sufficient during the slice THEN the 3D arm MAY be **cut
    before completion**, provided the comparison write-up (R5) records the decision and
    what was learned.

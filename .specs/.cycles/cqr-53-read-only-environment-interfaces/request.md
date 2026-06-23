@@ -76,3 +76,8 @@ documented 2D-vs-3D recommendation with rollout follow-ups.
 5. 2D vs 3D comparison & direction decision
 
 Dependency chain: 1 → 2 → (3, 4) → 5.
+
+> **Update (as-built):** sub-issue 4 (the 3D City-global arm) was not cut — it was
+> pursued and iterated into the [`3d-city-grid`](./3d-city-grid/request.md) sub-feature
+> (grid map, walls/roads, denser housing, a port + storage, a debug grid, and removal of
+> the on-canvas overlay/legend in favour of the top bar).

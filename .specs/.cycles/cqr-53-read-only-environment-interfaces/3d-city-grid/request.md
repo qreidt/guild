@@ -197,3 +197,29 @@ the same way; their final authored set is iterated in implementation.
   existing components.
 - Keep the compass comment block from `town-layout.ts` — it stays correct under the
   grid.
+
+---
+
+## Post-implementation iterations (as-built — 2026-06-22)
+
+The grid landed per this brief, then iterated live. Net deltas (full detail in
+[`requirements.md`](./requirements.md) R5/R10–R12 and the "As-built deltas" in
+[`plan.md`](./plan.md)):
+
+- **C9 resolved.** The Blacksmith moved one cell north (anchor `(-2,-1)`→`(-2,-2)`,
+  centre `[-4.5,-4.5]`) so it no longer sits on the E–W road; the road cross renders
+  unbroken. Conflict **C9 is moot**.
+- **Road network.** The gate column was extended to `(0,-5..5)` to add the **east-gate
+  path**; a narrow **trail** `(-5..-9,0)` connects the **LumberMill** to the north gate.
+- **Denser interior + sea reserve.** ~41 house cells (confined to `i ∈ [-4,2]`); the
+  southern band `i ∈ [3,4]` kept open for a port.
+- **Port + storage.** A new `structure` occupant kind hosts a **Port** (`(3,-2)`) and a
+  **Storage** warehouse (`(3,-4)`) by the sea near the farm — medieval-themed
+  `PortMesh` / `StorageMesh`. (So `HouseDenseMesh` is no longer the *only* new mesh.)
+- **UI.** Added a `SHOW_GRID` debug grid; **removed** the on-canvas money/citizens overlay
+  and the hero legend (those values are in the top bar); the app **"City"** label now
+  deselects to the 3D city view; camera widened to frame the harbour.
+- **Implementation note.** The renderer keeps the existing per-kind export arrays
+  (`WALL_BOXES`, `GROUND_PATCHES`, `HERO_PLOTS`, `DECORATIVE_HOUSES`, `DENSE_HOUSES`,
+  `TREES`, `STRUCTURES`) rather than a single `TOWN_MAP` object — the grid model still
+  gates everything through the `buildOccupancy` assertion.

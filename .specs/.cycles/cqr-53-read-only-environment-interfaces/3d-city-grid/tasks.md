@@ -50,3 +50,31 @@
   - _Leverage: plan.md § Testing Strategy; `npm run build` (vue-tsc -b); `npm run dev`; optionally `npm run console` for the pure `mergeHouses`/`buildOccupancy` checks_
   - _Requirements: All_
   - _Prompt: Implement this task for the 3d-city-grid sub-feature (read requirements.md + plan.md first). Role: QA / TypeScript developer | Task: Run `npm run build` (vue-tsc -b) and fix any type errors. Start `npm run dev`, deselect all tabs to show the city, and verify the plan.md checklist: (1) walls form a tiled ring at ±15 with open N/E/W gates + open south + corner/bastion towers; (2) roads are tiled plates with no tile poking through the Blacksmith; (3) the 4 hero buildings sit within ~1 cell of their old spots and are centred in their plots (check LumberMill offset); (4) houses show singles + ≥1 dense "5+" block; (5) trees survive with no overlaps and Mine/Mill clearance; (6) duplicating a house cell onto an occupied cell makes the module throw at load (then revert); (7) money/citizens overlay updates each tick and the town does not rebuild; (8) three/@tresjs remain imported only by the 3D component + meshes. Optionally run the pure mergeHouses/buildOccupancy checks via tsx. Log findings. | Restrictions: Fix only type errors and obvious bugs — no scope creep. | _Requirements: All_ | Success: `vue-tsc -b` exits clean; all applicable checklist items pass; no console errors during the normal game loop. Mark [-]/[x]._
+
+---
+
+## Iteration tasks (post-spec — completed)
+
+Done after the initial 6 tasks as the 3D arm was refined live. Captured for traceability
+(see "As-built deltas" in [`plan.md`](./plan.md) and R5/R10–R12 in
+[`requirements.md`](./requirements.md)).
+
+- [x] 7. **Layout adjustments** — move the Blacksmith off the E–W road (anchor `(-2,-1)`→
+  `(-2,-2)`, resolving C9); add the east-gate path (full gate column `(0,-5..5)`); add a
+  narrow LumberMill trail (`TRAIL_CELLS`); densify the interior (~41 house cells,
+  `i ∈ [-4,2]`); reserve the southern band `i ∈ [3,4]` for a port.
+  _File: `town-layout.ts`. Requirements: R4, R5, R6, R11._
+- [x] 8. **Port + storage structures (R10)** — add the `structure` occupant kind to
+  `grid.ts`; author `STRUCTURE_PLOTS` (port `(3,-2)`, storage `(3,-4)`) and export
+  `STRUCTURES`; build `PortMesh.vue` (medieval harbour: quay, dock, crane, boat) and
+  `StorageMesh.vue` (timber warehouse); dispatch via `STRUCTURE_MODELS`.
+  _Files: `grid.ts`, `town-layout.ts`, `PortMesh.vue`, `StorageMesh.vue`,
+  `CityGlobalView3D.vue`. Requirements: R2, R10._
+- [x] 9. **UI polish (R12)** — add the `SHOW_GRID` debug grid (`TresGridHelper`); remove
+  the on-canvas money/citizens overlay and the hero legend; widen the camera to frame the
+  harbour; make the app **"City"** top-bar label deselect to the city view.
+  _Files: `CityGlobalView3D.vue`, `App.vue`. Requirements: R9, R12._
+- [x] 10. **Re-verify** — `vue-tsc -b --force` clean; module assembles without the
+  assertion throwing; runtime counts confirmed (Blacksmith `[-4.5,-4.5]`, 19 road + 5
+  trail tiles, ~41 houses, port/storage placed); browser checks (no console errors;
+  City-label deselect; overlay/legend gone). _Requirements: All._

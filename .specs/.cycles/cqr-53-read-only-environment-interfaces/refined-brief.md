@@ -37,6 +37,9 @@ dashboard.
 - **3D arm → 2D first, 3D is a cut-able spike.** Build the 2D Blacksmith fully; build
   the 3D city-global only far enough to compare, and **cut it before completion if the
   2D arm already feels right.** Matches the "minimal, steerable first pass" framing.
+  *(Update — as-built: the 3D arm was **not** cut; it was pursued as the primary 3D
+  direction and iterated into the [`3d-city-grid`](./3d-city-grid/request.md)
+  sub-feature — grid map, walls/roads, denser housing, a port + storage, debug grid.)*
 - **Global view → city-as-background art scene** + city-level info already in the
   header (`city.money`, `city.citizens_count`). No city-level *aggregate* shape is
   required in the view-model for this slice.

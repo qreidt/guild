@@ -73,8 +73,9 @@ src/
 
 ### Integration Points
 - **`App.vue`**: replace `<pre v-else>{{ activeBuilding }}</pre>` with
-  `<EnvironmentView :building-id="active_building_id" />`. The `Market` branch is
-  unchanged.
+  `<EnvironmentView :building-id="active_building_id" />`; the `Market` branch is
+  unchanged. The **"City"** top-bar label is clickable to deselect any building
+  (`active_building_id = null`) and return to the city view.
 - **`BuildingsList`**: no change — selection already drives `active_building_id`.
 
 ## Architecture
@@ -262,17 +263,19 @@ graph TD
 
 ---
 
-### `src/components/environment/views/CityGlobalView3D.vue` — 3D art arm (cut-able)
+### `src/components/environment/views/CityGlobalView3D.vue` — 3D art arm
 - **Purpose:** ambient 3D backdrop of the city for the no-active-tab state.
-- **Props:** `view: CityView`.
-- **Presentation:** a `<TresCanvas>` scene placing one simple mesh per
-  `view.buildings[]` entry (the city "in the background"), with a money + citizens
-  overlay (plain HTML over the canvas). Optionally tint lighting by
-  `controller.isNight()`. Thin by design.
-- **Dependencies:** `three`, `@tresjs/core` (NEW). Imported only here; component is
-  lazy-loaded so these stay out of the 2D/initial bundle.
-- **Cut rule:** if the 2D arm already feels right, stop before completing this and
-  record why in the comparison (R5/Task 6).
+- **Props:** `view: CityView` (read-only).
+- **Presentation (as-built):** a `<TresCanvas>` village rendered from an authored
+  **grid map** — walls/towers, tiled roads + a LumberMill trail, the 4 hero buildings,
+  dense + single houses, a port + storage by the sea, and a forest. Money / citizens are
+  in the app top bar (no on-canvas overlay). A `SHOW_GRID` flag overlays the cell grid for
+  debugging. **Designed in detail in the [`3d-city-grid`](./3d-city-grid/plan.md)
+  sub-feature** — the grid model, single-occupant assertion, meshes and layout live there.
+- **Dependencies:** `three`, `@tresjs/core`. Imported only here (and its `city/*Mesh.vue`
+  set); the component is lazy-loaded so these stay out of the 2D/initial bundle.
+- **Note:** this arm was *not* cut — it became the primary 3D direction (see the
+  sub-feature).
 
 ---
 
@@ -280,7 +283,7 @@ graph TD
 
 | File | Change |
 |------|--------|
-| [src/App.vue](../../../src/App.vue) | Replace `<pre v-else>{{ activeBuilding }}</pre>` (line 30) with `<EnvironmentView v-else :building-id="active_building_id" />`; import the container. Market `v-if` branch unchanged. |
+| [src/App.vue](../../../src/App.vue) | Replace `<pre v-else>{{ activeBuilding }}</pre>` with `<EnvironmentView v-else :building-id="active_building_id" />`; import the container; Market `v-if` branch unchanged. The **City** label is clickable to deselect (`active_building_id = null`). |
 | [package.json](../../../package.json) | Add `three` + `@tresjs/core` to `dependencies` (3D arm only). |
 
 ## Data Models

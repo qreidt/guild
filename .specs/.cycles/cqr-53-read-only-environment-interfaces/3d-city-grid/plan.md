@@ -22,6 +22,36 @@ The grid is **layout-only**: hardcoded data, no engine reads, no placement UI, n
 per-tick rebuild (parent R4/R6). The point is to express the town as data and let the
 "one building per cell" rule be machine-checked.
 
+## As-built deltas (post-implementation)
+
+The build followed this plan with a few deliberate divergences (all reflected in
+[`requirements.md`](./requirements.md) R5/R10–R12). Where the sections below still
+describe a single `TOWN_MAP` object, read it as the conceptual model — the code keeps
+the per-kind export arrays instead:
+
+- **Render arrays, not one `TOWN_MAP`.** `town-layout.ts` keeps the per-kind export
+  arrays the view already consumed — `WALL_BOXES`, `GROUND_PATCHES` (sea + fields +
+  per-cell road **and** narrow trail plates), `HERO_PLOTS`, `DECORATIVE_HOUSES`,
+  `DENSE_HOUSES`, `TREES` — plus a new `STRUCTURES`. `grid.ts` is still the source of
+  truth: those arrays are *derived from* the authored cells, and `buildOccupancy(PLACED)`
+  still asserts the single-occupant invariant. This kept the `.vue` render loops nearly
+  unchanged (lower risk than a full `TOWN_MAP` dispatch refactor).
+- **`structure` occupant + port/storage (R10).** `grid.ts` gained a fifth occupant kind
+  `{ kind:'structure'; model:string }`; `town-layout.ts` authors `STRUCTURE_PLOTS` (port,
+  storage) and exports `STRUCTURES`; the view dispatches by `model` via a
+  `STRUCTURE_MODELS` map. New meshes: `PortMesh.vue`, `StorageMesh.vue`.
+- **Blacksmith off the road (R5).** Anchor `(-2,-1)` → `(-2,-2)`, centre `[-4.5,-4.5]`;
+  the C9 road-overlap is resolved (the road cross renders unbroken).
+- **Road network (R4).** Gate column extended to `(0,-5..5)` (adds the east-gate path);
+  `TRAIL_CELLS` `(-5..-9,0)` is a narrow trail to the LumberMill; both fold into the road
+  set so trees/buildings avoid them.
+- **Denser interior + sea reserve (R6, R11).** ~41 house cells confined to `i ∈ [-4,2]`;
+  the southern band `i ∈ [3,4]` is left open for the port.
+- **UI (R12).** Added the `SHOW_GRID` debug grid (`TresGridHelper`, lines on cell
+  boundaries); **removed** the on-canvas money/citizens overlay and the hero legend;
+  widened the camera (`[30,35,27]`, look-at `[-4,2,-7]`, fov `52`) to frame the harbour;
+  made the app **"City"** label deselect to the city view (`App.vue`).
+
 ## Steering Document Alignment
 
 No steering docs exist (`.spec-workflow/steering/` absent). The design follows the
@@ -43,6 +73,8 @@ src/components/environment/views/
     ├── grid.ts                   # NEW — cell model, types, helpers, merge, assertion (no Vue/three)
     ├── town-layout.ts            # MODIFIED — authored cell data + assembly; keeps PALETTE
     ├── HouseDenseMesh.vue        # NEW — 2×2 "5+" dense-housing mesh
+    ├── PortMesh.vue              # NEW — medieval harbour (dock, crane, boat)
+    ├── StorageMesh.vue           # NEW — timber storage warehouse
     ├── HouseMesh.vue             # unchanged
     ├── TreeMesh.vue              # unchanged
     ├── MountainMesh.vue          # unchanged
@@ -115,7 +147,8 @@ graph TD
     | { kind: 'wall'; variant: 'wall' | 'tower'; axis?: 'x' | 'z' }
     | { kind: 'building'; id: BuildingID }   // 2x2, anchored at this cell
     | { kind: 'house' }                      // 1x1
-    | { kind: 'house-dense' };               // 2x2, anchored at this cell
+    | { kind: 'house-dense' }                // 2x2, anchored at this cell
+    | { kind: 'structure'; model: string };  // decorative (port/storage), any footprint
 
   export interface PlacedOccupant { anchor: Cell; w: number; d: number; occ: Occupant; }
 
@@ -151,44 +184,35 @@ graph TD
 - **Purpose:** the authored map content + one-time assembly. Keeps `PALETTE`,
   `GROUND_SIZE`, the compass comment block, `MOUNTAINS`, and the `mulberry32`/`pick`
   helpers.
-- **New authored data (all module-level constants):**
-  ```typescript
-  // Perimeter at ±5 cells. Gates left out; corners + bastions are towers.
-  export const WALL_TILES: PlacedOccupant[]      // wall + tower tiles, axis tagged
-  export const ROAD_CELLS: Cell[]                // (0,0..5) ∪ (−4..4,0)
-  export const BUILDING_PLOTS: Partial<Record<BuildingID, {
-    anchor: Cell; offset: [number, number]; scale: number; tone: string;
-  }>>                                            // 2x2 plots from the snapping table
-  export const HOUSE_CELLS: Cell[]               // interior grass cells (pre-merge)
-  export const TREE_DECOS: { cell: Cell; offset: [number, number]; scale: number }[]
-  export function terrainAt(i: number, j: number): Terrain  // water/field/mountain/road/grass
-  ```
-- **Assembly (runs once at load):**
+- **Authored cell data (module-level constants):** `BUILDING_PLOTS` (4 hero 2×2 plots),
+  `STRUCTURE_PLOTS` (port + storage 2×2, `model`-keyed), `ROAD_CELLS` (`(0,-5..5)` ∪
+  `(-4..4,0)`), `TRAIL_CELLS` (`(-5..-9,0)`), `HOUSE_CELLS` (~41 interior grass cells,
+  `i ∈ [-4,2]`), and `terrainAt(i,j)` (grass/water/field/mountain/road). `WALL_CELLS` is
+  generated by `buildWallCells()`; `MOUNTAINS` / `GROUND_PATCHES` (sea + fields) are kept.
+- **Assembly + assertion (runs once at load):**
   ```typescript
   const { dense, singles } = mergeHouses(HOUSE_CELLS);
-  const placed: PlacedOccupant[] = [
-    ...WALL_TILES,
-    ...buildingPlotsToPlaced(BUILDING_PLOTS),     // w=d=2
-    ...dense.map(anchorToDense),                  // w=d=2 'house-dense'
-    ...singles.map(cellToHouse),                  // w=d=1 'house'
+  const PLACED: PlacedOccupant[] = [
+    ...wallTiles, ...buildingPlots, ...structurePlots,  // structures are 2×2 occupants too
+    ...dense /* house-dense 2×2 */, ...singles /* house 1×1 */,
   ];
-  export const OCCUPANCY = buildOccupancy(placed, terrainAt);   // throws on conflict
-  export const TOWN_MAP = {
-    occupants: placed,            // for render iteration
-    roads: ROAD_CELLS.filter(c => !occupantCovers(OCCUPANCY, c)),  // C9: building wins
-    terrainPatches: GROUND_PATCHES,   // sea + fields kept as today's plates
-    mountains: MOUNTAINS,
-    trees: TREE_DECOS.filter(t => isTreeCellFree(t.cell)),         // R7.2–R7.3
-  };
+  export const OCCUPANCY = buildOccupancy(PLACED, terrainAt); // throws on conflict / bad terrain
   ```
+- **Derived render arrays (consumed by the view):** `HERO_PLOTS`, `WALL_BOXES`,
+  `GROUND_PATCHES` (sea + fields + per-cell road plates + narrow trail plates;
+  building-covered road cells dropped — C9), `DECORATIVE_HOUSES`, `DENSE_HOUSES`,
+  `TREES` (filtered by terrain + `OCCUPANCY` + a port-reserve guard), and `STRUCTURES`.
+  *(No single `TOWN_MAP` object — see As-built deltas.)*
 - **Authored values (carried-over placement):**
 
   | Building   | anchor `(i,j)` | block centre    | mesh offset note                                                                 |
   |------------|----------------|-----------------|----------------------------------------------------------------------------------|
-  | Market     | `(2, 2)`       | `[7.5, 7.5]`    | mesh ~centred; offset `[0,0]`                                                    |
-  | Blacksmith | `(-2, -1)`     | `[-4.5,-1.5]`   | mesh ~centred; **covers road row j=0 at i=−2,−1 → road omitted there (C9/R4.3)** |
-  | LumberMill | `(-11, -1)`    | `[-31.5,-1.5]`  | mesh authored off-origin → centring offset ≈ `[-0.8, 0.3]`, verify visually      |
-  | IronMine   | `(-10, -9)`    | `[-28.5,-25.5]` | mesh ~centred; small offset if needed                                            |
+  | Market     | `(2, 2)`       | `[7.5, 7.5]`    | mesh ~centred; offset `[0,0]`                          |
+  | Blacksmith | `(-2, -2)`     | `[-4.5,-4.5]`   | moved 1 cell north off the E–W road (C9 resolved)     |
+  | LumberMill | `(-11, -1)`    | `[-31.5,-1.5]`  | mesh authored off-origin → centring offset `[-1.0, 0]` |
+  | IronMine   | `(-10, -9)`    | `[-28.5,-25.5]` | mesh ~centred; offset `[0,0]`                          |
+  | **Port**   | `(3, -2)`      | `[10.5,-4.5]`   | `structure` (model `port`); dock/boat extend over sea |
+  | **Storage**| `(3, -4)`      | `[10.5,-10.5]`  | `structure` (model `storage`); between port and farm  |
 
 - **Dependencies:** `grid.ts`, `BuildingID`. **No Vue, no `three`.**
 
@@ -209,43 +233,46 @@ graph TD
 ---
 
 ### `src/components/environment/views/CityGlobalView3D.vue` — MODIFIED
-- **Purpose:** render the scene by iterating `TOWN_MAP`; keep all existing scaffolding.
-- **Changes:**
-  - Replace the `WALL_BOXES` loop with a loop over `TOWN_MAP.occupants` where
-    `occ.kind === 'wall'`: render a box at `blockCenter(...)` sized `[CELL,H,T]` (axis `x`)
-    or `[T,H,CELL]` (axis `z`) for `variant:'wall'`, or a `[towerW,towerH,towerW]` box for
-    `variant:'tower'`.
-  - Replace the `GROUND_PATCHES` path entries with a loop over `TOWN_MAP.roads` rendering
-    a flat `CELL×CELL` plate per road cell (sea + fields stay as `terrainPatches`).
-  - Hero buildings: iterate `occ.kind === 'building'`, look up the mesh by `occ.id`
-    (existing `HERO_MODELS` map) and the plot's `offset`/`scale`, render at
-    `blockCenter + offset`. Legend/`heroBuildings` still derived from `props.view.buildings`.
-  - Houses: iterate `occ.kind === 'house'` → `HouseMesh` at `cellCenter`;
-    `occ.kind === 'house-dense'` → `HouseDenseMesh` at `blockCenter`.
-  - Trees: loop `TOWN_MAP.trees` → `TreeMesh` at `cellCenter(cell) + offset`.
-  - Mountains, camera, lights, fog, ground, overlay, legend: **unchanged**.
-- **Reactivity:** unchanged — only the overlay (`view.money`/`view.citizens`) and the
-  legend update on a tick; `TOWN_MAP` is module-level constant data (parent R6, R9.2).
+- **Purpose:** render the scene by iterating the derived export arrays from
+  `town-layout.ts`; keep the camera/lights/fog/ground scaffolding.
+- **Changes (as-built):**
+  - Walls/towers: loop `WALL_BOXES` (pre-built `BoxRect`s — position/size/colour).
+  - Roads + trail + terrain: loop `GROUND_PATCHES` (sea, fields, per-cell road plates,
+    narrow trail plates) as flat planes.
+  - Hero buildings: `heroBuildings` (from `props.view.buildings` × `HERO_PLOTS`) dispatch
+    via `HERO_MODELS[id]` at `plot.position` / `plot.scale`.
+  - Structures: loop `STRUCTURES` → dispatch via `STRUCTURE_MODELS[model]`
+    (`port`→`PortMesh`, `storage`→`StorageMesh`).
+  - Houses: loop `DECORATIVE_HOUSES` → `HouseMesh`; `DENSE_HOUSES` → `HouseDenseMesh`.
+    Trees: loop `TREES` → `TreeMesh`.
+  - **Debug grid:** `<TresGridHelper v-if="SHOW_GRID">` (lines on cell boundaries — R12.1).
+  - **Removed:** the on-canvas money/citizens overlay and the hero legend (R12.2).
+  - **Camera:** `[30,35,27]`, look-at `[-4,2,-7]`, fov `52` (frames the harbour).
+- **Reactivity:** the render arrays are module-level constants (the town never rebuilds
+  on a tick); only *which* hero meshes render derives from `props.view.buildings`
+  (parent R6, R9.2).
 
 ### Changes to existing files
 
 | File                                                                                      | Change                                                                                                                                                                                           |
 |-------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [town-layout.ts](../../../../src/components/environment/views/city/town-layout.ts)        | Refactor from continuous scatter to authored cell data + assembly (merge + assertion). Keep `PALETTE`, `GROUND_SIZE`, `MOUNTAINS`, `GROUND_PATCHES` (sea/fields), compass comment, PRNG helpers. |
-| [CityGlobalView3D.vue](../../../../src/components/environment/views/CityGlobalView3D.vue) | Render from `TOWN_MAP` (wall/tower/road/building/house/house-dense/tree dispatch); keep camera/lights/overlay/legend.                                                                            |
-| `city/grid.ts`                                                                            | **New** model module.                                                                                                                                                                            |
-| `city/HouseDenseMesh.vue`                                                                 | **New** dense-housing mesh.                                                                                                                                                                      |
+| [CityGlobalView3D.vue](../../../../src/components/environment/views/CityGlobalView3D.vue) | Render from the derived export arrays (`WALL_BOXES`, `GROUND_PATCHES`, `HERO_PLOTS`, `STRUCTURES`, `DECORATIVE_HOUSES`, `DENSE_HOUSES`, `TREES`); add `STRUCTURE_MODELS` dispatch + the `SHOW_GRID` grid; **remove** the money/citizens overlay and legend; widen the camera.                                                                            |
+| `city/grid.ts`                                                                            | **New** model module (incl. the `structure` occupant kind).                                                                                                                                                                            |
+| `city/HouseDenseMesh.vue`                                                                 | **New** dense-housing mesh. |
+| `city/PortMesh.vue`, `city/StorageMesh.vue`                                               | **New** structure meshes (port, storage). |
+| [App.vue](../../../../src/App.vue)                                                         | The **City** top-bar label deselects to the 3D city view (`active_building_id = null`).                                                                                                                                                                      |
 
 ## Data Models
 
 - **`Cell = readonly [number, number]`** — integer grid indices.
 - **`Terrain`** — `grass | water | field | mountain | road`; `isBuildable === grass`.
-- **`Occupant`** — discriminated union (`wall`/`building`/`house`/`house-dense`); trees
-  are **not** occupants.
-- **`PlacedOccupant`** — `{ anchor: Cell; w; d; occ }`; the unit the assertion validates
-  and the renderer iterates.
-- **`TOWN_MAP`** — `{ occupants, roads, terrainPatches, mountains, trees }`, frozen at
-  module load.
+- **`Occupant`** — discriminated union (`wall`/`building`/`house`/`house-dense`/
+  `structure`); trees are **not** occupants.
+- **`PlacedOccupant`** — `{ anchor: Cell; w; d; occ }`; the unit the assertion validates.
+- **Render transforms** — `HeroPlot`, `BoxRect`, `GroundPatch`, `HouseTransform`,
+  `DenseHouseTransform`, `StructureTransform`, `TreeTransform`: the per-kind export
+  arrays the view iterates (in lieu of a single `TOWN_MAP`).
 
 All are plain data; none hold engine references or methods (parent R6).
 
@@ -256,8 +283,10 @@ All are plain data; none hold engine references or methods (parent R6).
    cell + both occupants. Surfaces immediately in dev (R2.2–R2.3).
 2. **Building/house on non-buildable terrain** (water/field/mountain/road) — same
    assertion throws (R2.3, R8.3).
-3. **Building plot overlaps a road cell** (Blacksmith on the E–W road) — *not* an error:
-   the road cell is filtered out where a building covers it (C9/R4.3); the building wins.
+3. **Building plot overlaps a road cell** — *not* an error: the road cell is filtered out
+   where a building covers it (R4.3); the building wins. *(The original Blacksmith/road
+   overlap, C9, was instead resolved by moving the Blacksmith one cell north — see
+   As-built deltas; no building currently overlaps a road.)*
 4. **Tree on an occupied or road/water cell** — filtered out during `TOWN_MAP` assembly
    (R7.2); never rendered, never asserted.
 5. **House region not divisible into clean 2×2s** (L-shapes, odd widths) — `mergeHouses`
@@ -294,7 +323,11 @@ dev-server checks plus optional pure-function checks via `npm run console` (tsx)
    Mill keep their clearance.
 6. **Assertion:** temporarily duplicating a house cell onto an occupied cell makes the
    module throw at load (then revert).
-7. **Read-only / reactivity:** money/citizens overlay updates each tick; the town does
-   not rebuild; selecting/deselecting buildings swaps views cleanly.
-8. **Isolation & types:** `vue-tsc -b` passes; the 3D component + meshes are still the
+7. **Read-only / reactivity:** the town does not rebuild on a tick; selecting a building
+   shows its view and clicking the **City** label returns to the 3D city; money/citizens
+   stay in the top bar (no on-canvas overlay or legend).
+8. **Structures + grid (R10–R12):** the port + storage render by the sea (south band) in
+   the medieval theme; the LumberMill trail and east-gate path are present; flipping
+   `SHOW_GRID` overlays cell-boundary lines.
+9. **Isolation & types:** `vue-tsc -b` passes; the 3D component + meshes are still the
    only importers of `three`/`@tresjs/core` (the 2D path builds without them).
