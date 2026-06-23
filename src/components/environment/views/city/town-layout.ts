@@ -172,6 +172,32 @@ for (const plot of Object.values(BUILDING_PLOTS)) {
 }
 
 // ---------------------------------------------------------------------------
+// Decorative authored structures (not game buildings) — the port + its storage
+// warehouse, placed on the reserved southern band next to the sea and the farm.
+// Each is a grid occupant (collision-checked, must be on grass) rendered by a
+// model-keyed mesh in CityGlobalView3D.vue.
+// ---------------------------------------------------------------------------
+
+interface StructurePlot {
+    anchor: Cell;
+    w: number;
+    d: number;
+    /** Mesh key (see STRUCTURE_MODELS in the view). */
+    model: string;
+    /** Per-model centring nudge (x, z) in world units. */
+    offset: Vec2;
+    scale: number;
+    rotationY: number;
+}
+
+const STRUCTURE_PLOTS: StructurePlot[] = [
+    // Port — south edge by the sea (its dock + boat extend +x into the water).
+    { anchor: [3, -2], w: 2, d: 2, model: "port", offset: [0, 0], scale: 1.0, rotationY: 0 },
+    // Storage warehouse — just east of the port, nearest the SE corner / farm.
+    { anchor: [3, -4], w: 2, d: 2, model: "storage", offset: [0, 0], scale: 1.0, rotationY: 0 },
+];
+
+// ---------------------------------------------------------------------------
 // Roads — one cell per tile. Vertical gate path + horizontal E–W road.
 // ---------------------------------------------------------------------------
 
@@ -317,6 +343,12 @@ const PLACED: PlacedOccupant[] = [
         d: 2,
         occ: { kind: "building" as const, id: id as BuildingID },
     })),
+    ...STRUCTURE_PLOTS.map((s) => ({
+        anchor: s.anchor,
+        w: s.w,
+        d: s.d,
+        occ: { kind: "structure" as const, model: s.model },
+    })),
     ...DENSE_ANCHORS.map((anchor) => ({ anchor, w: 2, d: 2, occ: { kind: "house-dense" as const } })),
     ...HOUSE_SINGLES.map((anchor) => ({ anchor, w: 1, d: 1, occ: { kind: "house" as const } })),
 ];
@@ -355,6 +387,26 @@ export const HERO_PLOTS: Partial<Record<BuildingID, HeroPlot>> = Object.fromEntr
         return [id, { position: [cx + plot.offset[0], cz + plot.offset[1]] as Vec2, scale: plot.scale, tone: plot.tone }];
     }),
 ) as Partial<Record<BuildingID, HeroPlot>>;
+
+export interface StructureTransform {
+    id: string;
+    model: string;
+    position: Vec2;
+    rotationY: number;
+    scale: number;
+}
+
+/** Decorative authored structures (port, storage), ready to render. */
+export const STRUCTURES: StructureTransform[] = STRUCTURE_PLOTS.map((s) => {
+    const [cx, cz] = blockCenter(s.anchor[0], s.anchor[1], s.w, s.d);
+    return {
+        id: `struct-${s.model}-${s.anchor[0]}-${s.anchor[1]}`,
+        model: s.model,
+        position: [cx + s.offset[0], cz + s.offset[1]],
+        rotationY: s.rotationY,
+        scale: s.scale,
+    };
+});
 
 /** Per-cell wall + tower boxes (BoxRect, ready to render). */
 export const WALL_BOXES: BoxRect[] = WALL_CELLS.map((w) => {

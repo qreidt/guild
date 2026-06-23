@@ -12,6 +12,8 @@ import BlacksmithMesh from "./city/BlacksmithMesh.vue";
 import LumberMillMesh from "./city/LumberMillMesh.vue";
 import MineMesh from "./city/MineMesh.vue";
 import MountainMesh from "./city/MountainMesh.vue";
+import PortMesh from "./city/PortMesh.vue";
+import StorageMesh from "./city/StorageMesh.vue";
 import {
   DECORATIVE_HOUSES,
   DENSE_HOUSES,
@@ -20,6 +22,7 @@ import {
   HERO_PLOTS,
   MOUNTAINS,
   PALETTE,
+  STRUCTURES,
   TREES,
   WALL_BOXES,
   type HeroPlot,
@@ -31,8 +34,9 @@ import {
  * The town is authored, static geometry (see `town-layout.ts`) built once from
  * `three` primitives — fixed camera, grass terrain, walls + towers, water,
  * fields, decorative houses and a forest. The 4 real buildings render as larger,
- * flagged "hero" structures driven by the shared `CityView`; only the
- * money/citizens overlay is reactive (the town never rebuilds on a tick).
+ * flagged "hero" structures driven by the shared `CityView` (which buildings
+ * exist); the town is otherwise static and never rebuilds on a tick. City money
+ * and citizens are shown in the app's top bar, not over the canvas.
  *
  * Reads exclusively from the `CityView` prop — no engine access (R4.2).
  * `three` / `@tresjs/core` are imported only here; the container lazy-loads this
@@ -43,6 +47,16 @@ const props = defineProps<{
 }>();
 
 const GROUND_ROT: [number, number, number] = [-Math.PI / 2, 0, 0];
+
+// ── Debug toggle ──────────────────────────────────────────────────────────
+// Flip to `true` to overlay the cell grid (lines fall on cell boundaries, one
+// square per grid cell) — handy for visualising placement. Purely cosmetic.
+const SHOW_GRID = true;
+
+// 32 cells × CELL(3) = 96 units; offset by half a cell so lines sit on the
+// cell boundaries rather than through cell centres.
+const GRID_ARGS: [number, number, string, string] = [96, 32, "#1e293b", "#334155"];
+const GRID_POS: [number, number, number] = [1.5, 0.02, 1.5];
 
 // Real buildings placed at their fixed plots. Keyed by id so per-tick
 // re-renders patch the existing nodes rather than recreating them.
@@ -64,6 +78,15 @@ const HERO_MODELS: Partial<Record<BuildingID, Component>> = {
 };
 function heroModel(id: BuildingID): Component | undefined {
   return HERO_MODELS[id];
+}
+
+// Decorative authored structures (port, storage), keyed by model string.
+const STRUCTURE_MODELS: Record<string, Component> = {
+  port: PortMesh,
+  storage: StorageMesh,
+};
+function structureModel(model: string): Component | undefined {
+  return STRUCTURE_MODELS[model];
 }
 
 // Configure the sun's shadow camera imperatively — pierced props alone don't
@@ -88,7 +111,7 @@ onMounted(() => {
 <template>
   <div class="relative w-full h-[72vh] min-h-[380px] rounded-lg overflow-hidden border border-gray-700">
     <TresCanvas :clear-color="PALETTE.sky" shadows>
-      <TresPerspectiveCamera :position="[26, 33, 26]" :look-at="[-9, 2, -6]" :fov="48" />
+      <TresPerspectiveCamera :position="[30, 35, 27]" :look-at="[-4, 2, -7]" :fov="52" />
       <TresAmbientLight :intensity="0.75" />
       <TresDirectionalLight ref="sun" :position="[26, 34, 14]" :intensity="1.45" color="#fff2dd" />
       <TresFog :args="[PALETTE.sky, 60, 150]" />
@@ -98,6 +121,9 @@ onMounted(() => {
         <TresPlaneGeometry :args="[GROUND_SIZE, GROUND_SIZE]" />
         <TresMeshStandardMaterial :color="PALETTE.grass" />
       </TresMesh>
+
+      <!-- cell grid overlay (debug; toggle SHOW_GRID) -->
+      <TresGridHelper v-if="SHOW_GRID" :args="GRID_ARGS" :position="GRID_POS" />
 
       <!-- background mountains (north-west) -->
       <MountainMesh
@@ -143,6 +169,17 @@ onMounted(() => {
         />
       </template>
 
+      <!-- decorative structures (port, storage) — model-keyed meshes -->
+      <template v-for="s in STRUCTURES" :key="s.id">
+        <component
+          :is="structureModel(s.model)"
+          v-if="structureModel(s.model)"
+          :position="[s.position[0], 0, s.position[1]]"
+          :rotation-y="s.rotationY"
+          :scale="s.scale"
+        />
+      </template>
+
       <!-- decorative houses -->
       <HouseMesh
         v-for="d in DECORATIVE_HOUSES"
@@ -175,23 +212,5 @@ onMounted(() => {
         :foliage-color="PALETTE.foliage[0]"
       />
     </TresCanvas>
-
-    <!-- City info overlay (plain HTML over the canvas) -->
-    <div class="absolute top-0 left-0 p-4 flex flex-col gap-1 pointer-events-none">
-      <h2 class="text-xl font-bold drop-shadow-lg">City</h2>
-      <div class="drop-shadow-lg">Money: <span class="text-amber-300 font-semibold">{{ view.money }} g</span></div>
-      <div class="drop-shadow-lg">Citizens: <span class="text-sky-300 font-semibold">{{ view.citizens }}</span></div>
-    </div>
-
-    <!-- Hero building legend -->
-    <div class="absolute bottom-0 right-0 p-3 flex flex-wrap gap-2 justify-end pointer-events-none">
-      <span
-        v-for="h in heroBuildings"
-        :key="h.id"
-        class="text-xs px-2 py-1 rounded bg-black/50 backdrop-blur-sm"
-      >
-        <span :style="{ color: h.plot.tone }">■</span> {{ h.name }}
-      </span>
-    </div>
   </div>
 </template>

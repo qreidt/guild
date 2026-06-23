@@ -28,7 +28,8 @@ export type Occupant =
     | { kind: "wall"; variant: "wall" | "tower"; axis?: "x" | "z" }
     | { kind: "building"; id: BuildingID } // 2×2, anchored at this cell
     | { kind: "house" } // 1×1
-    | { kind: "house-dense" }; // 2×2, anchored at this cell
+    | { kind: "house-dense" } // 2×2, anchored at this cell
+    | { kind: "structure"; model: string }; // decorative authored structure (e.g. port), any footprint
 
 /** A `w×d` block of cells anchored at its min-corner `(−x, −z)` cell. */
 export interface PlacedOccupant {
@@ -58,7 +59,12 @@ export function isBuildable(t: Terrain): boolean {
 
 /** True for the occupant kinds that must sit on buildable (grass) terrain. */
 function needsBuildable(occ: Occupant): boolean {
-    return occ.kind === "building" || occ.kind === "house" || occ.kind === "house-dense";
+    return (
+        occ.kind === "building" ||
+        occ.kind === "house" ||
+        occ.kind === "house-dense" ||
+        occ.kind === "structure"
+    );
 }
 
 /** Enumerate every cell a placed occupant covers. */
@@ -150,5 +156,8 @@ export function occupantCovers(occupancy: Map<string, PlacedOccupant>, i: number
 }
 
 function describe(occ: Occupant): string {
-    return occ.kind === "building" ? `building:${occ.id}` : occ.kind === "wall" ? `wall:${occ.variant}` : occ.kind;
+    if (occ.kind === "building") return `building:${occ.id}`;
+    if (occ.kind === "structure") return `structure:${occ.model}`;
+    if (occ.kind === "wall") return `wall:${occ.variant}`;
+    return occ.kind;
 }
