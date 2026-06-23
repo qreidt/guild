@@ -1,0 +1,29 @@
+---
+description: Conventions for the Guild 3D city-global view (TresJS + authored grid map)
+globs: src/components/environment/views/city/**,src/components/environment/views/CityGlobalView3D.vue
+alwaysApply: false
+---
+
+# 3D city-global view
+
+The city backdrop is a **read-only, authored grid map** — not free-form coordinates.
+
+- **Grid model** (`city/grid.ts`): `CELL = 3` world units; `cellCenter` / `blockCenter`
+  helpers; occupant kinds `wall` / `building` / `house` / `house-dense` / `structure`.
+  `buildOccupancy()` asserts **one occupant per cell** (and buildable terrain) at module
+  load — a bad authored placement **throws on load**, so the whole view goes blank. Author
+  carefully and let the assertion be the guard.
+- **Authored data** (`city/town-layout.ts`): exports per-kind render arrays
+  (`WALL_BOXES`, `GROUND_PATCHES`, `HERO_PLOTS`, `DECORATIVE_HOUSES`, `DENSE_HOUSES`,
+  `TREES`, `STRUCTURES`) derived from the grid. There is no single `TOWN_MAP` object.
+- **Render** (`CityGlobalView3D.vue`): iterates those arrays. `three` / `@tresjs/core`
+  are imported **only** in `.vue` mesh components, and this view is lazy-loaded so `three`
+  stays out of the 2D / initial bundle — keep it that way.
+- **Adding a structure** (e.g. a new building/landmark): add it as a grid **occupant**
+  (so it's collision-checked), give it a `model` string, and dispatch it via the
+  `STRUCTURE_MODELS` map. Build its mesh as a presentation-only `.vue` reusing `PALETTE`.
+- **Compass** (labeling only): N = −x, S = +x (sea), E = −z (farms), W = +z. The
+  source-of-truth comment is at the top of `town-layout.ts`.
+- A `SHOW_GRID` flag in `CityGlobalView3D.vue` overlays cell-boundary lines for debugging.
+
+Full design + rationale: `.specs/.cycles/cqr-53-read-only-environment-interfaces/3d-city-grid/`.
