@@ -37,6 +37,31 @@
   - _Requirements: R5.1, R5.2, R2.3_
   - _Prompt: Implement this task for the 2d-buildings-interface sub-feature (read requirements.md + plan.md first). Role: SVG/CSS motion developer | Task: Add a subtle ambient spark/ember effect in the furnace banner (a few small particles rising/fading near an anvil or the forge mouth) using CSS keyframes. It must encode no state and must be disabled under `prefers-reduced-motion: reduce` (extend the existing guard). Keep it cheap (a handful of elements, no per-frame JS). | Restrictions: Decorative only; read-only; reduced-motion-gated; no new `any`; no `three`. | _Leverage: bs-fire flicker + reduced-motion guard_ | _Requirements: R5.1, R5.2, R2.3_ | Success: sparks animate subtly and stop under reduced motion; no impact on legibility or tick updates; `npx vue-tsc -b --force` passes. This task may be skipped without affecting R1–R4. Mark [-]/[x]._
 
+## Rollout — LumberMill + IronMine (R6–R7)
+
+> Added once the Blacksmith concept was approved. Build order **5 → 6 → 7**.
+
+- [x] 5. Extract the shared `BuildingInterior2D` shell
+  - Files: `src/components/environment/BuildingInterior2D.vue` (new); `src/components/environment/views/BlacksmithView2D.vue` (modify)
+  - Move the header + banner frame + worker rows + inventory into a shared shell taking `view`, `theme`, `fundsIcon`, `emptyMessage` and a `banner` slot; theme accents as a literal-class lookup. Refactor the Blacksmith to pass its forge SVG into the slot, keeping its scoped animations and rendered output identical.
+  - _Leverage: as-built `BlacksmithView2D.vue` (the validated layout)_
+  - _Requirements: R6.1–R6.5_
+  - _Success: Blacksmith renders identically (two amber rows, flicker + sparks still animating via the parent's scope id); `npx vue-tsc -b --force` passes._
+
+- [x] 6. LumberMill and IronMine art views
+  - Files: `src/components/environment/views/LumberMillView2D.vue`, `src/components/environment/views/IronMineView2D.vue` (both new)
+  - Each: consume the shell with its theme/glyph/empty message and supply a banner SVG — sawmill (emerald, spinning blade + sawdust) and mine shaft (sky, pulsing lantern + rock dust). Prefix all `<defs>` ids `lm-`/`im-`; use the outer-position / inner-animate group idiom; gate all motion on `prefers-reduced-motion`.
+  - _Leverage: Task 5 shell; Blacksmith banner as the art/motion precedent_
+  - _Requirements: R7.1–R7.4, R2.2, R2.3_
+  - _Success: both banners render; exactly one ambient motion each plus particles; no id collisions._
+
+- [x] 7. Register both + verify live
+  - File: `src/components/environment/environment-registry.ts` (modify)
+  - Add the two async entries so the buildings stop falling back to `GenericEnvironmentView`; refresh the stale comment. Verify all three interiors on the dev server.
+  - _Leverage: existing registry entry pattern_
+  - _Requirements: R7.5, R7.6, R3.3, R4.3_
+  - _Success: selecting each building renders its interior with live tick updates; no console errors; `npx vue-tsc -b --force` passes._
+
 ## As-built notes
 
 - **Idle display is `status`-driven, not task-nullness-driven (R1.3).** Task 2's prompt
@@ -54,3 +79,25 @@
   while keeping working-vs-idle distinct (R1.4, allowed by plan).
 - **Task 4 (sparks) was implemented**, not cut: a 3-particle CSS ember rises off the
   anvil motif, gated by the same `prefers-reduced-motion` guard as the flicker.
+
+### Rollout (Tasks 5–7)
+
+- **The "do not extract yet" NFR was deliberately superseded** (see `requirements.md`
+  NFR note). Tripling ~90 lines of panel markup across three views would have violated
+  the parent's "reuse over reinvention" NFR, and the original plan already anticipated
+  this pass as a "low-churn generalization".
+- **The status-driven idle rule now lives in the shell**, so LumberMill/IronMine inherit
+  it for free. Confirmed in the browser: the IronMine's 2-tick `MineOres` cycles
+  `MineOres 50%` → `idle 0%` while its ore count climbs — an idle row after a *done*
+  action correctly reads "idle", never a stale `MineOres`.
+- **Theme accents are a literal-class map, not interpolation.** `bg-${theme}-500` would
+  compile but emit no CSS under Tailwind v4's source scanning.
+- **Scoped styles survive slotting.** Slot content is compiled in the parent, so the
+  parent's `data-v-*` lands on the slotted SVG — verified via a resolved
+  `animation-name: bs-flicker-6d3abe61` on `.bs-fire` after the extraction.
+- **Both buildings have one worker** (the second `new Worker()` is commented out in
+  `LumberMill.ts` / `IronMine.ts`), so R1.5's "don't assume two" was exercised on day
+  one.
+- **Verified live** at ticks 5–74: LumberMill cycled `TakeDownTree` → `MakeWood` with
+  `Wood Plank` climbing to ×60; IronMine accumulated `Iron Ore` to ×37; Blacksmith kept
+  both smiths on `MakeIronSword`. No console errors.

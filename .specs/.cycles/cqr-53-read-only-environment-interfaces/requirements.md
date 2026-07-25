@@ -158,6 +158,12 @@ direction, so that we commit one style for full rollout instead of guessing.
 2. The write-up SHALL enumerate the **rollout follow-up cycles** for the chosen style —
    the remaining read-only environments: **IronMine, LumberMill, city-global** (Market
    excluded; Blacksmith done by this slice).
+   > **Update (as-built):** the 2D style was chosen for building interiors and
+   > **IronMine + LumberMill are delivered**, via the shared `BuildingInterior2D` shell
+   > in the [`2d-buildings-interface`](./2d-buildings-interface/requirements.md)
+   > sub-feature (R6–R7). city-global remains 3D
+   > ([`3d-city-grid`](./3d-city-grid/requirements.md)). The two arms are therefore
+   > complementary, not exclusive: 2D interiors, 3D backdrop.
 3. The write-up SHALL live under `.specs/` as canonical current-state documentation.
 
 ### Requirement 6 — Strictly read-only (cross-cutting)

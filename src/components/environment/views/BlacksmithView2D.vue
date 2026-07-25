@@ -1,27 +1,21 @@
 <script setup lang="ts">
 import type { EnvironmentView } from "../../../modules/environment-view/types.ts";
+import BuildingInterior2D from "../BuildingInterior2D.vue";
 
 defineProps<{
   view: EnvironmentView | null;
 }>();
-
-function pct(progress: number): string {
-  return `${Math.round(progress * 100)}%`;
-}
 </script>
 
 <template>
-  <div v-if="view" class="p-4 flex flex-col gap-4">
-    <!-- Title + funds -->
-    <div class="flex items-center justify-between">
-      <h2 class="text-xl font-bold">{{ view.name }}</h2>
-      <div class="rounded bg-amber-900/40 border border-amber-700 px-3 py-1 text-amber-300 font-semibold">
-        ⚒ {{ view.funds }} g
-      </div>
-    </div>
-
+  <BuildingInterior2D
+    :view="view"
+    theme="amber"
+    funds-icon="⚒"
+    empty-message="No blacksmith data."
+  >
     <!-- Furnace backdrop banner (decorative only — encodes no worker state) -->
-    <div class="rounded-lg overflow-hidden border border-gray-700 bg-gray-900">
+    <template #banner>
       <svg
         viewBox="0 0 640 140"
         preserveAspectRatio="xMidYMid meet"
@@ -80,58 +74,8 @@ function pct(progress: number): string {
           <circle class="bs-spark s3" cx="8" cy="0" r="1.8" fill="#fbbf24" />
         </g>
       </svg>
-    </div>
-
-    <!-- Worker rows (vertical, one per worker) -->
-    <div>
-      <h3 class="text-lg font-semibold mb-2">Workers</h3>
-      <div v-if="view.workers.length === 0" class="text-gray-500 italic text-sm">No workers</div>
-      <div v-else class="flex flex-col gap-2">
-        <div
-          v-for="worker in view.workers"
-          :key="worker.label"
-          class="flex flex-col gap-1"
-          :class="{ 'opacity-60': worker.status === 'idle' }"
-        >
-          <div class="flex items-center justify-between text-sm">
-            <span class="font-medium">{{ worker.label }}</span>
-            <div class="flex items-center gap-2">
-              <span :class="worker.status === 'working' ? 'text-amber-300 font-medium' : 'text-gray-500 italic'">
-                {{ worker.status === 'working' ? (worker.task ?? 'idle') : 'idle' }}
-              </span>
-              <span class="text-xs text-gray-400 tabular-nums w-9 text-right">{{ pct(worker.progress) }}</span>
-            </div>
-          </div>
-          <div class="h-2 w-full rounded bg-gray-700 overflow-hidden">
-            <div
-              class="h-full rounded transition-all duration-300"
-              :class="worker.status === 'working' ? 'bg-amber-500' : 'bg-gray-600'"
-              :style="{ width: pct(worker.progress) }"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Inventory shelf -->
-    <div>
-      <h3 class="text-lg font-semibold mb-2">Inventory</h3>
-      <div v-if="view.inventory.length === 0" class="text-gray-500 italic text-sm">Empty</div>
-      <div v-else class="flex flex-wrap gap-2">
-        <div
-          v-for="row in view.inventory"
-          :key="row.itemId"
-          class="flex items-center gap-2 rounded border border-gray-700 bg-gray-800 px-3 py-1.5"
-          :title="`${row.name} — ${row.unitValue} g each`"
-        >
-          <span class="text-sm">{{ row.name }}</span>
-          <span class="text-sm font-bold text-amber-300 tabular-nums">×{{ row.count }}</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div v-else class="p-4 text-gray-500 italic">No blacksmith data.</div>
+    </template>
+  </BuildingInterior2D>
 </template>
 
 <style scoped>

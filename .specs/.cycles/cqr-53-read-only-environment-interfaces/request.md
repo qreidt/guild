@@ -81,3 +81,10 @@ Dependency chain: 1 → 2 → (3, 4) → 5.
 > pursued and iterated into the [`3d-city-grid`](./3d-city-grid/request.md) sub-feature
 > (grid map, walls/roads, denser housing, a port + storage, a debug grid, and removal of
 > the on-canvas overlay/legend in favour of the top bar).
+
+> **Update (as-built):** sub-issue 3 (the 2D Blacksmith arm) was iterated into the
+> [`2d-buildings-interface`](./2d-buildings-interface/request.md) sub-feature — the smith
+> figures and hammer animation were dropped for vertical progress rows under a themed
+> banner. That layout was then **rolled out**: it is extracted into a shared
+> `BuildingInterior2D` shell and the **LumberMill** and **IronMine** now have their own
+> 2D interiors, so no production environment falls back to the generic view.

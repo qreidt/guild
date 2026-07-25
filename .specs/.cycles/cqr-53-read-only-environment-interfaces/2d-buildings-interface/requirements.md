@@ -1,9 +1,12 @@
-# Requirements — 2D Blacksmith interior: vertical progress rows
+# Requirements — 2D building interiors: vertical progress rows
 
 > Sub-feature `2d-buildings-interface` of CQR-53. Companion to
 > [`request.md`](./request.md), [`plan.md`](./plan.md), [`tasks.md`](./tasks.md).
 > Refines the parent [R3](../requirements.md) 2D Blacksmith arm; **read-only**
 > throughout (parent [R6](../requirements.md)). No view-model or engine change.
+>
+> **R1–R5** cover the Blacksmith refactor that validated the concept. **R6–R7** cover
+> the rollout to the LumberMill and IronMine (shared shell + two new interiors).
 
 ## Introduction
 
@@ -128,12 +131,66 @@ alive — but not at the cost of legibility.
    disabled under `prefers-reduced-motion` (R2.3).
 2. IF time-constrained THEN this requirement MAY be **cut** with no impact on R1–R4.
 
+## Rollout requirements (LumberMill + IronMine)
+
+> Added after the Blacksmith concept was approved. This is the "later pass" R1–R5
+> deferred; it **supersedes** the original NFR bullet forbidding a shared abstraction
+> (see the NFR note below).
+
+### Requirement 6 — Shared building-interior shell
+
+**User Story:** As a maintainer, I want the validated Blacksmith layout extracted once,
+so that each additional 2D interior is banner art plus a theme rather than a copy of the
+whole panel.
+
+#### Acceptance Criteria
+
+1. The header/banner/worker-rows/inventory layout validated on the Blacksmith SHALL be
+   extracted into a single shared component
+   ([`BuildingInterior2D.vue`](../../../../src/components/environment/BuildingInterior2D.vue))
+   consumed by every 2D interior.
+2. The shell SHALL accept the `EnvironmentView`, an accent **theme**, a funds glyph, an
+   empty-state message, and a **`banner` slot** for the building-specific art; it SHALL
+   render the banner frame only when that slot is supplied.
+3. Theme accent classes SHALL be full **literal** class strings (Tailwind cannot see
+   dynamically composed class names).
+4. The Blacksmith's rendered output SHALL be **unchanged** by the extraction, including
+   its scoped banner animations.
+5. The shell SHALL carry the status-driven idle rule from the as-built note (R1.3) so
+   every interior inherits it, rather than each view re-implementing it.
+
+### Requirement 7 — LumberMill and IronMine interiors
+
+**User Story:** As a player, I want the lumber mill and iron mine to read like their own
+places, so that every production building is legible at a glance, not a raw fallback.
+
+#### Acceptance Criteria
+
+1. WHEN the LumberMill is selected THEN it SHALL render a 2D interior via the shell with
+   a **sawmill** banner (saw bench, blade, timber yard) and an **emerald** accent.
+2. WHEN the IronMine is selected THEN it SHALL render a 2D interior via the shell with a
+   **mine-shaft** banner (framed shaft mouth, pit lantern, ore cart on rails) and a
+   **sky** accent.
+3. Each SHALL keep exactly one ambient motion idiom plus optional particles, all
+   disabled under `prefers-reduced-motion` (R2.2/R2.3 carried forward).
+4. SVG `<defs>` ids SHALL be **prefixed per building** (`bs-` / `lm-` / `im-`) — SVG ids
+   are document-global and are not scoped by Vue's `scoped` styles.
+5. Both SHALL be registered in
+   [`environment-registry.ts`](../../../../src/components/environment/environment-registry.ts);
+   no view-model change is required (`WORKER_LABEL_PREFIX` already maps them to
+   "Lumberjack" / "Miner").
+6. Both buildings currently have **one** worker, exercising R1.5 (no assumption of two).
+7. The Market SHALL remain excluded (keeps `MarketPanel.vue` and its controls).
+
 ## Non-Functional Requirements
 
-- **Scope:** single component refactor — `BlacksmithView2D.vue` only. No new module,
+- **Scope:** ~~single component refactor — `BlacksmithView2D.vue` only. No new module,
   no shared "building-interior" abstraction (that is a deliberate later pass). Keep the
   worker-row + backdrop markup cleanly **extractable** so a future generalization is
-  low-churn, but do not extract it now.
+  low-churn, but do not extract it now.~~
+  **Superseded by R6** — the concept was approved and the rollout arrived, so the markup
+  was extracted into `BuildingInterior2D.vue` as the plan intended ("low-churn
+  generalization"). The parent NFR "reuse over reinvention" applies.
 - **Code quality:** TypeScript strict, **no new `any`**; Vue 3 `<script setup>`;
   Tailwind utility classes consistent with the existing component.
 - **Performance:** no per-frame work beyond Vue's tick-driven re-render plus the CSS

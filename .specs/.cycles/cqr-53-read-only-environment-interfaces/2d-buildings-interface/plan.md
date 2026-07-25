@@ -95,6 +95,47 @@ No new imports beyond `vue` + the `EnvironmentView` type. No engine/controller a
 no mutation, **no `three`**. Registry and view-model untouched — the existing
 `BuildingID.BlackSmith → BlacksmithView2D.vue` async entry still resolves.
 
+## Rollout plan — LumberMill + IronMine (R6–R7)
+
+Executed after the Blacksmith concept was approved.
+
+### Extraction
+
+`BuildingInterior2D.vue` (new, at `src/components/environment/` — `views/` stays
+"registered art views only") holds the validated panel: header + funds chip, the banner
+frame with a **`banner` slot**, the vertical worker rows, and the inventory shelf. Props:
+`view`, `theme`, `fundsIcon`, `emptyMessage`.
+
+Theming is a literal-class lookup (`THEMES: Record<ThemeName, Theme>`) — `amber` (forge),
+`emerald` (mill), `sky` (mine) — because Tailwind only sees class names that appear
+verbatim in source; `bg-${accent}-500` would silently produce no CSS.
+
+Each art view becomes: a `<script setup>` of ~8 lines, a `<template>` passing its SVG
+into `#banner`, and a `<style scoped>` with its ambient animation. **Scoped styles still
+apply**: slot content is compiled in the parent, so the parent's `data-v-*` scope id
+lands on the slotted SVG (verified in the browser — see Verification 6).
+
+### The two new interiors
+
+| | LumberMill | IronMine |
+|---|---|---|
+| Theme | `emerald` | `sky` |
+| Funds glyph | 🪵 | ⛏ |
+| Banner | saw bench + log mid-cut, toothed blade, plank/log yard, conifers | framed shaft mouth + depth glow, pit lantern, ore cart on rails |
+| Ambient motion | blade rotation (`lm-spin`) | lantern pulse (`im-pulse`) |
+| Particles | sawdust falling (`lm-dust`) | rock dust drifting (`im-dust`) |
+| `<defs>` prefix | `lm-` | `im-` |
+
+**SVG id prefixes are load-bearing:** `<defs>` ids are document-global and are *not*
+scoped by Vue. Gradients must be `lm-wall` / `im-glow` etc., never a shared `wall`.
+
+Both follow the Blacksmith's outer/inner group idiom — an outer `<g transform>` positions,
+an inner `<g class>` animates — because a CSS `transform` on an SVG element overrides its
+`transform` attribute.
+
+Registration is two lines in `environment-registry.ts`. No view-model change:
+`WORKER_LABEL_PREFIX` already maps both buildings.
+
 ## Verification
 
 1. `npx vue-tsc -b --force` — no new errors, no new `any`.
@@ -107,3 +148,7 @@ no mutation, **no `three`**. Registry and view-model untouched — the existing
    (R1.6).
 5. 5-second legibility (parent R3.5): who's working + on what + progress, stock, funds —
    at a glance.
+6. **Rollout (R6–R7):** select each of the three buildings and confirm live tick updates,
+   the correct accent, the raw action label while working, and "idle" (not a stale label)
+   when idle. Confirm the Blacksmith is unchanged post-extraction by checking a
+   `data-v-*` scope attribute and a resolved `animation-name` on the slotted `.bs-fire`.

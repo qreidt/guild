@@ -8,10 +8,12 @@ import { BuildingID } from "../../game/city/buildings/common/Building.ts";
  * `three`) are only fetched when that view actually renders. Adding a new
  * environment art view is one component + one entry here — no view-model change.
  *
- * IronMine / LumberMill intentionally have no entry in this slice: they resolve
- * to `GenericEnvironmentView`. They become registry entries in the rollout
- * cycles.
+ * All three production environments share the `BuildingInterior2D` shell; only
+ * the banner art and accent theme differ. The Market keeps its own `MarketPanel`
+ * (with controls) and is deliberately absent here.
  */
 export const environmentArtRegistry: Partial<Record<BuildingID, Component>> = {
     [BuildingID.BlackSmith]: defineAsyncComponent(() => import('./views/BlacksmithView2D.vue')),
+    [BuildingID.LumberMill]: defineAsyncComponent(() => import('./views/LumberMillView2D.vue')),
+    [BuildingID.IronMine]: defineAsyncComponent(() => import('./views/IronMineView2D.vue')),
 };
