@@ -1,29 +1,12 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import type { EnvironmentView } from "../../../modules/environment-view/types.ts";
 
-const props = defineProps<{
+defineProps<{
   view: EnvironmentView | null;
 }>();
 
-// Lay smiths out across the scene; expect 2 (Smith 1 / Smith 2).
-const smiths = computed(() => {
-  const workers = props.view?.workers ?? [];
-  const startX = 300;
-  const gap = 200;
-  return workers.map((w, i) => ({
-    label: w.label,
-    task: w.task,
-    status: w.status,
-    progress: Math.min(1, Math.max(0, w.progress)),
-    cx: startX + i * gap,
-  }));
-});
-
-const PROGRESS_W = 150;
-
-function pct(p: number): string {
-  return `${Math.round(p * 100)}%`;
+function pct(progress: number): string {
+  return `${Math.round(progress * 100)}%`;
 }
 </script>
 
@@ -37,14 +20,14 @@ function pct(p: number): string {
       </div>
     </div>
 
-    <!-- Illustrated forge scene -->
+    <!-- Furnace backdrop banner (decorative only — encodes no worker state) -->
     <div class="rounded-lg overflow-hidden border border-gray-700 bg-gray-900">
       <svg
-        viewBox="0 0 640 340"
+        viewBox="0 0 640 140"
         preserveAspectRatio="xMidYMid meet"
         class="w-full h-auto block"
         role="img"
-        :aria-label="`Blacksmith interior with ${smiths.length} workers`"
+        aria-label="Blacksmith forge"
       >
         <defs>
           <linearGradient id="bs-wall" x1="0" y1="0" x2="0" y2="1">
@@ -63,81 +46,71 @@ function pct(p: number): string {
           </radialGradient>
         </defs>
 
-        <!-- Walls & floor -->
-        <rect x="0" y="0" width="640" height="270" fill="url(#bs-wall)" />
-        <g opacity="0.18" stroke="#18181b" stroke-width="2">
-          <line x1="0" y1="60" x2="640" y2="60" />
-          <line x1="0" y1="120" x2="640" y2="120" />
-          <line x1="0" y1="180" x2="640" y2="180" />
-          <line x1="120" y1="0" x2="120" y2="180" />
-          <line x1="360" y1="0" x2="360" y2="180" />
-          <line x1="520" y1="0" x2="520" y2="180" />
-        </g>
-        <rect x="0" y="270" width="640" height="70" fill="#292524" />
-        <rect x="0" y="270" width="640" height="6" fill="#1c1917" />
+        <!-- Back wall & floor -->
+        <rect x="0" y="0" width="640" height="140" fill="url(#bs-wall)" />
+        <rect x="0" y="124" width="640" height="16" fill="#292524" />
+        <rect x="0" y="124" width="640" height="4" fill="#1c1917" />
 
         <!-- Forge -->
         <g>
-          <rect x="36" y="150" width="150" height="120" rx="6" fill="#57534e" />
-          <rect x="52" y="120" width="118" height="44" rx="6" fill="#44403c" />
-          <ellipse cx="111" cy="210" rx="78" ry="58" fill="url(#bs-glow)" />
-          <rect x="66" y="176" width="90" height="70" rx="6" fill="#1c1917" />
-          <g class="bs-fire">
-            <path d="M111 246 C 86 214 100 196 96 178 C 116 196 120 196 111 168 C 132 188 142 214 132 238 Z" fill="url(#bs-fire)" />
-            <path d="M111 246 C 99 222 108 208 106 192 C 118 206 120 208 114 188 C 126 204 130 222 124 240 Z" fill="#fde68a" opacity="0.9" />
-          </g>
-          <rect x="40" y="150" width="142" height="8" fill="#78716c" />
-        </g>
-
-        <!-- Smith stations -->
-        <g v-for="s in smiths" :key="s.label" :class="{ 'bs-idle': s.status === 'idle' }">
-          <!-- name + task plaque -->
-          <rect :x="s.cx - 90" y="20" width="180" height="46" rx="6" fill="#18181b" stroke="#3f3f46" />
-          <text :x="s.cx" y="40" text-anchor="middle" fill="#fafafa" font-size="15" font-weight="700">
-            {{ s.label }}
-          </text>
-          <text
-            :x="s.cx" y="58" text-anchor="middle" font-size="13"
-            :fill="s.status === 'working' ? '#fcd34d' : '#71717a'"
-            :font-style="s.task ? 'normal' : 'italic'"
-          >
-            {{ s.task ?? 'idle' }}
-          </text>
-
-          <!-- progress bar -->
-          <rect :x="s.cx - PROGRESS_W / 2" y="78" :width="PROGRESS_W" height="10" rx="5" fill="#374151" />
-          <rect
-            :x="s.cx - PROGRESS_W / 2" y="78" :width="PROGRESS_W * s.progress" height="10" rx="5"
-            :fill="s.status === 'working' ? '#22c55e' : '#6b7280'"
-            class="bs-bar"
-          />
-          <text :x="s.cx" y="103" text-anchor="middle" fill="#a1a1aa" font-size="11">{{ pct(s.progress) }}</text>
-
-          <!-- smith figure -->
-          <g :transform="`translate(${s.cx}, 130)`">
-            <!-- head -->
-            <circle cx="0" cy="18" r="14" fill="#d6a87a" />
-            <rect x="-15" y="6" width="30" height="9" rx="3" fill="#3f3f46" />
-            <!-- torso / apron -->
-            <rect x="-22" y="34" width="44" height="58" rx="10" fill="#52525b" />
-            <path d="M-16 36 H16 L12 92 H-12 Z" fill="#7c2d12" />
-            <!-- arm + hammer (animates while working) -->
-            <g class="bs-arm" transform-origin="-18 46">
-              <rect x="-40" y="40" width="26" height="10" rx="5" fill="#d6a87a" />
-              <rect x="-46" y="20" width="8" height="26" rx="3" fill="#92400e" />
-              <rect x="-54" y="12" width="24" height="12" rx="2" fill="#3f3f46" />
+          <rect x="62" y="26" width="100" height="30" rx="6" fill="#44403c" />
+          <rect x="48" y="54" width="128" height="72" rx="6" fill="#57534e" />
+          <ellipse cx="112" cy="98" rx="70" ry="46" fill="url(#bs-glow)" />
+          <rect x="78" y="72" width="68" height="52" rx="6" fill="#1c1917" />
+          <!-- Outer group positions/scales the authored flame; inner group flickers -->
+          <g transform="translate(50, -14) scale(0.56)">
+            <g class="bs-fire">
+              <path d="M111 246 C 86 214 100 196 96 178 C 116 196 120 196 111 168 C 132 188 142 214 132 238 Z" fill="url(#bs-fire)" />
+              <path d="M111 246 C 99 222 108 208 106 192 C 118 206 120 208 114 188 C 126 204 130 222 124 240 Z" fill="#fde68a" opacity="0.9" />
             </g>
           </g>
+          <rect x="52" y="54" width="120" height="7" fill="#78716c" />
+        </g>
 
-          <!-- anvil -->
-          <g :transform="`translate(${s.cx}, 244)`">
-            <rect x="-26" y="24" width="52" height="14" fill="#0f172a" />
-            <rect x="-10" y="10" width="20" height="18" fill="#1e293b" />
-            <path d="M-30 0 H26 L34 6 L26 14 H-22 L-30 8 Z" fill="#334155" />
-            <rect x="-30" y="0" width="60" height="5" fill="#475569" />
-          </g>
+        <!-- Anvil + ambient sparks (decorative only) -->
+        <g transform="translate(470, 124)">
+          <rect x="-24" y="-16" width="48" height="16" fill="#1e293b" />
+          <rect x="-10" y="-30" width="20" height="14" fill="#1e293b" />
+          <path d="M-30 -44 H24 L34 -38 L24 -30 H-26 L-30 -36 Z" fill="#334155" />
+          <rect x="-30" y="-44" width="60" height="5" fill="#475569" />
+        </g>
+        <g class="bs-sparks" transform="translate(470, 80)">
+          <circle class="bs-spark s1" cx="-5" cy="0" r="2" fill="#fde68a" />
+          <circle class="bs-spark s2" cx="2" cy="0" r="1.6" fill="#f59e0b" />
+          <circle class="bs-spark s3" cx="8" cy="0" r="1.8" fill="#fbbf24" />
         </g>
       </svg>
+    </div>
+
+    <!-- Worker rows (vertical, one per worker) -->
+    <div>
+      <h3 class="text-lg font-semibold mb-2">Workers</h3>
+      <div v-if="view.workers.length === 0" class="text-gray-500 italic text-sm">No workers</div>
+      <div v-else class="flex flex-col gap-2">
+        <div
+          v-for="worker in view.workers"
+          :key="worker.label"
+          class="flex flex-col gap-1"
+          :class="{ 'opacity-60': worker.status === 'idle' }"
+        >
+          <div class="flex items-center justify-between text-sm">
+            <span class="font-medium">{{ worker.label }}</span>
+            <div class="flex items-center gap-2">
+              <span :class="worker.status === 'working' ? 'text-amber-300 font-medium' : 'text-gray-500 italic'">
+                {{ worker.status === 'working' ? (worker.task ?? 'idle') : 'idle' }}
+              </span>
+              <span class="text-xs text-gray-400 tabular-nums w-9 text-right">{{ pct(worker.progress) }}</span>
+            </div>
+          </div>
+          <div class="h-2 w-full rounded bg-gray-700 overflow-hidden">
+            <div
+              class="h-full rounded transition-all duration-300"
+              :class="worker.status === 'working' ? 'bg-amber-500' : 'bg-gray-600'"
+              :style="{ width: pct(worker.progress) }"
+            />
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Inventory shelf -->
@@ -162,7 +135,7 @@ function pct(p: number): string {
 </template>
 
 <style scoped>
-/* Forge flame flicker. */
+/* Forge flame flicker (ambient — the only motion besides progress fills). */
 .bs-fire {
   transform-box: fill-box;
   transform-origin: center bottom;
@@ -173,29 +146,22 @@ function pct(p: number): string {
   to { transform: scaleY(1.06) scaleX(0.97); opacity: 1; }
 }
 
-/* Hammer strike — only animated for working smiths. */
-.bs-arm {
+/* Ambient anvil sparks — decorative, rise and fade. */
+.bs-spark {
   transform-box: fill-box;
-  transform-origin: right center;
+  transform-origin: center;
+  opacity: 0;
+  animation: bs-rise 1.6s ease-out infinite;
 }
-g:not(.bs-idle) > g .bs-arm {
-  animation: bs-strike 0.85s ease-in-out infinite;
-}
-@keyframes bs-strike {
-  0%, 100% { transform: rotate(-32deg); }
-  55% { transform: rotate(8deg); }
-}
-
-/* Idle smiths read as dimmed. */
-.bs-idle {
-  opacity: 0.55;
-}
-
-.bs-bar {
-  transition: width 0.3s ease;
+.bs-spark.s2 { animation-delay: 0.55s; animation-duration: 1.9s; }
+.bs-spark.s3 { animation-delay: 1.05s; animation-duration: 1.7s; }
+@keyframes bs-rise {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translateY(-30px) scale(0.3); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bs-fire, .bs-arm { animation: none; }
+  .bs-fire, .bs-spark { animation: none; }
 }
 </style>
