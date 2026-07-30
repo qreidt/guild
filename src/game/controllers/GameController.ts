@@ -16,7 +16,7 @@ export class GameController {
         console.log(`[GameController] OK`);
     }
 
-    private timeout_id: null | number = null;
+    private timeout_id: null | ReturnType<typeof setTimeout> = null;
     private autoTick(interval: null|number = null) {
         if (this.auto_tick_interval === 0) {
             return;

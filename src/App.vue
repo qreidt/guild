@@ -2,7 +2,12 @@
   <Layout>
     <template #header>
       <div class="flex h-full items-center">
-        <div class="flex text-2xl">City</div>
+        <div
+            class="flex text-2xl cursor-pointer select-none transition-colors hover:text-amber-300"
+            :class="{ 'text-amber-300': active_building_id === null }"
+            title="Show the city view"
+            @click="showCity"
+        >City</div>
         <div class="flex flex-1 justify-center gap-x-16">
           <div class="">$ {{ city.money }}</div>
           <div class="">Citizens: {{ city.citizens_count }}</div>
@@ -27,7 +32,7 @@
         :market="activeBuilding"
         :market-service="marketServiceReactive"
     />
-    <pre v-else>{{ activeBuilding }}</pre>
+    <EnvironmentView v-else :building-id="active_building_id" />
 
     <template #footer>
       <div class="flex h-full items-center justify-between">
@@ -60,6 +65,7 @@ import {BaseBuilding, BuildingID} from "./game/city/buildings/common/Building.ts
 import {Market} from "./game/city/buildings/Market.ts";
 import marketServiceSingleton from "./modules/market/market.service.ts";
 import MarketPanel from "./components/buildings/MarketPanel.vue";
+import EnvironmentView from "./components/environment/EnvironmentView.vue";
 
 const c = reactive(GameControllerSingleton) as GameController;
 const inventory = reactive(inventoryRepository) as InventoryRepository;
@@ -74,6 +80,11 @@ const active_building_id = ref<(BuildingID)|null>(null);
 
 function changeActiveBuilding(id: BuildingID): void {
   active_building_id.value = id;
+}
+
+// Clicking the "City" header deselects any building → the 3D city view.
+function showCity(): void {
+  active_building_id.value = null;
 }
 
 const activeBuilding = computed<BaseBuilding|null>(() => {

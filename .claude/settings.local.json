@@ -21,7 +21,11 @@
       "Bash(npm run:*)",
       "Skill(mempalace:init)",
       "Skill(mempalace:mempalace)",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "mcp__6f9bf89d-44b5-4a13-8af6-8bd6c1a86a6f__get_issue",
+      "mcp__6f9bf89d-44b5-4a13-8af6-8bd6c1a86a6f__list_comments",
+      "Read(//c/Users/CaioReidt/.claude/**)",
+      "WebFetch(domain:registry.npmjs.org)"
     ]
   }
 }
