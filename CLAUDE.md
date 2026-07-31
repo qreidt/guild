@@ -38,6 +38,23 @@ No automated test runner is configured — verify via the dev server and `vue-ts
 - Map compass (a labeling convention only): N = −x, S = +x (sea), E = −z (farms),
   W = +z. The source-of-truth comment is at the top of `city/town-layout.ts`.
 
+## Agent skills
+
+### Issue tracker
+
+Issues live in **Linear** — team `CQR`, project "Guild Game" — via the Linear MCP
+connector; GitHub holds only code and PRs. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+The five canonical roles use their own names as label strings, each paired with a Linear
+workflow state. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `CONTEXT.md` and `docs/adr/` at the repo root (neither exists yet —
+that's fine). See `docs/agents/domain.md`.
+
 ## Specs
 
 Specs are canonical under `.specs/`. Active work is organized under
