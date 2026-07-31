@@ -15,7 +15,7 @@ import {
 /**
  * Authored "level design" for the 3D city-global view — now expressed on a
  * GRID. The town is built from integer cells (see `grid.ts`, `CELL = 3`): walls,
- * roads, houses and the 4 main buildings each occupy a whole number of cells,
+ * roads, houses and the main buildings each occupy a whole number of cells,
  * at most one occupant per cell (enforced by `buildOccupancy` at load). Trees are
  * non-occupying decoration. Pure data: no Vue, no `three`.
  *
@@ -177,6 +177,10 @@ const BUILDING_PLOTS: Partial<Record<BuildingID, BuildingPlot>> = {
     // at i = -9, and the mill would otherwise be welded to the ramparts.
     [BuildingID.LumberMill]: { anchor: [-13, -1], offset: [-1.0, 0], scale: 1.0, tone: "#8a6038" },
     [BuildingID.IronMine]: { anchor: [-10, -9], offset: [0, 0], scale: 1.1, tone: "#8a8f94" },
+    // Immediately inside the north gate on the forest side the herbs come from,
+    // abutting the extended j=0 road — no trail extension needed. One of the
+    // plots the expansion opened up.
+    [BuildingID.Apothecary]: { anchor: [-8, 1], offset: [0, 0], scale: 1.0, tone: "#4a6b46" },
 };
 
 /** Set of every cell covered by a hero building (2×2 each) — used by terrainAt. */
@@ -424,7 +428,7 @@ const cellSeed = (i: number, j: number): number => (Math.imul(i | 0, 73856093) ^
 // Derived RENDER ARRAYS (consumed by CityGlobalView3D.vue).
 // ---------------------------------------------------------------------------
 
-/** The 4 hero buildings, keyed by id (position = block centre + offset). */
+/** The hero buildings, keyed by id (position = block centre + offset). */
 export const HERO_PLOTS: Partial<Record<BuildingID, HeroPlot>> = Object.fromEntries(
     Object.entries(BUILDING_PLOTS).map(([id, plot]) => {
         const [cx, cz] = blockCenter(plot.anchor[0], plot.anchor[1], 2, 2);

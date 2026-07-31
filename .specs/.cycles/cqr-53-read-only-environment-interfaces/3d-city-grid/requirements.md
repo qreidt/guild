@@ -63,6 +63,12 @@ world units.
    for a 2×2 block this is `[(i+0.5)·CELL, (j+0.5)·CELL]`.
 4. The walls at world `±15` SHALL map to cell indices `±5` exactly (no fractional
    offset), confirming `CELL = 3` aligns the existing perimeter to the grid.
+   > **Superseded (2026-07-31) by [CQR-59](../../cqr-59-apothecary-herbs-and-potions/) Phase A.**
+   > The town no longer sits on a symmetric `±5` ring. `TOWN_HALF_CELLS` is replaced by
+   > per-axis interior bounds `i −8…4`, `j −6…6`, with walls at `i = −9` (N), `j = ∓7`
+   > (E/W) and the south (`i = +5`) open to the sea — world `x −27…+15`, `z ±21`. The
+   > **grid-alignment property this clause asserts still holds**: every wall line falls on
+   > an integer cell index, because `CELL = 3` and the bounds are authored in cells.
 
 ### Requirement 2 — Single-occupant invariant & build-time assertion
 
@@ -154,6 +160,12 @@ so that grouped housing shows "5 or more" dwellings instead of four separate hut
    confined to the interior band `i ∈ [-4, 2]` (the southern rows `i ≥ 3` are reserved —
    R11), clear of the road plus and the Market/Blacksmith plots. The authored set is
    **dense** (~41 cells → a mix of single houses and several 2×2 dense blocks).
+   > **Amended (2026-07-31) by [CQR-59](../../cqr-59-apothecary-herbs-and-potions/) Phase A.**
+   > 8 cells were added in the new west band (`j = 5, 6` at `i ∈ {-2, -1, 1, 2}`), so the
+   > authored set is 49 cells → 10 dense blocks + 9 singles. Housing stays deliberately
+   > sparse relative to the enlarged 13×13 interior: the northern band (`i ≤ -5`) is the
+   > buildable reserve the expansion was for, and every house cell there costs free 2×2
+   > anchors. That band is dressed with non-occupying trees instead.
 2. WHEN four `house` cells form a 2×2 block THEN the system SHALL replace them with a
    single `house-dense` occupant over those four cells, rendered by a **new**
    `HouseDenseMesh` depicting 5+ dwellings.

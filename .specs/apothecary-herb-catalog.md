@@ -6,8 +6,10 @@ ingredient catalog until the Apothecary cycle is opened.
 
 ## Decisions locked so far
 
-- **Building name:** `Apothecary`. Note `roadmap.md` calls this "Alchemist's Lab" —
-  reconcile that line when the cycle is written.
+- **Building name:** `Apothecary`. ~~Note `roadmap.md` calls this "Alchemist's Lab" —
+  reconcile that line when the cycle is written.~~ **Done (2026-07-31, CQR-59):**
+  `roadmap.md` now reads "Apothecary". The original design notes in the repo-root
+  `_.md` still say "Alchemist's Lab"; those are historical intake and stay as-is.
 - **Scope:** herbs → potions only. Meat/pelts deferred to the planned **Hunter's Lodge**
   and **Tannery** (both already on the roadmap).
 - **Ingredients:** foraged only for now. Monster-harvested reagents (slime residue,
@@ -100,7 +102,30 @@ Kept for flavour and for differentiating forage sub-areas later.
 
 ## Open / not yet decided
 
-- Which herbs brew into which potions (next brainstorm).
-- Whether an intermediate essence stage sits between herb and potion.
-- How many potion lines ship in v1.
-- Which subset of the catalog actually gets `ItemID` entries in the first cycle.
+> **Resolved (2026-07-31) by [CQR-59](./.cycles/cqr-59-apothecary-herbs-and-potions/).**
+> All four questions below are answered; the section is kept for the record rather
+> than deleted. See that cycle's `requirements.md` R3 and R4.
+
+- ~~Which herbs brew into which potions (next brainstorm).~~ → **Bloodroot ×3 →
+  Health Potion ×1; Manabloom ×3 → Mana Potion ×1**, 12 ticks each. The other 31
+  herbs ship with no recipe.
+- ~~Whether an intermediate essence stage sits between herb and potion.~~ → **No.**
+  Considered and deferred: its value is smoothing bursty adventurer deliveries, and
+  until adventurers exist the supply is a flat seeded stack with nothing to smooth.
+- ~~How many potion lines ship in v1.~~ → **Two** (health and mana).
+- ~~Which subset of the catalog actually gets `ItemID` entries in the first cycle.~~
+  → **The full catalog.** All 33 herbs plus both potions are `ItemID` entries,
+  stackable `Item` subclasses in `values/goods.ts`, and `ItemRegistry` mappings, so
+  later loot/forage tables have stable ids to target.
+
+Also settled by that cycle: the roadmap's "Alchemist's Lab" line now reads
+**"Apothecary"**, closing the reconciliation flagged under *Decisions locked so far*.
+
+### Still open
+
+- Recipes for the remaining 31 herbs.
+- Monster-harvested reagents (slime residue, spore caps, bones).
+- Potion **consumption** — nothing drinks potions yet, so the Apothecary idles once
+  it holds 3 of each.
+- Adventurer delivery of ingredients (supply is seeded: `Bloodroot 10`,
+  `Manabloom 10`).

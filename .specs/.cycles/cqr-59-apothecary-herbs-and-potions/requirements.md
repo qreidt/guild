@@ -65,13 +65,40 @@ buildings can sit inside the walls instead of being exiled to the outskirts.
    only, matching the existing treatment.
 3. WHEN gates are placed THEN they SHALL open at `(−9, 0)`, `(0, −7)` and `(0, +7)`, and
    four corner towers SHALL sit at `(−9, −7)`, `(−9, +7)`, `(+5, −7)`, `(+5, +7)`.
+   > **As-built note (2026-07-31).** Delivered as specified (40 wall tiles: 4 corner
+   > towers, 4 bastions, 32 wall segments). Two consequences the clause did not
+   > anticipate, both left as-is because the cell coordinates here are explicit:
+   > - The **north-east corner tower `(−9, −7)` now abuts the IronMine**, whose plot
+   >   `[-10, -9]` covers `(−9, −9)` and `(−9, −8)` on the same row. The meshes do not
+   >   intersect (≈4.7 world units apart vs ≈4.3 combined half-extents), but it is the
+   >   same "welded to the ramparts" look that R2.3 moved the LumberMill to avoid.
+   > - The **south corner towers stand in the water** (`i = +5` → world `x = 15`; the sea
+   >   rect starts at `x = 14`). This is unchanged behaviour — the pre-expansion corners
+   >   at `(±5, ±5)` were already at `x = 15` — so it reads as a shoreline bastion rather
+   >   than a regression.
 4. WHEN roads are generated THEN the existing cross SHALL extend to the new gates: row
    `i = 0` for `j` −6…6, and column `j = 0` for `i` −8…4.
+   > **As-built note (2026-07-31).** Built to these bounds exactly. Consequence worth
+   > recording: `j −6…6` stops one cell *short* of the east and west gate cells
+   > `(0, −7)` and `(0, +7)`, which therefore render as bare grass. The pre-expansion
+   > code ran road *through* its gate cells (`j = ±5` when walls sat at `±5`). The north
+   > gate `(−9, 0)` still gets a plate, from `TRAIL_CELLS`, so the three gates are not
+   > treated alike. Paving the side gates is a one-line change
+   > (`INTERIOR_MIN_J - 1 … INTERIOR_MAX_J + 1`) but would deviate from this clause, so
+   > it was left for an explicit decision.
 5. WHEN the module loads THEN `buildOccupancy()`
    ([grid.ts:126](../../../src/components/environment/views/city/grid.ts#L126)) SHALL pass
    — no duplicate-cell claim and no building/house/structure on non-grass terrain.
 6. WHEN the expanded layout is measured THEN **at least 40 free 2×2 interior anchors**
    SHALL exist, and `[-8, 1]` SHALL be one of them.
+   > **As-built (2026-07-31): 41 anchors, `[-8, 1]` among them** — measured before the
+   > Apothecary plot was authored (task 7 then consumed `[-8, 1]` itself). Counted as
+   > *distinct anchor positions* whose 2×2 is all-grass and unoccupied, so they overlap;
+   > a non-overlapping tiling would be far fewer and could never reach 40.
+   >
+   > This clause turned out to be the binding constraint on R2.8. The bare expanded
+   > interior yields **45**, so the entire housing budget was ~5 anchors — see the note
+   > on R2.8.
 7. The **compass convention SHALL be unchanged** — N = −x, S = +x (sea), E = −z (farms),
    W = +z. The source-of-truth comment at the top of `town-layout.ts` SHALL remain
    accurate.
@@ -115,9 +142,37 @@ that the expansion does not put a wall through a field or weld a building to the
    SHALL be retuned for the new extents: the interior-greenery band (currently world ±12,
    i.e. cells ±4) and the forest belt (currently x −23…−34, which now falls *inside* the
    new north wall) SHALL respect the enlarged interior.
+   > **As-built delta (2026-07-31): three bands retuned, plus a structural guard.**
+   > Range changes alone were not sufficient — the *third* band (the "dense scatter toward
+   > the mountains", `x −18…−46`) also reached inside the new walls, and this clause does
+   > not mention it. Rather than tune three ranges and hope, `treeCellOk` gained an
+   > `insideWalls(i, j)` check and an `allowInterior` flag that **only** the deliberate
+   > interior-greenery band passes. Correctness is now structural; the range edits are
+   > only about density:
+   > - forest belt `x −23…−34` → **−29…−38** (never reaches `i > −10`);
+   > - mountain scatter `x −18…−46` → **−29…−46**;
+   > - interior greenery world ±12 → the full interior (`x −24…12`, `z ±18`), 10 → 18 trees.
+   >
+   > The "keep the southern band open" filter was widened from `|j| ≤ 4` to the interior
+   > `j` bounds, to match the wider town. Result: 112 trees, 18 of them inside the walls
+   > as scattered parkland (row `i = −8` went from 8 forest trees to 1 ornamental).
 8. WHEN the new interior band is dressed THEN a modest cluster of houses SHALL be authored
    in the west / north-west band, and the area near the north gate SHALL be left open for
    the Apothecary and future buildings.
+   > **As-built delta (2026-07-31): west band only, 8 cells — not north-west.**
+   > `HOUSE_CELLS` gained `(i, 5)` and `(i, 6)` for `i ∈ {-2, -1, 1, 2}`, merging into two
+   > dense "5+" blocks flanking the road out to the west gate.
+   >
+   > **Why:** R1.6 caps the budget. The bare interior has 45 free 2×2 anchors and R1.6
+   > demands ≥ 40, so at most ~5 could be spent. A 2-wide strip along either side column
+   > costs 4–6 on its own; a north-west cluster costs ~5 more. Doing both would have
+   > landed in the low 30s and failed R1.6. The chosen strip costs 4 → **41**.
+   >
+   > The northern band (`i ≤ -5`) is therefore left unhoused, which is consistent with the
+   > second half of this clause — it *is* the reserve the expansion was built for. It is
+   > dressed with the interior-greenery tree band instead (R2.7), which costs **zero**
+   > anchors because trees are non-occupying decoration. If future work wants that band to
+   > read as inhabited rather than as parkland, R1.6's threshold has to come down first.
 9. `HOUSE_CELLS` SHALL NOT claim any of `(-8, 1)`, `(-7, 1)`, `(-8, 2)`, `(-7, 2)` —
    the reserved Apothecary plot.
 
@@ -180,6 +235,13 @@ that the herb catalog has an economic purpose and the city produces consumables.
 5. WHEN `chooseNextAction()` selects work THEN it SHALL walk a priority-ordered production
    list with a `desired_amount` of **3** per potion, mirroring
    [BlackSmith.ts:37](../../../src/game/city/buildings/BlackSmith.ts#L37).
+   > **As-built note (2026-07-31).** Built to **3**, per this clause and the R4.11 trace.
+   > Note that [`request.md` § Building behavior](./request.md#building-behavior) — the
+   > historical intake — says "Targets: 20 of each potion". 3 is the deliberate later
+   > decision: it is what makes the seeded 10 + 10 herbs reach a stable end state that
+   > exercises all three branches of `chooseNextAction()`. With a target of 20 the
+   > building would simply brew until the herbs ran out. `request.md` is left unedited
+   > per the Specs convention in `CLAUDE.md`.
 6. **Every returned action SHALL have validated input.** For each recipe below its
    `desired_amount`, `chooseNextAction()` SHALL call
    `this.inventory.validateLedger(action.input!)` and return the action only on success;
@@ -269,6 +331,10 @@ that the town visibly grows when I add one.
 6. IF Phase A is descoped mid-cycle THEN the fallback anchor SHALL be `[-7, 1]` — verified
    free grass in the *current* layout, outside the walls next to the LumberMill and
    IronMine — plus a `TRAIL_CELLS` extension to reach it.
+   > **Not exercised (2026-07-31).** Phase A landed, so the Apothecary sits at the
+   > intended `[-8, 1]` (world centre `[-22.5, 4.5]`) inside the north gate. No
+   > `TRAIL_CELLS` extension was needed — the plot abuts the extended `j = 0` road at
+   > cell `(−8, 0)` directly.
 
 ### Requirement 7 — Documentation reconciliation
 

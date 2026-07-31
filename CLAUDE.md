@@ -28,7 +28,13 @@ No automated test runner is configured — verify via the dev server and `vue-ts
   data): `CELL = 3` world units, **one occupant per cell** enforced by `buildOccupancy()`
   at module load — a bad authored placement throws on load. New authored structures must
   be added as grid occupants. Full design lives under
-  `.specs/.cycles/cqr-53-read-only-environment-interfaces/3d-city-grid/`.
+  `.specs/.cycles/cqr-53-read-only-environment-interfaces/3d-city-grid/`, as amended by
+  `.specs/.cycles/cqr-59-apothecary-herbs-and-potions/` Phase A.
+- The walled town is an **inland rectangle**, not a symmetric ring: interior cells
+  `i −8…4`, `j −6…6`, walls at `i = −9` (N) and `j = ∓7` (E/W), south (`i = +5`) open to
+  the sea. It grew inland because water starts at world `x = 14` — cell column `i = 5` —
+  so symmetric growth would pull sea into the interior. Everything downstream derives
+  from the four `INTERIOR_*` bounds in `town-layout.ts`; there is no `TOWN_HALF_CELLS`.
 - Map compass (a labeling convention only): N = −x, S = +x (sea), E = −z (farms),
   W = +z. The source-of-truth comment is at the top of `city/town-layout.ts`.
 
