@@ -10,6 +10,7 @@ export enum BuildingID {
     BlackSmith = 'BlackSmith',
     IronMine = 'IronMine',
     LumberMill = 'LumberMill',
+    Apothecary = 'Apothecary',
     Market = 'market',
 }
 

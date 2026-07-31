@@ -10,7 +10,7 @@ import type { EnvironmentView } from "../../modules/environment-view/types.ts";
  * renders from the `view` prop alone, never touches the engine.
  */
 
-type ThemeName = 'amber' | 'emerald' | 'sky';
+type ThemeName = 'amber' | 'emerald' | 'sky' | 'violet';
 
 interface Theme {
   /** Funds chip: background + border + text. */
@@ -42,6 +42,12 @@ const THEMES: Record<ThemeName, Theme> = {
     task: 'text-sky-300 font-medium',
     bar: 'bg-sky-500',
     count: 'text-sky-300',
+  },
+  violet: {
+    funds: 'bg-violet-900/40 border-violet-700 text-violet-300',
+    task: 'text-violet-300 font-medium',
+    bar: 'bg-violet-500',
+    count: 'text-violet-300',
   },
 };
 

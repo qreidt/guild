@@ -11,6 +11,7 @@ import MarketMesh from "./city/MarketMesh.vue";
 import BlacksmithMesh from "./city/BlacksmithMesh.vue";
 import LumberMillMesh from "./city/LumberMillMesh.vue";
 import MineMesh from "./city/MineMesh.vue";
+import ApothecaryMesh from "./city/ApothecaryMesh.vue";
 import MountainMesh from "./city/MountainMesh.vue";
 import PortMesh from "./city/PortMesh.vue";
 import StorageMesh from "./city/StorageMesh.vue";
@@ -33,7 +34,7 @@ import {
  *
  * The town is authored, static geometry (see `town-layout.ts`) built once from
  * `three` primitives — fixed camera, grass terrain, walls + towers, water,
- * fields, decorative houses and a forest. The 4 real buildings render as larger,
+ * fields, decorative houses and a forest. The real buildings render as larger,
  * flagged "hero" structures driven by the shared `CityView` (which buildings
  * exist); the town is otherwise static and never rebuilds on a tick. City money
  * and citizens are shown in the app's top bar, not over the canvas.
@@ -75,6 +76,7 @@ const HERO_MODELS: Partial<Record<BuildingID, Component>> = {
   [BuildingID.BlackSmith]: BlacksmithMesh,
   [BuildingID.LumberMill]: LumberMillMesh,
   [BuildingID.IronMine]: MineMesh,
+  [BuildingID.Apothecary]: ApothecaryMesh,
 };
 function heroModel(id: BuildingID): Component | undefined {
   return HERO_MODELS[id];

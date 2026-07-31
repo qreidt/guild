@@ -24,6 +24,7 @@ const WORKER_LABEL_PREFIX: Partial<Record<BuildingID, string>> = {
     [BuildingID.BlackSmith]: 'Smith',
     [BuildingID.IronMine]: 'Miner',
     [BuildingID.LumberMill]: 'Lumberjack',
+    [BuildingID.Apothecary]: 'Herbalist',
     [BuildingID.Market]: 'Trader',
 };
 

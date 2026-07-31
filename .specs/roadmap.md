@@ -49,7 +49,7 @@ The project is at prototype stage. The code already sketches the resource-produc
 - Black Smith
 - Tannery
 - Fletcher
-- Alchemist's Lab
+- Apothecary
 - Hunter's Lodge
 
 ## Planned world content from design notes

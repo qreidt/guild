@@ -13,7 +13,7 @@ import type { BuildingID } from "../../../../game/city/buildings/common/Building
  * COMPASS (unchanged — see `town-layout.ts`): N = -x, S = +x (sea), E = -z, W = +z.
  */
 
-/** World units per grid cell. Walls at world ±15 land on cell index ±5 exactly. */
+/** World units per grid cell — every authored wall line lands on an integer cell. */
 export const CELL = 3;
 /** Inclusive index bounds — covers the ±48 range of the 100-unit ground plane. */
 export const GRID_MIN = -16;

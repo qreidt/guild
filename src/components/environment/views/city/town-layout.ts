@@ -15,7 +15,7 @@ import {
 /**
  * Authored "level design" for the 3D city-global view — now expressed on a
  * GRID. The town is built from integer cells (see `grid.ts`, `CELL = 3`): walls,
- * roads, houses and the 4 main buildings each occupy a whole number of cells,
+ * roads, houses and the main buildings each occupy a whole number of cells,
  * at most one occupant per cell (enforced by `buildOccupancy` at load). Trees are
  * non-occupying decoration. Pure data: no Vue, no `three`.
  *
@@ -128,8 +128,24 @@ export const PALETTE = {
 
 export const GROUND_SIZE = 100;
 
-/** Half-extent of the walled town in cells (walls sit on the ±TOWN_HALF_CELLS ring). */
-const TOWN_HALF_CELLS = 5; // 5 cells × 3 = world ±15, matching the old TOWN_HALF.
+// ---------------------------------------------------------------------------
+// Town extents — an INLAND rectangle, not a symmetric ring. The town grew north
+// (-x) and sideways (±z) rather than uniformly: water starts at world x = 14,
+// i.e. cell column i = 5, so growing south too would pull sea into the interior.
+// Everything downstream (walls, gates, roads) derives from these four bounds.
+// ---------------------------------------------------------------------------
+
+/** Inclusive interior cell bounds — 13 × 13 buildable cells inside the walls. */
+const INTERIOR_MIN_I = -8; // north-most interior row (world x = -24)
+const INTERIOR_MAX_I = 4; // south-most interior row (world x = +12)
+const INTERIOR_MIN_J = -6; // east-most interior column (world z = -18)
+const INTERIOR_MAX_J = 6; // west-most interior column (world z = +18)
+
+/** Wall lines, one cell outside the interior. South is open to the sea. */
+const WALL_N_I = INTERIOR_MIN_I - 1; // -9  (world x = -27)
+const WALL_S_I = INTERIOR_MAX_I + 1; // +5  (world x = +15) — corner towers only
+const WALL_E_J = INTERIOR_MIN_J - 1; // -7  (world z = -21)
+const WALL_W_J = INTERIOR_MAX_J + 1; // +7  (world z = +21)
 
 // ---------------------------------------------------------------------------
 // Background mountains (off-grid scenery to the NORTH/-x).
@@ -157,8 +173,14 @@ interface BuildingPlot {
 const BUILDING_PLOTS: Partial<Record<BuildingID, BuildingPlot>> = {
     [BuildingID.Market]: { anchor: [2, 2], offset: [0, 0], scale: 1.0, tone: "#b5524a" },
     [BuildingID.BlackSmith]: { anchor: [-2, -2], offset: [0, 0], scale: 1.05, tone: "#3b3f44" },
-    [BuildingID.LumberMill]: { anchor: [-11, -1], offset: [-1.0, 0], scale: 1.0, tone: "#8a6038" },
+    // Pushed 2 cells further north when the town grew — the north wall now sits
+    // at i = -9, and the mill would otherwise be welded to the ramparts.
+    [BuildingID.LumberMill]: { anchor: [-13, -1], offset: [-1.0, 0], scale: 1.0, tone: "#8a6038" },
     [BuildingID.IronMine]: { anchor: [-10, -9], offset: [0, 0], scale: 1.1, tone: "#8a8f94" },
+    // Immediately inside the north gate on the forest side the herbs come from,
+    // abutting the extended j=0 road — no trail extension needed. One of the
+    // plots the expansion opened up.
+    [BuildingID.Apothecary]: { anchor: [-8, 1], offset: [0, 0], scale: 1.0, tone: "#4a6b46" },
 };
 
 /** Set of every cell covered by a hero building (2×2 each) — used by terrainAt. */
@@ -202,14 +224,18 @@ const STRUCTURE_PLOTS: StructurePlot[] = [
 // ---------------------------------------------------------------------------
 
 const ROAD_CELLS: Cell[] = [];
-// Full gate column (i=0): centre to the WEST gate (0,+5) and the EAST gate (0,-5).
-for (let j = -TOWN_HALF_CELLS; j <= TOWN_HALF_CELLS; j++) ROAD_CELLS.push([0, j]);
-// N–S road (row j=0): from the NORTH gate (i=-5) out toward the sea (i=+4).
-for (let i = -4; i <= 4; i++) if (i !== 0) ROAD_CELLS.push([i, 0]);
+// E–W road (row i=0): the full interior width, up to the EAST gate (0,-7) and
+// the WEST gate (0,+7).
+for (let j = INTERIOR_MIN_J; j <= INTERIOR_MAX_J; j++) ROAD_CELLS.push([0, j]);
+// N–S road (column j=0): from the NORTH gate (i=-9) down toward the sea (i=+4).
+for (let i = INTERIOR_MIN_I; i <= INTERIOR_MAX_I; i++) if (i !== 0) ROAD_CELLS.push([i, 0]);
 
-// A narrower TRAIL from the north gate (-5,0) out to the LumberMill's edge (i=-10).
+// A narrower TRAIL from the north gate (-9,0) out to the LumberMill's edge. It
+// stops at i=-11: the mill covers (-13,0) and (-12,0), and a trail plate under a
+// building would NOT throw (terrainAt reports "grass" for building cells before
+// it checks roads) — it would silently z-fight at y = 0.03.
 const TRAIL_CELLS: Cell[] = [];
-for (let i = -5; i >= -9; i--) TRAIL_CELLS.push([i, 0]);
+for (let i = WALL_N_I; i >= -11; i--) TRAIL_CELLS.push([i, 0]);
 
 // terrainAt treats roads AND the trail as non-buildable + tree-free; only ROAD_CELLS
 // render as full tiles (the trail renders as narrow plates below).
@@ -226,10 +252,14 @@ interface Rect {
     z0: number;
     z1: number;
 }
-// Sea (south/+x), two farm fields (east/-z) — same world rects as the old plates.
+// Sea (south/+x), two farm fields (east/-z). The fields sit ~6 units further
+// EAST than the original plates so the enlarged town's east wall (j = -7, world
+// z = -21) lands on grass instead of crossing farmland. NOTE: these rects and the
+// `field-1` / `field-2` plates in GROUND_PATCHES are two sources of truth for the
+// same rectangles — move them together or terrain and render disagree.
 const SEA: Rect = { x0: 14, x1: 36, z0: -32, z1: 32 };
-const FIELD_1: Rect = { x0: -15, x1: 1, z0: -27.5, z1: -18.5 };
-const FIELD_2: Rect = { x0: 3, x1: 15, z0: -27, z1: -19 };
+const FIELD_1: Rect = { x0: -15, x1: 1, z0: -33.5, z1: -24.5 };
+const FIELD_2: Rect = { x0: 3, x1: 15, z0: -33, z1: -25 };
 const inRect = (x: number, z: number, r: Rect): boolean => x >= r.x0 && x <= r.x1 && z >= r.z0 && z <= r.z1;
 const onMountain = (x: number, z: number): boolean =>
     MOUNTAINS.some((m) => Math.hypot(m.position[0] - x, m.position[1] - z) < m.radius);
@@ -246,8 +276,9 @@ export function terrainAt(i: number, j: number): Terrain {
 }
 
 // ---------------------------------------------------------------------------
-// Perimeter walls — one tile per cell on the ±5 ring. N/E/W gates open; corner
-// + bastion towers; the SOUTH (sea, +x) side is open save for its corner towers.
+// Perimeter walls — one tile per cell on the interior rectangle's outer ring.
+// N/E/W gates open; corner + bastion towers; the SOUTH (sea, +x) side is open
+// save for its corner towers.
 // ---------------------------------------------------------------------------
 
 interface WallCell {
@@ -257,34 +288,41 @@ interface WallCell {
 }
 
 function buildWallCells(): WallCell[] {
-    const W = TOWN_HALF_CELLS;
     const cells: WallCell[] = [];
 
     // Four corner towers.
-    cells.push({ cell: [-W, -W], variant: "tower" });
-    cells.push({ cell: [-W, W], variant: "tower" });
-    cells.push({ cell: [W, -W], variant: "tower" });
-    cells.push({ cell: [W, W], variant: "tower" });
+    cells.push({ cell: [WALL_N_I, WALL_E_J], variant: "tower" });
+    cells.push({ cell: [WALL_N_I, WALL_W_J], variant: "tower" });
+    cells.push({ cell: [WALL_S_I, WALL_E_J], variant: "tower" });
+    cells.push({ cell: [WALL_S_I, WALL_W_J], variant: "tower" });
 
-    // North wall (i = -W), runs along z; central gate at j=0, bastions at j=±1.
-    for (let j = -W + 1; j <= W - 1; j++) {
+    // North wall (i = -9), runs along z; central gate at j=0, bastions at j=±1.
+    for (let j = INTERIOR_MIN_J; j <= INTERIOR_MAX_J; j++) {
         if (j === 0) continue; // gate
-        cells.push(Math.abs(j) === 1 ? { cell: [-W, j], variant: "tower" } : { cell: [-W, j], variant: "wall", axis: "z" });
+        cells.push(
+            Math.abs(j) === 1
+                ? { cell: [WALL_N_I, j], variant: "tower" }
+                : { cell: [WALL_N_I, j], variant: "wall", axis: "z" },
+        );
     }
 
-    // East wall (j = -W), runs along x; central gate at i=0, bastions at i=±1.
-    for (let i = -W + 1; i <= W - 1; i++) {
+    // East wall (j = -7), runs along x; central gate at i=0, bastions at i=±1.
+    for (let i = INTERIOR_MIN_I; i <= INTERIOR_MAX_I; i++) {
         if (i === 0) continue; // gate
-        cells.push(Math.abs(i) === 1 ? { cell: [i, -W], variant: "tower" } : { cell: [i, -W], variant: "wall", axis: "x" });
+        cells.push(
+            Math.abs(i) === 1
+                ? { cell: [i, WALL_E_J], variant: "tower" }
+                : { cell: [i, WALL_E_J], variant: "wall", axis: "x" },
+        );
     }
 
-    // West wall (j = +W), runs along x; central gate at i=0, no bastions.
-    for (let i = -W + 1; i <= W - 1; i++) {
+    // West wall (j = +7), runs along x; central gate at i=0, no bastions.
+    for (let i = INTERIOR_MIN_I; i <= INTERIOR_MAX_I; i++) {
         if (i === 0) continue; // gate
-        cells.push({ cell: [i, W], variant: "wall", axis: "x" });
+        cells.push({ cell: [i, WALL_W_J], variant: "wall", axis: "x" });
     }
 
-    // South side (i = +W): open to the sea — no wall tiles (corners above only).
+    // South side (i = +5): open to the sea — no wall tiles (corners above only).
 
     return cells;
 }
@@ -303,8 +341,13 @@ const TOWER_W = 2.0;
 // ---------------------------------------------------------------------------
 
 // A denser interior, confined to i ∈ [-4, 2] so the southern rows (i ≥ 3) stay
-// open toward the sea for a future port. Clear of the road plus (i=0, j=0), the
+// open toward the sea for the port. Clear of the road plus (i=0, j=0), the
 // Market plot (2..3, 2..3) and the Blacksmith plot (-2..-1, -2..-1).
+//
+// Housing is deliberately MODEST relative to the enlarged interior: the northern
+// band (i ≤ -5) is the reserve the expansion was built for — the Apothecary plot
+// at [-8, 1] plus room for future buildings — and every house cell costs free 2×2
+// anchors there. That band is dressed with (non-occupying) trees instead.
 const HOUSE_CELLS: Cell[] = [
     // NW quadrant (north-west): i=-4..-1, j=1..4
     [-4, 1], [-3, 1], [-2, 1], [-1, 1],
@@ -322,6 +365,11 @@ const HOUSE_CELLS: Cell[] = [
     // SE quadrant (south-east): i=1..2, j=-4..-1
     [1, -1], [1, -2], [1, -3], [1, -4],
     [2, -1], [2, -2], [2, -3], [2, -4],
+    // NEW west band (j=5..6) opened by the expansion — two 5+ blocks flanking the
+    // road out to the west gate, so the widened town does not read as bare grass.
+    // NEVER extend this into (-8,1) (-7,1) (-8,2) (-7,2): the Apothecary plot.
+    [-2, 5], [-1, 5], [-2, 6], [-1, 6],
+    [1, 5], [2, 5], [1, 6], [2, 6],
 ];
 
 const { dense: DENSE_ANCHORS, singles: HOUSE_SINGLES } = mergeHouses(HOUSE_CELLS);
@@ -380,7 +428,7 @@ const cellSeed = (i: number, j: number): number => (Math.imul(i | 0, 73856093) ^
 // Derived RENDER ARRAYS (consumed by CityGlobalView3D.vue).
 // ---------------------------------------------------------------------------
 
-/** The 4 hero buildings, keyed by id (position = block centre + offset). */
+/** The hero buildings, keyed by id (position = block centre + offset). */
 export const HERO_PLOTS: Partial<Record<BuildingID, HeroPlot>> = Object.fromEntries(
     Object.entries(BUILDING_PLOTS).map(([id, plot]) => {
         const [cx, cz] = blockCenter(plot.anchor[0], plot.anchor[1], 2, 2);
@@ -426,8 +474,8 @@ export const WALL_BOXES: BoxRect[] = WALL_CELLS.map((w) => {
 /** Sea + fields + per-cell road tiles (flat plates just above the grass). */
 export const GROUND_PATCHES: GroundPatch[] = [
     { id: "water", position: [25, 0.06, 0], size: [22, 64], color: PALETTE.water },
-    { id: "field-1", position: [-7, 0.04, -23], size: [16, 9], color: PALETTE.field },
-    { id: "field-2", position: [9, 0.04, -23], size: [12, 8], color: PALETTE.field },
+    { id: "field-1", position: [-7, 0.04, -29], size: [16, 9], color: PALETTE.field },
+    { id: "field-2", position: [9, 0.04, -29], size: [12, 8], color: PALETTE.field },
     // Road tiles — one per road cell, dropped where a building covers them (C9).
     ...ROAD_CELLS.filter(([i, j]) => !occupantCovers(OCCUPANCY, i, j)).map(([i, j]) => {
         const [cx, cz] = cellCenter(i, j);
@@ -469,19 +517,26 @@ export const DENSE_HOUSES: DenseHouseTransform[] = DENSE_ANCHORS.map(([i, j]) =>
 // clearance ring around the outside hero buildings (Mill / Mine).
 // ---------------------------------------------------------------------------
 
-const LUMBER_CENTER: Vec2 = blockCenter(-11, -1, 2, 2) as Vec2; // [-31.5, -1.5]
+const LUMBER_CENTER: Vec2 = blockCenter(-13, -1, 2, 2) as Vec2; // [-37.5, -1.5]
 const MINE_CENTER: Vec2 = blockCenter(-10, -9, 2, 2) as Vec2; // [-28.5, -25.5]
 const OUTSIDE_HEROES: Vec2[] = [LUMBER_CENTER, MINE_CENTER];
 
-function treeCellOk(x: number, z: number): boolean {
+/** True when a cell lies inside the walled interior rectangle. */
+const insideWalls = (i: number, j: number): boolean =>
+    i >= INTERIOR_MIN_I && i <= INTERIOR_MAX_I && j >= INTERIOR_MIN_J && j <= INTERIOR_MAX_J;
+
+function treeCellOk(x: number, z: number, allowInterior = false): boolean {
     const i = Math.round(x / CELL);
     const j = Math.round(z / CELL);
     const t = terrainAt(i, j);
     if (t !== "grass" && t !== "field") return false;
     if (occupantCovers(OCCUPANCY, i, j)) return false;
+    // Only the deliberate interior-greenery band may plant inside the walls. The
+    // forest bands sit just beyond them and would otherwise seed a wood in town.
+    if (!allowInterior && insideWalls(i, j)) return false;
     if (OUTSIDE_HEROES.some((p) => Math.hypot(p[0] - x, p[1] - z) < 5)) return false;
-    // Keep the southern interior band (toward the sea) open for a future port.
-    if (i >= 3 && i <= 4 && Math.abs(j) <= 4) return false;
+    // Keep the southern interior band (toward the sea and the port) open.
+    if (i >= 3 && insideWalls(i, j)) return false;
     return true;
 }
 
@@ -490,17 +545,18 @@ function buildTrees(seed: number): TreeTransform[] {
     const trees: TreeTransform[] = [];
     const tooClose = (x: number, z: number, min: number): boolean =>
         trees.some((t) => Math.hypot(t.position[0] - x, t.position[1] - z) < min);
-    const push = (x: number, z: number, scale: number): void => {
-        if (!treeCellOk(x, z)) return;
+    const push = (x: number, z: number, scale: number, allowInterior = false): void => {
+        if (!treeCellOk(x, z, allowInterior)) return;
         trees.push({ id: `tree-${trees.length}`, position: [x, z], scale });
     };
 
-    // Forest belt to the north of the town.
+    // Forest belt just beyond the north wall (i = -9, world x = -27) — it used to
+    // start at x = -23, which now falls INSIDE the enlarged town.
     let made = 0;
     let attempts = 0;
     while (made < 34 && attempts < 1800) {
         attempts++;
-        const x = -23 - rnd() * 11; // -23 .. -34
+        const x = -29 - rnd() * 9; // -29 .. -38
         const z = (rnd() * 2 - 1) * 24;
         if (tooClose(x, z, 1.6)) continue;
         const before = trees.length;
@@ -508,12 +564,13 @@ function buildTrees(seed: number): TreeTransform[] {
         if (trees.length > before) made++;
     }
 
-    // A dense scatter out toward the mountains (north).
+    // A dense scatter out toward the mountains (north), likewise pushed clear of
+    // the new wall line.
     made = 0;
     attempts = 0;
     while (made < 36 && attempts < 3600) {
         attempts++;
-        const x = -18 - rnd() * 28; // -18 .. -46
+        const x = -29 - rnd() * 17; // -29 .. -46
         const z = -13 - rnd() * 30; // -13 .. -43
         if (tooClose(x, z, 2.0)) continue;
         const before = trees.length;
@@ -521,16 +578,20 @@ function buildTrees(seed: number): TreeTransform[] {
         if (trees.length > before) made++;
     }
 
-    // A little greenery inside the walls (most interior cells are now built up).
+    // Greenery inside the walls — widened from world ±12 to the full 13×13
+    // interior. The northern band is deliberately left unhoused (it is the
+    // reserve for the Apothecary and future buildings), so this is what keeps it
+    // reading as parkland rather than bare grass. Trees do not occupy cells, so
+    // they cost nothing in buildable 2×2 anchors.
     made = 0;
     attempts = 0;
-    while (made < 10 && attempts < 800) {
+    while (made < 18 && attempts < 1400) {
         attempts++;
-        const x = (rnd() * 2 - 1) * 12;
-        const z = (rnd() * 2 - 1) * 12;
+        const x = (INTERIOR_MIN_I + rnd() * (INTERIOR_MAX_I - INTERIOR_MIN_I)) * CELL; // -24 .. 12
+        const z = (INTERIOR_MIN_J + rnd() * (INTERIOR_MAX_J - INTERIOR_MIN_J)) * CELL; // -18 .. 18
         if (tooClose(x, z, 2.2)) continue;
         const before = trees.length;
-        push(x, z, 0.7 + rnd() * 0.45);
+        push(x, z, 0.7 + rnd() * 0.45, true);
         if (trees.length > before) made++;
     }
 
