@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <rect width="32" height="32" rx="7" fill="#1f2937"/>
+  <!-- Crenellated town gate: the walled town the game is built around. -->
+  <path fill="#fcd34d" d="M4 8h6v4h3V8h6v4h3V8h6v18H4z"/>
+  <path fill="#1f2937" d="M12 26v-5a4 4 0 0 1 8 0v5z"/>
+</svg>
