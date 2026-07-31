@@ -2,7 +2,9 @@
 name: Deploy static content to Pages
 
 on:
-  # Runs on pushes targeting the default branch
+  # Deliberately release-only: pushes to the default branch do NOT deploy.
+  # Note `created` does not fire for releases published from a saved draft —
+  # use the Actions tab (workflow_dispatch) if a release did not trigger a run.
   release:
     types: [ created ]
 

@@ -13,6 +13,8 @@ export class BlackSmith extends BaseBuilding {
     level = 1;
     money = 100;
 
+    static name = "BlackSmith";
+
     static building_id = BuildingID.BlackSmith;
 
     public inventory: InventoryAccountService = InventoryAccountService.init(

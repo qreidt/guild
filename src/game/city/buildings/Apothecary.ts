@@ -20,6 +20,8 @@ export class Apothecary extends BaseBuilding {
     level = 1;
     money = 100;
 
+    static name = "Apothecary";
+
     static building_id = BuildingID.Apothecary;
 
     public inventory: InventoryAccountService = InventoryAccountService.init(

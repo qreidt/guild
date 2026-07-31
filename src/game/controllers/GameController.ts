@@ -9,10 +9,19 @@ export class GameController {
     public running: boolean = false;
     public tick = 0;
 
-    public city: City;
+    // Built on first access rather than in the constructor. This module sits in an
+    // import cycle (GameController -> City -> LumberMill/IronMine/Action/market.service
+    // -> GameController), and the singleton below is constructed at module scope. Native
+    // ESM evaluates City first so a constructor call would be safe in dev, but Rollup
+    // orders the bundle the other way and `new City()` then hits City's temporal dead
+    // zone — a blank page in every production build. Deferring the call moves it past
+    // module evaluation, where every class in the cycle is initialised.
+    private _city: City | null = null;
+    public get city(): City {
+        return (this._city ??= new City(100, 500));
+    }
 
     constructor(public auto_tick_interval: number) {
-        this.city = new City(100, 500);
         console.log(`[GameController] OK`);
     }
 
