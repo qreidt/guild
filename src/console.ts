@@ -15,6 +15,10 @@ import readline from 'node:readline';
 import gameController from './game/controllers/GameController.ts';
 import inventoryRepository from './modules/inventory/inventory.repository.ts';
 import marketService from './modules/market/market.service.ts';
+import questService from './modules/quests/quest.service.ts';
+import { QuestStatus, type Wallet } from './modules/quests/common.ts';
+import { InventoryAccountService } from './modules/inventory/inventory.service.ts';
+import { mapQuestBoard } from './modules/environment-view/environment-view.ts';
 import { BuildingID } from './game/city/buildings/common/Building.ts';
 import { ItemID } from './modules/items/id.ts';
 import { ItemRegistry } from './modules/items/registry.ts';
@@ -44,6 +48,21 @@ function findItemId(raw: string): ItemID | null {
         if (String(id).toLowerCase() === lower) return id as ItemID;
     }
     return null;
+}
+
+/**
+ * Purses for stubbed claimants. Phase 1 has no adventurer to own one, but the
+ * board's claim → fulfil path is fully implemented, so the harness supplies a
+ * stand-in payee to exercise it. Phase 2 hands this job to the adventurer's own
+ * wallet and these go away.
+ */
+const debugPurses = new Map<string, number>();
+
+function debugPurse(id: string): Wallet {
+    return {
+        get: () => debugPurses.get(id) ?? 0,
+        add: (n: number) => debugPurses.set(id, (debugPurses.get(id) ?? 0) + n),
+    };
 }
 
 function formatStacks(stacks: Map<ItemID, number>, indent: string): string[] {
@@ -251,6 +270,64 @@ const commands: Record<string, Command> = {
                     .join(',');
                 print(`    [tick ${t.tick}] ${t.side.padEnd(4)} ${t.counterpartyId.padEnd(12)} ${itemsStr} total=${t.total}`);
             }
+        },
+    },
+
+    quests: {
+        help: 'list the quest board',
+        // Prints the QuestRow DTO the board panel renders, NOT the service's
+        // own quest objects. That is deliberate: it collapses the view mappers
+        // into this seam, so a DTO bug fails here in the terminal instead of
+        // hiding until someone opens the panel. The mappers are pure and
+        // read-only, which makes reusing them free.
+        run: () => {
+            const rows = mapQuestBoard(questService.getAll(), gameController.city);
+            if (rows.length === 0) {
+                print('quest board: (empty)');
+                return;
+            }
+            const open = rows.filter((r) => r.status === QuestStatus.Open).length;
+            print(`quest board: ${rows.length} quest${rows.length === 1 ? '' : 's'} (${open} open)`);
+            for (const row of rows) {
+                print(
+                    `  ${row.id.padEnd(9)} ${String(row.status).padEnd(10)} ` +
+                    `${row.objective.padEnd(28)} ${row.location.padEnd(8)} ` +
+                    `${String(row.reward).padStart(4)}g  from ${row.posterName}` +
+                    (row.claimant ? `  → ${row.claimant}` : '')
+                );
+            }
+        },
+    },
+
+    claim: {
+        help: 'claim <questId> <claimantId> — claim sole ownership of an open quest (debug)',
+        run: (args) => {
+            if (args.length < 2) {
+                print('usage: claim <questId> <claimantId>');
+                return;
+            }
+            const quest = questService.claim(args[0], args[1]);
+            print(`${args[1]} claimed ${quest.id} — ${quest.status}`);
+        },
+    },
+
+    fulfil: {
+        help: 'fulfil <questId> <claimantId> — settle a claimed quest (debug, stubbed claimant)',
+        run: (args) => {
+            if (args.length < 2) {
+                print('usage: fulfil <questId> <claimantId>');
+                return;
+            }
+            const [questId, claimantId] = args;
+            const quest = questService.fulfil(
+                questId,
+                { id: claimantId, inventory: new InventoryAccountService(claimantId) },
+                debugPurse(claimantId),
+            );
+            print(
+                `${claimantId} fulfilled ${quest.id} for ${quest.reward}g ` +
+                `(purse: ${debugPurses.get(claimantId)}g)`
+            );
         },
     },
 

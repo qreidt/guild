@@ -3,22 +3,43 @@ import {Worker} from "./common/Worker.ts";
 import {Action, WaitAction} from "./common/Action.ts";
 import {InventoryAccountService} from "../../../modules/inventory/inventory.service.ts";
 import {ItemID} from "../../../modules/items/id.ts";
+import questService from "../../../modules/quests/quest.service.ts";
+import type {Wallet} from "../../../modules/quests/common.ts";
+import {forageLocationFor} from "../../../modules/world/location.ts";
 
 console.log(`[Apothecary] Loaded`);
+
+/** Herbs to ask for per quest, and what the errand pays. */
+const HERB_QUEST_QUANTITY = 10;
+
+/**
+ * Author-set, not derived from item value. Deriving it (goods value × a margin)
+ * is the better long-term answer and is a drop-in replacement later — the field
+ * is a number either way — but a hand-set figure is easier to tune while the
+ * system is new. 10 Bloodroot is worth 30g; 45g is what makes the trip worth an
+ * adventurer's time.
+ */
+const HERB_QUEST_REWARD = 45;
+
+/** Post once stock falls below two brews' worth (a recipe consumes 3). */
+const HERB_RESTOCK_THRESHOLD = 6;
 
 /**
  * The first building whose input does NOT come from itself. The LumberMill and
  * IronMine conjure their inputs from nothing; the Apothecary brews foraged herbs
- * that will eventually arrive with returning adventurers. Until then the supply
- * is a seeded stack, so it runs down and stops — which is why every returned
- * action must have validated input (see chooseNextAction).
+ * that arrive with adventurers — so when its shelf runs low it **posts a quest**
+ * asking for more (see `reviewQuests`) instead of silently stalling. Until an
+ * adventurer exists to claim it, the quest simply sits on the board.
  *
- * It never sells: potions accumulate here with no TransportAction and no market
- * line, so `money` is fixed at its starting value.
+ * It has no income: it never sells its potions, and it now pays for gather
+ * quests, so `money` only ever goes down. The starting 1000 (every other
+ * building starts at 100) is a runway to watch the quest loop run, not an
+ * economic statement. Do NOT "fix" it with a market sales line — see ADR 0004;
+ * the intended revenue is adventurers buying potions here directly.
  */
 export class Apothecary extends BaseBuilding {
     level = 1;
-    money = 100;
+    money = 1000;
 
     static name = "Apothecary";
 
@@ -47,14 +68,8 @@ export class Apothecary extends BaseBuilding {
     protected chooseNextAction(): Action {
         const list = this.inventory.getCountByGoodId();
 
-        // map ordered by priority with a minimum amount of each item
-        const production_list = {
-            [ItemID.HealthPotion]: {desired_amount: 3, action: BrewHealthPotionAction},
-            [ItemID.ManaPotion]:   {desired_amount: 3, action: BrewManaPotionAction},
-        };
-
-        for (const [item_id, recipe] of Object.entries(production_list)) {
-            const current_amount = list.get(item_id as ItemID) ?? 0;
+        for (const recipe of PRODUCTION_LIST) {
+            const current_amount = list.get(recipe.product) ?? 0;
             if (current_amount >= recipe.desired_amount) continue;
 
             const action = new recipe.action();
@@ -71,6 +86,45 @@ export class Apothecary extends BaseBuilding {
         }
 
         return new WaitAction();
+    }
+
+    /**
+     * One quest per herb, posted the moment the shelf runs low.
+     *
+     * Each clause earns its place. Separate quests per herb so a Bloodroot
+     * shortage does not hide behind a Manabloom one. The outstanding-quest check
+     * is what stops an identical quest going up every single tick for as long as
+     * stock stays low. And the reward leaves the wallet inside `post()`, so a
+     * quest on the board is always funded — when the money runs out (it will,
+     * see ADR 0004) `post()` returns null and the board simply goes quiet.
+     */
+    protected reviewQuests(): void {
+        const stock = this.inventory.getCountByGoodId();
+
+        for (const recipe of PRODUCTION_LIST) {
+            if ((stock.get(recipe.reagent) ?? 0) >= HERB_RESTOCK_THRESHOLD) continue;
+
+            if (questService.getOutstandingFor(recipe.reagent, this.id).length > 0) continue;
+
+            // Ask the world where the herb grows rather than hard-coding a
+            // forest, so a herb that moves table stays askable.
+            const location = forageLocationFor(recipe.reagent);
+            if (!location) continue;
+
+            questService.post(
+                this.id,
+                this.wallet,
+                { kind: 'gather', item: recipe.reagent, quantity: HERB_QUEST_QUANTITY, location },
+                HERB_QUEST_REWARD,
+            );
+        }
+    }
+
+    private get wallet(): Wallet {
+        return {
+            get: () => this.money,
+            add: (n: number) => { this.money += n; },
+        };
     }
 }
 
@@ -103,3 +157,27 @@ class BrewManaPotionAction extends Action {
     output_destination = BuildingID.Apothecary;
     output = new Map([[ItemID.ManaPotion, 1]])
 }
+
+/**
+ * Everything the Apothecary makes, in priority order — and the herb each recipe
+ * eats. One table so the brew loop and the quest loop can never disagree about
+ * what this building needs: `chooseNextAction` reads `product`/`desired_amount`,
+ * `reviewQuests` reads `reagent`.
+ *
+ * `reagent` restates the action's `input` key. Keep them in step: an action
+ * whose reagent is wrong here brews fine and then never asks for more.
+ */
+const PRODUCTION_LIST = [
+    {
+        product: ItemID.HealthPotion,
+        desired_amount: 3,
+        action: BrewHealthPotionAction,
+        reagent: ItemID.Bloodroot,
+    },
+    {
+        product: ItemID.ManaPotion,
+        desired_amount: 3,
+        action: BrewManaPotionAction,
+        reagent: ItemID.Manabloom,
+    },
+];

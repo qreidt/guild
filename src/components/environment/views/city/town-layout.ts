@@ -181,6 +181,11 @@ const BUILDING_PLOTS: Partial<Record<BuildingID, BuildingPlot>> = {
     // abutting the extended j=0 road — no trail extension needed. One of the
     // plots the expansion opened up.
     [BuildingID.Apothecary]: { anchor: [-8, 1], offset: [0, 0], scale: 1.0, tone: "#4a6b46" },
+    // Kitty-corner to the Market plot [2, 2] on the open ground between the
+    // market square and the west-band housing — where work is offered belongs
+    // beside where goods are traded. Sits on the southern band (i = 3..4) that
+    // stays clear of houses and trees, so nothing had to move to make room.
+    [BuildingID.AdventurersGuild]: { anchor: [3, 4], offset: [0, 0], scale: 1.0, tone: "#c2a15a" },
 };
 
 /** Set of every cell covered by a hero building (2×2 each) — used by terrainAt. */

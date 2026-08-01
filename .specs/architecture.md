@@ -42,6 +42,16 @@ The application is a client-only SPA.
 - `modules/items/values/weapons.ts`: weapon classes, `WeaponType`, `WeaponID`, `WeaponRegistry`
 - `modules/items/values/armor.ts`: armor classes, `ArmorType`, `ArmorID`, `ArmorRegistry`
 
+### Quests module
+
+- `modules/quests/common.ts`: `QuestStatus`, the `Objective` union, `Quest`, and the board's errors — all plain, serializable shapes
+- `modules/quests/objectives.ts`: the resolver registry keyed by objective `kind`, mirroring `ItemRegistry`. The one place that reads an objective
+- `modules/quests/quest.service.ts`: the public quest board — post (escrowing the reward), claim, fulfil, and the board queries. A reactive singleton, like `marketService`
+
+### World module
+
+- `modules/world/location.ts`: the `Location` enum, travel costs, and the forage table (difficulty per location/item pair). `Zone` is reserved and unmodelled
+
 ### Inventory/accounting layer
 
 - `modules/inventory/common.ts`: account and transaction types

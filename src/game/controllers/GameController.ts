@@ -65,10 +65,17 @@ export class GameController {
 
     /**
      * If it's between 20h and 05h, it's night and some people should be sleeping.
+     *
+     * Still inert — it returns `false` unconditionally. The commented body is
+     * corrected to a 48-tick day (one tick is 30 minutes, ADR 0001; it used to
+     * read `% 24`, which never ran) so that switching the cycle on is a one-line
+     * change. It is not free: every `LumberMill` and `IronMine` action already
+     * guards on `shouldTick(): !isNight()`, so enabling it costs those two
+     * buildings ~37% of their output (18 of 48 ticks) the moment it happens.
      */
     public isNight(): boolean {
         return false;
-        // const hour = this.tick % 24;
+        // const hour = (this.tick % 48) / 2;
         // return hour > 20 || hour < 5;
     }
 

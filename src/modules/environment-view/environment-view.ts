@@ -3,11 +3,14 @@ import type { Worker } from "../../game/city/buildings/common/Worker.ts";
 import { BuildingID, type BaseBuilding } from "../../game/city/buildings/common/Building.ts";
 import type { City } from "../../game/city/City.ts";
 import { ItemRegistry } from "../items/registry.ts";
+import { summarizeObjective } from "../quests/objectives.ts";
+import type { Quest } from "../quests/common.ts";
 import type {
     CityBuildingSummary,
     CityView,
     EnvironmentView,
     InventoryRow,
+    QuestRow,
     WorkerStatus,
     WorkerView,
 } from "./types.ts";
@@ -113,4 +116,22 @@ export function mapCityView(city: City): CityView {
         citizens: city.citizens_count,
         buildings,
     };
+}
+
+/**
+ * The quest board, in posting order. `city` is read for one thing only —
+ * turning a poster's `BuildingID` into its display name — so the board still
+ * maps cleanly when a poster is not (or is no longer) a registered building.
+ */
+export function mapQuestBoard(quests: readonly Quest[], city: City): QuestRow[] {
+    return quests.map((quest) => ({
+        id: quest.id,
+        objective: summarizeObjective(quest.objective),
+        location: quest.objective.location,
+        reward: quest.reward,
+        status: quest.status,
+        poster: quest.poster,
+        posterName: city.buildings.get(quest.poster)?.static.name ?? String(quest.poster),
+        claimant: quest.claimant,
+    }));
 }

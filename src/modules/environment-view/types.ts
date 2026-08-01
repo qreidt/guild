@@ -1,5 +1,7 @@
 import type { ItemID } from "../items/id.ts";
 import type { BuildingID } from "../../game/city/buildings/common/Building.ts";
+import type { ClaimantID, QuestID, QuestStatus } from "../quests/common.ts";
+import type { Location } from "../world/location.ts";
 
 /**
  * Render-agnostic contract for the read-only environment interfaces.
@@ -53,4 +55,26 @@ export interface CityView {
     /** city.citizens_count */
     citizens: number;
     buildings: CityBuildingSummary[];
+}
+
+/**
+ * One line of the quest board. The objective arrives pre-summarised by its
+ * resolver, so the board renders a `hunt` quest the day one exists without the
+ * panel learning a second shape.
+ */
+export interface QuestRow {
+    id: QuestID;
+    /** Resolver-produced one-liner, e.g. "Gather 10 × Bloodroot". */
+    objective: string;
+    /** Where the work happens. */
+    location: Location;
+    /** Escrowed gold, already paid out of the poster's wallet. */
+    reward: number;
+    status: QuestStatus;
+    /** The building that posted it. */
+    poster: BuildingID;
+    /** Its display name, or the raw id when it is not a city building. */
+    posterName: string;
+    /** The adventurer that claimed it; null while Open. */
+    claimant: ClaimantID | null;
 }

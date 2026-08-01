@@ -11,6 +11,7 @@ export enum BuildingID {
     IronMine = 'IronMine',
     LumberMill = 'LumberMill',
     Apothecary = 'Apothecary',
+    AdventurersGuild = 'AdventurersGuild',
     Market = 'market',
 }
 
@@ -46,6 +47,9 @@ export abstract class BaseBuilding {
 
     public handleTick(_city: City): void {
         this._data.inventory = this.inventory.getCountByGoodId();
+
+        this.reviewQuests();
+
         const availableWorkers = this.workers.filter((w) => w.isAvailable());
 
         if (availableWorkers.length > 0) {
@@ -59,6 +63,21 @@ export abstract class BaseBuilding {
         for (const worker of this.workers) {
             worker.tick();
         }
+    }
+
+    /**
+     * Once-per-tick review of what this building needs from the outside world,
+     * and the only place a building posts a quest. A no-op by default; override
+     * it to join the quest system.
+     *
+     * Deliberately NOT part of `chooseNextAction()`. That runs only when a
+     * worker is idle, so posting from there would fall silent exactly when both
+     * workers are busy consuming the very stock that is running out — the moment
+     * the building most needs help. Running it here means a fully-occupied
+     * building keeps asking.
+     */
+    protected reviewQuests(): void {
+        //
     }
 
     protected abstract chooseNextAction(): Action;

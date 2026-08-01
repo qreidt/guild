@@ -2,7 +2,21 @@
 
 ## Status
 
-Planned, not yet implemented.
+**Implemented.** `src/console.ts` ships the full MVP command surface below, plus
+the non-interactive mode listed here as a stretch goal (`npm run console -- tick
+50`). This document said "Planned, not yet implemented" until CQR-60; it was
+already stale when CQR-59 used the harness to verify the Apothecary.
+
+Commands added since this spec was written, and not described below:
+
+| Command | Description | Cycle |
+|---|---|---|
+| `quests` | List the quest board. Prints the `QuestRow` DTO the board panel consumes, not the service's internal objects, so a DTO bug fails here rather than hiding until someone opens the panel. | CQR-60 |
+| `claim <questId> <claimantId>` | Take an open quest, against a stubbed claimant. Debug-only — Phase 1 has no adventurer. | CQR-60 |
+| `fulfil <questId> <claimantId>` | Settle a claimed quest and pay the escrowed reward into a debug purse. | CQR-60 |
+
+Still not implemented: `seed <n>` (pinning the random stream) — see
+[CQR-65](https://linear.app/cqr/issue/CQR-65).
 
 ## Goal
 

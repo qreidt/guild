@@ -12,6 +12,7 @@ import BlacksmithMesh from "./city/BlacksmithMesh.vue";
 import LumberMillMesh from "./city/LumberMillMesh.vue";
 import MineMesh from "./city/MineMesh.vue";
 import ApothecaryMesh from "./city/ApothecaryMesh.vue";
+import AdventurersGuildMesh from "./city/AdventurersGuildMesh.vue";
 import MountainMesh from "./city/MountainMesh.vue";
 import PortMesh from "./city/PortMesh.vue";
 import StorageMesh from "./city/StorageMesh.vue";
@@ -77,6 +78,7 @@ const HERO_MODELS: Partial<Record<BuildingID, Component>> = {
   [BuildingID.LumberMill]: LumberMillMesh,
   [BuildingID.IronMine]: MineMesh,
   [BuildingID.Apothecary]: ApothecaryMesh,
+  [BuildingID.AdventurersGuild]: AdventurersGuildMesh,
 };
 function heroModel(id: BuildingID): Component | undefined {
   return HERO_MODELS[id];
