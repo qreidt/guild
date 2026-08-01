@@ -300,7 +300,7 @@ const commands: Record<string, Command> = {
     },
 
     claim: {
-        help: 'claim <questId> <claimantId> — take an open quest (debug, stubbed claimant)',
+        help: 'claim <questId> <claimantId> — claim sole ownership of an open quest (debug)',
         run: (args) => {
             if (args.length < 2) {
                 print('usage: claim <questId> <claimantId>');

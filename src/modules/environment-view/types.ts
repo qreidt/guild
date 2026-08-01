@@ -1,6 +1,6 @@
 import type { ItemID } from "../items/id.ts";
 import type { BuildingID } from "../../game/city/buildings/common/Building.ts";
-import type { QuestStatus } from "../quests/common.ts";
+import type { ClaimantID, QuestID, QuestStatus } from "../quests/common.ts";
 import type { Location } from "../world/location.ts";
 
 /**
@@ -63,7 +63,7 @@ export interface CityView {
  * panel learning a second shape.
  */
 export interface QuestRow {
-    id: string;
+    id: QuestID;
     /** Resolver-produced one-liner, e.g. "Gather 10 × Bloodroot". */
     objective: string;
     /** Where the work happens. */
@@ -76,5 +76,5 @@ export interface QuestRow {
     /** Its display name, or the raw id when it is not a city building. */
     posterName: string;
     /** The adventurer that claimed it; null while Open. */
-    claimant: string | null;
+    claimant: ClaimantID | null;
 }

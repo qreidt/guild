@@ -42,14 +42,14 @@ const STATUS_CLASS: Record<QuestStatus, string> = {
       </div>
     </div>
 
-    <!-- Guild hall banner (decorative only — encodes no board state) -->
+    <!-- Interior banner (decorative only — encodes no board state) -->
     <div class="rounded-lg overflow-hidden border border-gray-700 bg-gray-900">
       <svg
         viewBox="0 0 640 140"
         preserveAspectRatio="xMidYMid meet"
         class="w-full h-auto block"
         role="img"
-        aria-label="The Adventurers' Guild hall: a notice board hung with quest parchments beneath the guild banners"
+        aria-label="Inside the Adventurers' Guild: a notice board hung with quest parchments, flanked by banners"
       >
         <defs>
           <linearGradient id="ag-wall" x1="0" y1="0" x2="0" y2="1">
@@ -77,7 +77,7 @@ const STATUS_CLASS: Record<QuestStatus, string> = {
         <rect x="0" y="122" width="640" height="18" fill="#4a3a22" />
         <rect x="0" y="122" width="640" height="4" fill="#33280f" />
 
-        <!-- guild banners on the back wall -->
+        <!-- banners on the back wall -->
         <g>
           <rect x="150" y="34" width="46" height="62" fill="url(#ag-banner)" />
           <path d="M150 96 L173 110 L196 96 Z" fill="#9a7a33" />
@@ -179,7 +179,7 @@ const STATUS_CLASS: Record<QuestStatus, string> = {
     </div>
   </div>
 
-  <div v-else class="p-4 text-gray-500 italic">No guild data.</div>
+  <div v-else class="p-4 text-gray-500 italic">No data for the Adventurers' Guild.</div>
 </template>
 
 <style scoped>

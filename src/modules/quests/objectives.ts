@@ -12,7 +12,7 @@ import type { GatherObjective, Objective, ObjectiveKind, QuestClaimant } from ".
  * one entry in `OBJECTIVE_RESOLVERS`: the board, the claim flow and the
  * adventurer's loop never change.
  *
- * Phase 1 ships the *completion* half. `plan()` — turning an objective into the
+ * Phase 1 ships the *fulfilment* half. `plan()` — turning an objective into the
  * next `Action` an adventurer takes — is Phase 2's addition to this same
  * interface.
  */
@@ -22,7 +22,7 @@ export interface ObjectiveResolver<O extends Objective = Objective> {
 
     /**
      * Could this objective be satisfied at all, anywhere, as the world is
-     * authored? False means nobody could ever complete it, so it must never
+     * authored? False means nobody could ever fulfil it, so it must never
      * reach the board.
      */
     isObtainable(objective: O): boolean;
@@ -61,7 +61,7 @@ const OBJECTIVE_RESOLVERS: Record<ObjectiveKind, ObjectiveResolver> = {
     gather: gatherResolver,
 };
 
-export function resolverFor(objective: Objective): ObjectiveResolver {
+function resolverFor(objective: Objective): ObjectiveResolver {
     return OBJECTIVE_RESOLVERS[objective.kind];
 }
 

@@ -26,6 +26,9 @@ export enum QuestStatus {
     Fulfilled = 'Fulfilled',
 }
 
+/** Stable id of a quest for the process lifetime, e.g. `quest:7`. */
+export type QuestID = string;
+
 /** Stable id of whoever claimed a quest, e.g. `adventurer:3`. */
 export type ClaimantID = string;
 
@@ -58,7 +61,7 @@ export type ObjectiveKind = Objective['kind'];
 
 /** Plain, inspectable board data — no methods, no engine references. */
 export interface Quest {
-    id: string;
+    id: QuestID;
     /** The building that posted it. */
     poster: BuildingID;
     /** The adventurer that claimed it; null while Open. */
@@ -82,8 +85,10 @@ export interface QuestClaimant {
 /**
  * A money holder. Structurally identical to the market's `Wallet` and
  * interchangeable with it at every call site — declared separately so the quest
- * board does not depend on the market. If a third holder appears, lift both into
- * a shared module rather than importing one from the other.
+ * board does not depend on the market. Callers construct one inline over
+ * whatever holds their money, as `TransportAction` and `Adventurer` already do.
+ * If a third *declaration* of this shape appears, lift all three into a shared
+ * module rather than importing one from another.
  */
 export interface Wallet {
     get(): number;
@@ -91,21 +96,21 @@ export interface Wallet {
 }
 
 export class QuestNotFoundError extends Error {
-    constructor(id: string) {
+    constructor(id: QuestID) {
         super(`No quest '${id}' on the board`);
         this.name = 'QuestNotFoundError';
     }
 }
 
 export class QuestNotClaimableError extends Error {
-    constructor(id: string, status: QuestStatus) {
+    constructor(id: QuestID, status: QuestStatus) {
         super(`Quest '${id}' cannot be claimed — it is ${status}, not ${QuestStatus.Open}`);
         this.name = 'QuestNotClaimableError';
     }
 }
 
 export class QuestNotFulfillableError extends Error {
-    constructor(id: string, reason: string) {
+    constructor(id: QuestID, reason: string) {
         super(`Quest '${id}' cannot be fulfilled — ${reason}`);
         this.name = 'QuestNotFulfillableError';
     }

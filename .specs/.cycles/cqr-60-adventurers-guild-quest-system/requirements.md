@@ -92,6 +92,15 @@ derived from item value.
 **R3.5** Total city gold is no longer the sum of building wallets — escrowed gold
 sits on open quests. Any future economy readout must count it.
 
+> _As-built, and a known boundary:_ settlement is **money only**. `fulfil()` pays
+> the reward but does not move the claimant's goods to the poster — a gather
+> objective is "end up holding a quantity" (`CONTEXT.md`), and handing the herbs
+> over is *delivery*, the third verb in CQR-61's own title. Nothing in Phase 1
+> calls `fulfil`, so this is unreachable in play, but it is reachable from the
+> console: settling repeatedly against one held stack lets a poster pay out
+> forever and never restock. **Phase 2 must transfer the goods inside `fulfil`**,
+> not alongside it, or the board will leak gold the moment an adventurer exists.
+
 ## R4 — Posting policy
 
 **R4.1** `BaseBuilding` gains a `reviewQuests()` no-op called once per tick from
@@ -141,6 +150,11 @@ now, rolled in Phase 2.
 > location is a world concept (`CONTEXT.md` files it under Places, not Work) and
 > Phase 2's travel and foraging read it directly. The Town's forage table is
 > deliberately empty, which is what makes R5.4's check do real work.
+>
+> `forageLocationFor()` reads **presence only** (`findChance(...) > 0`), never the
+> odds, so R5.4's "one thing only" holds literally: the authored chances are
+> untouched by any code path until something rolls them in Phase 2. An earlier
+> pass picked the best-odds location; it was reverted for exactly this reason.
 
 ## R6 — The Adventurers' Guild building
 

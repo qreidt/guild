@@ -72,21 +72,13 @@ export function findChance(location: Location, item: ItemID): number {
 }
 
 /**
- * Where `item` can be foraged, or `null` when nowhere can supply it. Returns the
- * location with the best odds so a poster asks for the errand most likely to
- * come back done.
+ * Where `item` can be foraged, or `null` when nowhere can supply it.
+ *
+ * Reads presence only, never the odds — Phase 1 asks the forage table exactly
+ * one question ("can this be had anywhere?") and the chances stay unread until
+ * something rolls them. Weighting the choice by odds is Phase 2's call to make,
+ * alongside the roll itself.
  */
 export function forageLocationFor(item: ItemID): Location | null {
-    let best: Location | null = null;
-    let bestChance = 0;
-
-    for (const location of Object.values(Location)) {
-        const chance = findChance(location, item);
-        if (chance > bestChance) {
-            best = location;
-            bestChance = chance;
-        }
-    }
-
-    return best;
+    return Object.values(Location).find((location) => findChance(location, item) > 0) ?? null;
 }

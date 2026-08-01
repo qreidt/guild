@@ -11,6 +11,7 @@ import {
     type Objective,
     type Quest,
     type QuestClaimant,
+    type QuestID,
     type Wallet,
 } from './common.ts';
 
@@ -41,7 +42,7 @@ class QuestService {
      * - the poster cannot afford the reward, so the board goes quiet and the
      *   silence is the signal that a building is in trouble;
      * - the objective is unobtainable anywhere as the world is authored, so no
-     *   quest nobody could complete ever reaches the board.
+     *   quest nobody could fulfil ever reaches the board.
      */
     public post(
         poster: BuildingID,
@@ -80,7 +81,7 @@ class QuestService {
     }
 
     /** Take sole ownership of an open quest. A quest admits one claimant. */
-    public claim(questId: string, claimant: ClaimantID): Quest {
+    public claim(questId: QuestID, claimant: ClaimantID): Quest {
         const quest = this.require(questId);
 
         if (quest.status !== QuestStatus.Open) {
@@ -97,8 +98,16 @@ class QuestService {
      * Settle a claimed quest: check the objective against the claimant's state,
      * pay the escrowed reward out, and close the quest. Terminal — a fulfilled
      * quest never moves again.
+     *
+     * Settlement is money only. It does **not** move the claimant's goods to the
+     * poster: a gather objective is "end up holding a quantity" (`CONTEXT.md`),
+     * and handing the herbs over is *delivery* — the third verb in CQR-61's own
+     * title, and Phase 2's to define. Nothing in Phase 1 calls `fulfil`, so the
+     * asymmetry is unreachable in play; it is reachable from the console, where
+     * settling repeatedly against one held stack lets a poster pay out forever
+     * and never restock. Phase 2 closes it by transferring the goods here.
      */
-    public fulfil(questId: string, claimant: QuestClaimant, wallet: Wallet): Quest {
+    public fulfil(questId: QuestID, claimant: QuestClaimant, wallet: Wallet): Quest {
         const quest = this.require(questId);
 
         if (quest.status !== QuestStatus.Claimed) {
@@ -153,7 +162,7 @@ class QuestService {
         );
     }
 
-    private require(questId: string): Quest {
+    private require(questId: QuestID): Quest {
         const quest = this.quests.find((q) => q.id === questId);
         if (!quest) {
             throw new QuestNotFoundError(questId);
