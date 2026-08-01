@@ -73,14 +73,41 @@ export interface Quest {
 }
 
 /**
- * Whatever a resolver may inspect about the claimant. Kept deliberately narrow:
- * a gather objective only needs to know what they are carrying. Phase 2 widens
- * it (current location, at least) when the adventurer starts moving.
+ * Whatever a resolver may inspect about the claimant. Kept deliberately narrow —
+ * what they carry, and where they are. That is everything a gather objective
+ * needs to decide both "is this done?" and "what next?", and narrow enough that
+ * an `Adventurer` is not the only thing that can ever satisfy the shape.
  */
 export interface QuestClaimant {
     id: ClaimantID;
     inventory: InventoryAccountService;
+    /** Where they are standing right now. */
+    location: Location;
 }
+
+/**
+ * The next thing a claimant should do about a quest — an answer, not an order.
+ *
+ * Deliberately a **descriptor, not an `Action` instance**. The resolvers live in
+ * `modules/`, which is framework- and engine-agnostic; constructing engine
+ * actions here would drag `game/` into every quest consumer and close a real
+ * import cycle (`quest.service` -> `objectives` -> `DeliverAction` ->
+ * `quest.service`), a failure mode this repo has already shipped once. The
+ * adventurer maps a step to an action; it never learns an objective *kind*.
+ * See ADR 0006.
+ *
+ * The verbs are shared across objective kinds by design — a future `hunt` also
+ * travels and delivers — so a new kind usually adds a resolver entry and no step.
+ */
+export type ObjectiveStep =
+    /** Go somewhere. The only step whose cost is a distance. */
+    | { step: 'travel'; to: Location }
+    /** Search where you stand for one item. Repeatable; may find nothing. */
+    | { step: 'forage'; item: ItemID; at: Location }
+    /** Hand the objective's goods to the poster and settle the quest. */
+    | { step: 'deliver'; to: BuildingID }
+    /** Nothing left to do — the quest is Fulfilled. */
+    | { step: 'done' };
 
 /**
  * A money holder. Structurally identical to the market's `Wallet` and

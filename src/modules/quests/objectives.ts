@@ -1,7 +1,16 @@
 import type { ItemID } from "../items/id.ts";
+import type { GoodLedger } from "../inventory/common.ts";
 import { ItemRegistry } from "../items/registry.ts";
-import { findChance } from "../world/location.ts";
-import type { GatherObjective, Objective, ObjectiveKind, QuestClaimant } from "./common.ts";
+import { buildingLocation, findChance } from "../world/location.ts";
+import {
+    QuestStatus,
+    type GatherObjective,
+    type Objective,
+    type ObjectiveKind,
+    type ObjectiveStep,
+    type Quest,
+    type QuestClaimant,
+} from "./common.ts";
 
 /**
  * The resolver registry — the one place that knows how to *read* an objective.
@@ -12,9 +21,10 @@ import type { GatherObjective, Objective, ObjectiveKind, QuestClaimant } from ".
  * one entry in `OBJECTIVE_RESOLVERS`: the board, the claim flow and the
  * adventurer's loop never change.
  *
- * Phase 1 ships the *fulfilment* half. `plan()` — turning an objective into the
- * next `Action` an adventurer takes — is Phase 2's addition to this same
- * interface.
+ * Two halves: *fulfilment* (is it done? could it ever be? does it concern this
+ * item?) and *planning* (what should the claimant do next?). Both are pure
+ * functions over data — nothing here reaches into the engine, and nothing here
+ * mutates.
  */
 export interface ObjectiveResolver<O extends Objective = Objective> {
     /** One-line board summary, e.g. "Gather 10 × Bloodroot". */
@@ -37,6 +47,22 @@ export interface ObjectiveResolver<O extends Objective = Objective> {
      * `escort`) simply answer false.
      */
     concerns(objective: O, item: ItemID): boolean;
+
+    /**
+     * What the claimant hands to the poster when the quest is settled. Kinds
+     * that hand over nothing (a future `escort`) answer with an empty ledger.
+     */
+    delivery(objective: O): GoodLedger;
+
+    /**
+     * The next step, re-derived from live quest and claimant state every time
+     * the claimant is free.
+     *
+     * Never a precomputed plan: a forage shift can come up short, so the number
+     * of shifts is not knowable in advance and any fixed sequence would be
+     * wrong by its second entry.
+     */
+    plan(objective: O, quest: Quest, claimant: QuestClaimant): ObjectiveStep;
 }
 
 const gatherResolver: ObjectiveResolver<GatherObjective> = {
@@ -49,6 +75,28 @@ const gatherResolver: ObjectiveResolver<GatherObjective> = {
         claimant.inventory.getCount(objective.item) >= objective.quantity,
 
     concerns: (objective, item) => objective.item === item,
+
+    delivery: (objective) => new Map([[objective.item, objective.quantity]]),
+
+    /**
+     * Go where it grows, search until you have enough, carry it back, hand it
+     * over. Written as a fall-through ladder rather than a state machine
+     * because there is no state to keep: every branch is a question about the
+     * world right now, so an adventurer interrupted anywhere resumes correctly.
+     */
+    plan: (objective, quest, claimant) => {
+        if (!gatherResolver.isFulfilled(objective, claimant)) {
+            return claimant.location === objective.location
+                ? { step: 'forage', item: objective.item, at: objective.location }
+                : { step: 'travel', to: objective.location };
+        }
+
+        const handover = buildingLocation(quest.poster);
+
+        return claimant.location === handover
+            ? { step: 'deliver', to: quest.poster }
+            : { step: 'travel', to: handover };
+    },
 };
 
 /**
@@ -79,4 +127,23 @@ export function isObjectiveFulfilled(objective: Objective, claimant: QuestClaima
 
 export function objectiveConcerns(objective: Objective, item: ItemID): boolean {
     return resolverFor(objective).concerns(objective, item);
+}
+
+export function objectiveDelivery(objective: Objective): GoodLedger {
+    return resolverFor(objective).delivery(objective);
+}
+
+/**
+ * What the claimant should do next about `quest`.
+ *
+ * A settled quest short-circuits here rather than in every resolver: "is it
+ * still running?" is a question about the quest's status, which no objective
+ * kind has an opinion about.
+ */
+export function planObjective(quest: Quest, claimant: QuestClaimant): ObjectiveStep {
+    if (quest.status === QuestStatus.Fulfilled) {
+        return { step: 'done' };
+    }
+
+    return resolverFor(quest.objective).plan(quest.objective, quest, claimant);
 }

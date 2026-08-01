@@ -1,7 +1,13 @@
 import { reactive } from 'vue';
 import type { ItemID } from '../items/id.ts';
 import type { BuildingID } from '../../game/city/buildings/common/Building.ts';
-import { isObjectiveFulfilled, isObjectiveObtainable, objectiveConcerns } from './objectives.ts';
+import transactionService from '../inventory/transaction.service.ts';
+import {
+    isObjectiveFulfilled,
+    isObjectiveObtainable,
+    objectiveConcerns,
+    objectiveDelivery,
+} from './objectives.ts';
 import {
     QuestNotClaimableError,
     QuestNotFoundError,
@@ -96,16 +102,19 @@ class QuestService {
 
     /**
      * Settle a claimed quest: check the objective against the claimant's state,
-     * pay the escrowed reward out, and close the quest. Terminal — a fulfilled
-     * quest never moves again.
+     * move the goods from the claimant to the poster, pay the escrowed reward
+     * out, and close the quest. Terminal — a fulfilled quest never moves again.
      *
-     * Settlement is money only. It does **not** move the claimant's goods to the
-     * poster: a gather objective is "end up holding a quantity" (`CONTEXT.md`),
-     * and handing the herbs over is *delivery* — the third verb in CQR-61's own
-     * title, and Phase 2's to define. Nothing in Phase 1 calls `fulfil`, so the
-     * asymmetry is unreachable in play; it is reachable from the console, where
-     * settling repeatedly against one held stack lets a poster pay out forever
-     * and never restock. Phase 2 closes it by transferring the goods here.
+     * The goods move **here**, not alongside a call to here. Settling used to be
+     * money only, which let a claimant settle repeatedly against one held stack:
+     * a poster paid out forever and never restocked. Delivery and payment are
+     * the same event, so they are the same method — a caller cannot do half of
+     * it. What moves is the objective's business (`objectiveDelivery`), not the
+     * board's; a kind that hands over nothing simply transfers nothing.
+     *
+     * Order matters. The transfer runs before the status flips, so a claimant
+     * who cannot actually produce the goods throws with the quest still Claimed
+     * rather than leaving it half-settled.
      */
     public fulfil(questId: QuestID, claimant: QuestClaimant, wallet: Wallet): Quest {
         const quest = this.require(questId);
@@ -124,6 +133,8 @@ class QuestService {
         if (!isObjectiveFulfilled(quest.objective, claimant)) {
             throw new QuestNotFulfillableError(questId, `the objective is not satisfied`);
         }
+
+        this.deliver(claimant, quest);
 
         quest.status = QuestStatus.Fulfilled;
         wallet.add(quest.reward);
@@ -160,6 +171,33 @@ class QuestService {
                 (poster === undefined || q.poster === poster) &&
                 objectiveConcerns(q.objective, item),
         );
+    }
+
+    /**
+     * Hand the objective's goods from the claimant to the poster.
+     *
+     * Goes through the transaction service rather than a take-then-put pair so
+     * the debit is validated and applied in one call and the credit in the next,
+     * with nothing able to run in between — the same path every building action
+     * already settles through.
+     *
+     * Input and output are separate `Map` instances on purpose. The transaction
+     * store keeps whatever reference it is handed, so passing one map as both
+     * ends makes two supposedly independent halves the same object — the exact
+     * implicit coupling that has produced bugs in this codebase before.
+     */
+    private deliver(claimant: QuestClaimant, quest: Quest): void {
+        const goods = objectiveDelivery(quest.objective);
+        if (goods.size === 0) return;
+
+        const transactionId = transactionService.createTransaction(
+            claimant.id,
+            quest.poster,
+            { stacks: goods },
+            { stacks: new Map(goods) },
+        );
+
+        transactionService.commitTransaction(transactionId);
     }
 
     private require(questId: QuestID): Quest {

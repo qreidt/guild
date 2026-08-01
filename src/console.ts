@@ -23,6 +23,7 @@ import { BuildingID } from './game/city/buildings/common/Building.ts';
 import { ItemID } from './modules/items/id.ts';
 import { ItemRegistry } from './modules/items/registry.ts';
 import { getWorldSeed, setWorldSeed } from './modules/random/random.ts';
+import { Location } from './modules/world/location.ts';
 
 type CommandHandler = (args: string[]) => void | Promise<void>;
 
@@ -52,10 +53,12 @@ function findItemId(raw: string): ItemID | null {
 }
 
 /**
- * Purses for stubbed claimants. Phase 1 has no adventurer to own one, but the
- * board's claim → fulfil path is fully implemented, so the harness supplies a
- * stand-in payee to exercise it. Phase 2 hands this job to the adventurer's own
- * wallet and these go away.
+ * Purses for stubbed claimants.
+ *
+ * Adventurers now claim and fulfil for themselves out of their own wallets, so
+ * nothing in play needs these. They stay because `claim` / `fulfil` are still
+ * the only way to drive the board directly — settling a quest without waiting
+ * out the travel and forage shifts that would otherwise get you there.
  */
 const debugPurses = new Map<string, number>();
 
@@ -342,9 +345,16 @@ const commands: Record<string, Command> = {
                 return;
             }
             const [questId, claimantId] = args;
+            // The stub stands in town: `fulfil` settles wherever the claimant
+            // is — it is the *planner* that decides you must be home to hand
+            // goods over, and this path deliberately skips the planner.
             const quest = questService.fulfil(
                 questId,
-                { id: claimantId, inventory: new InventoryAccountService(claimantId) },
+                {
+                    id: claimantId,
+                    inventory: new InventoryAccountService(claimantId),
+                    location: Location.Town,
+                },
                 debugPurse(claimantId),
             );
             print(

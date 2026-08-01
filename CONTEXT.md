@@ -50,6 +50,17 @@ a gather objective. How hard something is to forage is a property of looking
 *here* for *this*, not of the item itself.
 _Avoid_: Harvest, pick, farm, grind
 
+**Deliver**:
+To hand a satisfied objective's goods to the poster. Inseparable from fulfilling:
+the goods and the reward change hands in the same event, so neither happens
+without the other.
+_Avoid_: Hand in, turn in, submit, drop off
+
+**Travel**:
+To move from one location to another, taking time. A cost read from a table, never
+measured off the 3D map.
+_Avoid_: Walk, move, go, journey
+
 **Action**:
 A unit of work a worker performs *inside* its own building, over a number of ticks.
 Internal to one building; never posted, never claimed.
