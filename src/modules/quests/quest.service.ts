@@ -149,6 +149,15 @@ class QuestService {
         return this.quests;
     }
 
+    /**
+     * One quest by id, or null when the board has never heard of it. The
+     * non-throwing lookup — a claimant asking after their own quest inside the
+     * tick loop wants an answer, not an exception.
+     */
+    public get(questId: QuestID): Quest | null {
+        return this.quests.find((q) => q.id === questId) ?? null;
+    }
+
     /** Quests still waiting for someone to claim them. */
     public getOpen(): Quest[] {
         return this.quests.filter((q) => q.status === QuestStatus.Open);
@@ -201,7 +210,7 @@ class QuestService {
     }
 
     private require(questId: QuestID): Quest {
-        const quest = this.quests.find((q) => q.id === questId);
+        const quest = this.get(questId);
         if (!quest) {
             throw new QuestNotFoundError(questId);
         }

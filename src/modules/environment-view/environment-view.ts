@@ -2,10 +2,13 @@ import type { Action } from "../../game/city/buildings/common/Action.ts";
 import type { Worker } from "../../game/city/buildings/common/Worker.ts";
 import { BuildingID, type BaseBuilding } from "../../game/city/buildings/common/Building.ts";
 import type { City } from "../../game/city/City.ts";
+import { AdventurerClass, AdventurerRank, type Adventurer } from "../../game/adventurer/Adventurer.ts";
+import type { GoodLedger } from "../inventory/common.ts";
 import { ItemRegistry } from "../items/registry.ts";
 import { summarizeObjective } from "../quests/objectives.ts";
 import type { Quest } from "../quests/common.ts";
 import type {
+    AdventurerView,
     CityBuildingSummary,
     CityView,
     EnvironmentView,
@@ -71,10 +74,11 @@ export function mapWorker(worker: Worker, index: number, labelPrefix: string): W
     };
 }
 
-function mapInventory(building: BaseBuilding): InventoryRow[] {
+/** Any ledger as rows — a building's shelf and an adventurer's pack alike. */
+function mapInventory(ledger: GoodLedger): InventoryRow[] {
     const rows: InventoryRow[] = [];
 
-    building.inventory.getCountByGoodId().forEach((count, itemId) => {
+    ledger.forEach((count, itemId) => {
         const item = ItemRegistry[itemId];
         rows.push({
             itemId,
@@ -95,8 +99,52 @@ export function mapEnvironmentView(building: BaseBuilding): EnvironmentView {
         name: building.static.name,
         funds: building.money,
         workers: building.workers.map((worker, index) => mapWorker(worker, index, prefix)),
-        inventory: mapInventory(building),
+        inventory: mapInventory(building.inventory.getCountByGoodId()),
     };
+}
+
+/**
+ * One adventurer, read through the same lens as a worker: what they are doing,
+ * how far along, and whether they are busy at all. Everything else — where they
+ * are, what they hold, what they carry — is what a worker has no equivalent of.
+ */
+export function mapAdventurer(
+    adventurer: Adventurer,
+    quests: readonly Quest[],
+): AdventurerView {
+    const action = adventurer.active_action;
+    const quest = quests.find((q) => q.id === adventurer.claimed_quest_id) ?? null;
+
+    return {
+        id: adventurer.gid,
+        name: adventurer.name,
+        class: AdventurerClass[adventurer.class],
+        rank: AdventurerRank[adventurer.rank],
+        location: adventurer.location,
+        task: resolveTaskLabel(action),
+        progress: workerProgress(action),
+        status: action && !action.isDone() ? 'working' : 'idle',
+        funds: adventurer.money,
+        questId: adventurer.claimed_quest_id,
+        questObjective: quest ? summarizeObjective(quest.objective) : null,
+        // Emptied stacks stay in the ledger at zero. A building's shelf shows
+        // them (knowing you have run out of lumber is useful); a pack does not —
+        // "carrying 0 Bloodroot" reads as progress toward a quest that is
+        // actually at nothing.
+        carrying: mapInventory(adventurer.inventory.getCountByGoodId()).filter((row) => row.count > 0),
+    };
+}
+
+/**
+ * The roster. `quests` is read for one thing only — summarising the quest an
+ * adventurer holds — so the roster still maps when a claimed quest has fallen
+ * off the board.
+ */
+export function mapRoster(
+    adventurers: readonly Adventurer[],
+    quests: readonly Quest[],
+): AdventurerView[] {
+    return adventurers.map((adventurer) => mapAdventurer(adventurer, quests));
 }
 
 export function mapCityView(city: City): CityView {
@@ -119,11 +167,18 @@ export function mapCityView(city: City): CityView {
 }
 
 /**
- * The quest board, in posting order. `city` is read for one thing only —
- * turning a poster's `BuildingID` into its display name — so the board still
- * maps cleanly when a poster is not (or is no longer) a registered building.
+ * The quest board, in posting order.
+ *
+ * `city` and `adventurers` are each read for one thing only — turning a
+ * poster's `BuildingID` and a claimant's `ClaimantID` into display names — so
+ * the board still maps cleanly when a poster is not (or is no longer) a
+ * registered building, or when a claimant is not on the roster.
  */
-export function mapQuestBoard(quests: readonly Quest[], city: City): QuestRow[] {
+export function mapQuestBoard(
+    quests: readonly Quest[],
+    city: City,
+    adventurers: readonly Adventurer[] = [],
+): QuestRow[] {
     return quests.map((quest) => ({
         id: quest.id,
         objective: summarizeObjective(quest.objective),
@@ -133,5 +188,8 @@ export function mapQuestBoard(quests: readonly Quest[], city: City): QuestRow[] 
         poster: quest.poster,
         posterName: city.buildings.get(quest.poster)?.static.name ?? String(quest.poster),
         claimant: quest.claimant,
+        claimantName: quest.claimant
+            ? adventurers.find((a) => a.gid === quest.claimant)?.name ?? quest.claimant
+            : null,
     }));
 }

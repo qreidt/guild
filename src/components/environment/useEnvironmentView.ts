@@ -5,9 +5,16 @@ import {
     mapCityView,
     mapEnvironmentView,
     mapQuestBoard,
+    mapRoster,
 } from "../../modules/environment-view/environment-view.ts";
-import type { CityView, EnvironmentView, QuestRow } from "../../modules/environment-view/types.ts";
+import type {
+    AdventurerView,
+    CityView,
+    EnvironmentView,
+    QuestRow,
+} from "../../modules/environment-view/types.ts";
 import questService from "../../modules/quests/quest.service.ts";
+import adventurerService from "../../modules/adventurers/adventurer.service.ts";
 
 /**
  * The only place reactivity lives. Views derive from the same reactive
@@ -56,6 +63,18 @@ export function useCityView(): ComputedRef<CityView> {
 export function useQuestBoard(): ComputedRef<QuestRow[]> {
     return computed(() => {
         void controller.tick; // per-tick heartbeat
-        return mapQuestBoard(questService.getAll(), controller.city);
+        return mapQuestBoard(questService.getAll(), controller.city, adventurerService.getAll());
+    });
+}
+
+/**
+ * The roster. Read straight from `adventurerService` and not through the city
+ * or the Adventurers' Guild: adventurers belong to no building, and the guild
+ * owns neither them nor the quests — it is only where the two meet (ADR 0002).
+ */
+export function useAdventurerRoster(): ComputedRef<AdventurerView[]> {
+    return computed(() => {
+        void controller.tick; // per-tick heartbeat
+        return mapRoster(adventurerService.getAll(), questService.getAll());
     });
 }

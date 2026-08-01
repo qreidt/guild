@@ -10,9 +10,10 @@ This directory is the canonical product and architecture spec for the current `g
 - Frontend stack: Vue 3 + TypeScript + Vite + Tailwind CSS v4
 - Current playable surface: one-screen city dashboard with tick controls and a building sidebar
 - Current simulation scope: city state, building workers, time-based actions, in-memory inventory accounts, and a starter item economy
-- Implemented but not player-facing yet: adventurer domain model, equipment catalog, transaction-based inventory plumbing
+- Implemented but not player-facing yet: equipment catalog, transaction-based inventory plumbing
 - Not implemented yet: persistence, recruitment, combat, expeditions, dungeon exploration, save/load
-- Quests: the board, posting and settlement rules ship (CQR-60); the adventurer who claims and fulfils does not (CQR-61)
+- Quests: the board, posting and settlement rules ship (CQR-60), and one adventurer claims, forages and delivers against it (CQR-61). Gather is the only objective kind
+- Adventurers: one Scout is seeded at startup, with a roster screen of their own. Recruitment, parties, combat, rank progression, equipping and wages are all later work
 - Build status: `npm run build` passes cleanly after the items and inventory refactor (PR #1)
 
 ## Document map

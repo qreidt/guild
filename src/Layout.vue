@@ -37,9 +37,7 @@
 </template>
 
 <script lang="ts" setup>
-import {reactive, ref} from 'vue';
-import { City } from "./game/city/City.ts";
-import {Adventurer} from "./game/adventurer/Adventurer.ts";
+import {ref} from 'vue';
 
 const showLeft = ref(true);
 const showRight = ref(true);

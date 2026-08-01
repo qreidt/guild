@@ -168,7 +168,9 @@ const STATUS_CLASS: Record<QuestStatus, string> = {
             <span>
               <span class="text-gray-300">{{ quest.location }}</span>
               · posted by {{ quest.posterName }}
-              <template v-if="quest.claimant"> · claimed by {{ quest.claimant }}</template>
+              <template v-if="quest.claimantName"> · claimed by
+                <span class="text-sky-300">{{ quest.claimantName }}</span>
+              </template>
             </span>
             <span class="rounded border px-2 py-0.5 font-semibold" :class="STATUS_CLASS[quest.status]">
               {{ quest.status }}

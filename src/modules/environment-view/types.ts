@@ -58,6 +58,38 @@ export interface CityView {
 }
 
 /**
+ * One line of the roster.
+ *
+ * `task` / `progress` / `status` are deliberately the same three fields a
+ * `WorkerView` carries, and mean the same things — an adventurer's work is
+ * judged the same way a worker's is, even though they are nothing alike
+ * otherwise. `carrying` reuses `InventoryRow` for the same reason.
+ */
+export interface AdventurerView {
+    id: ClaimantID;
+    name: string;
+    /** Enum name, e.g. "Scout". */
+    class: string;
+    /** Enum name, e.g. "Iron". */
+    rank: string;
+    /** A named place, never a coordinate. */
+    location: Location;
+    /** Raw action identifier (constructor.name), null when idle. */
+    task: string | null;
+    /** Clamped to 0..1. */
+    progress: number;
+    status: WorkerStatus;
+    /** Their purse. */
+    funds: number;
+    /** The quest they hold; null when they have none. */
+    questId: QuestID | null;
+    /** Its resolver-produced one-liner; null when they hold none. */
+    questObjective: string | null;
+    /** What they are carrying right now. */
+    carrying: InventoryRow[];
+}
+
+/**
  * One line of the quest board. The objective arrives pre-summarised by its
  * resolver, so the board renders a `hunt` quest the day one exists without the
  * panel learning a second shape.
@@ -77,4 +109,6 @@ export interface QuestRow {
     posterName: string;
     /** The adventurer that claimed it; null while Open. */
     claimant: ClaimantID | null;
+    /** Their name, or the raw id when nobody on the roster answers to it. */
+    claimantName: string | null;
 }
