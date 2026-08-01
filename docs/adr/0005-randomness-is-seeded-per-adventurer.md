@@ -1,12 +1,11 @@
 # Randomness is seeded, with one stream per adventurer
 
-> **Decided, not yet implemented.** This ADR was authored during CQR-60, which
-> contains no randomness for it to govern. `mulberry32` is still a private
-> function inside `town-layout.ts`; the extraction, the per-actor helper and the
-> console `seed` command are [CQR-65](https://linear.app/cqr/issue/CQR-65), and
-> the rolls themselves arrive with the adventurer in
-> [CQR-61](https://linear.app/cqr/issue/CQR-61). The decision below is what those
-> cycles must build, stated in the present tense they will make true.
+> **Partly implemented.** The extraction, the per-actor stream and the console
+> `seed` command landed with [CQR-65](https://linear.app/cqr/issue/CQR-65) —
+> `mulberry32` and `RandomStream` live in `src/modules/random/random.ts`. The
+> rolls that consume them arrive with the adventurer in
+> [CQR-61](https://linear.app/cqr/issue/CQR-61); until then nothing in the
+> simulation draws a number.
 
 Foraging rolls draw from a seeded `mulberry32` stream, not `Math.random()`. The
 PRNG is lifted out of `town-layout.ts` — where it already places trees and houses

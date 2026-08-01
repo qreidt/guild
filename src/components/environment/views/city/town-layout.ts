@@ -1,4 +1,5 @@
 import { BuildingID } from "../../../../game/city/buildings/common/Building.ts";
+import { mulberry32 } from "../../../../modules/random/random.ts";
 import {
     blockCenter,
     buildOccupancy,
@@ -409,18 +410,12 @@ const PLACED: PlacedOccupant[] = [
 const OCCUPANCY = buildOccupancy(PLACED, terrainAt);
 
 // ---------------------------------------------------------------------------
-// Deterministic PRNG (stable scatter, no flicker across renders).
+// Deterministic scatter (stable, no flicker across renders).
+//
+// `mulberry32` used to be declared here. It now lives in `modules/random`, so
+// the simulation's forage rolls and this scenery share one implementation (ADR
+// 0005). The seeds below are unchanged, so the town is placed identically.
 // ---------------------------------------------------------------------------
-
-function mulberry32(seed: number): () => number {
-    let s = seed >>> 0;
-    return function () {
-        s = (s + 0x6d2b79f5) | 0;
-        let t = Math.imul(s ^ (s >>> 15), 1 | s);
-        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-}
 
 function pick<T>(rnd: () => number, arr: T[]): T {
     return arr[Math.floor(rnd() * arr.length)];

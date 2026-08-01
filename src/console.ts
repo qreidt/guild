@@ -22,6 +22,7 @@ import { mapQuestBoard } from './modules/environment-view/environment-view.ts';
 import { BuildingID } from './game/city/buildings/common/Building.ts';
 import { ItemID } from './modules/items/id.ts';
 import { ItemRegistry } from './modules/items/registry.ts';
+import { getWorldSeed, setWorldSeed } from './modules/random/random.ts';
 
 type CommandHandler = (args: string[]) => void | Promise<void>;
 
@@ -148,6 +149,28 @@ const commands: Record<string, Command> = {
         run: () => {
             gameController.resume();
             print('running');
+        },
+    },
+
+    seed: {
+        help: 'seed [n] — pin the world seed every actor stream derives from (no args: show it)',
+        // The point of the command is reproducibility: pin the seed, run, and
+        // "the adventurer never finished this quest" becomes a report anyone can
+        // replay rather than a story. Pinning mid-run works too — live streams
+        // rebuild themselves — but only against identical code, since seeded
+        // streams are order-dependent (ADR 0005).
+        run: (args) => {
+            if (!args[0]) {
+                print(`world seed: ${getWorldSeed()}`);
+                return;
+            }
+            const n = Number(args[0]);
+            if (!Number.isFinite(n) || !Number.isInteger(n) || n < 0) {
+                print(`error: seed must be a non-negative integer`);
+                return;
+            }
+            setWorldSeed(n);
+            print(`world seed pinned to ${n} — every actor stream restarted`);
         },
     },
 
