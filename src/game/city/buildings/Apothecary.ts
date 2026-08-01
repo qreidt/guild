@@ -139,7 +139,7 @@ class BrewHealthPotionAction extends Action {
     static building_id = BuildingID.Apothecary;
     total_ticks = 12; // 6 hours
 
-    static input_origin = BuildingID.Apothecary;
+    input_origin = BuildingID.Apothecary;
     input = new Map([[ItemID.Bloodroot, 3]]);
 
     output_destination = BuildingID.Apothecary;
@@ -151,7 +151,7 @@ class BrewManaPotionAction extends Action {
     static building_id = BuildingID.Apothecary;
     total_ticks = 12; // 6 hours
 
-    static input_origin = BuildingID.Apothecary;
+    input_origin = BuildingID.Apothecary;
     input = new Map([[ItemID.Manabloom, 3]]);
 
     output_destination = BuildingID.Apothecary;

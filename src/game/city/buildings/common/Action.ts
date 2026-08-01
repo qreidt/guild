@@ -16,7 +16,6 @@ export enum ActionStatus {
 
 export interface IAction {
     name: string;
-    input_origin: null | InventoryID;
     building_id: BuildingID | null;
 }
 
@@ -31,7 +30,20 @@ export abstract class Action {
     public inventory: InventoryAccountService;
 
     public input: null | GoodLedger = null;
-    public static input_origin: null | InventoryID = null;
+
+    /**
+     * Where the input comes from — an INSTANCE property, mirroring
+     * `output_destination`. It used to be static, which was fine while every
+     * actor was a building (one origin per class, forever) and hard-blocking the
+     * moment it was not: an adventurer's origin is their own inventory, so two
+     * adventurers running the same action class would overwrite each other's.
+     *
+     * It also mirrored a live footgun in the other direction — see the comment
+     * above `BrewHealthPotionAction`, where a `static output_destination` leaves
+     * the instance null and the goods are consumed for nothing. Both ends of a
+     * transaction are now per-instance and the asymmetry is gone.
+     */
+    public input_origin: null | InventoryID = null;
 
     public output: null | GoodLedger = null;
     public output_destination: null | InventoryID = null;
@@ -53,9 +65,9 @@ export abstract class Action {
 
     public validateInput(): boolean {
         if (!this.input) return true;
-        if (!this.static.input_origin) return false;
+        if (!this.input_origin) return false;
 
-        return this.inventory.validateTransaction(this.static.input_origin, this.input);
+        return this.inventory.validateTransaction(this.input_origin, this.input);
     }
 
     public start(): void {
@@ -64,7 +76,7 @@ export abstract class Action {
 
         if (this.input) {
             this.transaction_id = transactionService
-                .createTransaction(this.static.input_origin, this.output_destination!,
+                .createTransaction(this.input_origin, this.output_destination!,
                     { stacks: this.input },
                     this.output ? { stacks: this.output } : null
                 );
