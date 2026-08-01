@@ -14,8 +14,12 @@ comments are unanimous, deliberate, and describe code that runs, whereas the
 
 `isNight()` currently returns `false` unconditionally, so the day/night cycle is
 inert. Its commented-out body has been corrected to `% 48` so that enabling it is
-a one-line change. Note that enabling it is **not** cost-free: `LumberMill`,
-`IronMine`, and `Apothecary` already guard every action with
-`shouldTick(): !isNight()`, so switching night on cuts city-wide production by
-~37% (18 of 48 ticks) the moment it happens. That is intended behaviour, not a
-regression.
+a one-line change. Note that enabling it is **not** cost-free: every `LumberMill`
+and `IronMine` action already guards on `shouldTick(): !isNight()`, so switching
+night on costs those two buildings ~37% of their output (18 of 48 ticks) the
+moment it happens. That is intended behaviour, not a regression.
+
+_As-built correction (CQR-60):_ this ADR originally named the `Apothecary` among
+the guarded buildings. It is not — brewing is indoor work and CQR-59 deliberately
+shipped it without a `shouldTick()` override. Five actions across two buildings
+are gated, not three buildings.

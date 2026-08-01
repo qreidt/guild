@@ -3,6 +3,7 @@ import {IronMine} from "./buildings/IronMine.ts";
 import {BlackSmith} from "./buildings/BlackSmith.ts";
 import {LumberMill} from "./buildings/LumberMill.ts";
 import {Apothecary} from "./buildings/Apothecary.ts";
+import {AdventurersGuild} from "./buildings/AdventurersGuild.ts";
 import {Market} from "./buildings/Market.ts";
 import {InventoryAccountService} from "../../modules/inventory/inventory.service.ts";
 import marketService from "../../modules/market/market.service.ts";
@@ -30,6 +31,7 @@ export class City {
             [BuildingID.IronMine, new IronMine()],
             [BuildingID.BlackSmith, new BlackSmith()],
             [BuildingID.Apothecary, new Apothecary()],
+            [BuildingID.AdventurersGuild, new AdventurersGuild()],
             [BuildingID.Market, this.market],
         ]);
 

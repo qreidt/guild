@@ -34,3 +34,18 @@ generated spec · `.specs/*` = canonical current-state docs.
   - sub-feature [city-expansion/](./cqr-59-apothecary-herbs-and-potions/city-expansion/)
     — grow the walled town inland (the interior was full: 0 free plots) so the Apothecary
     can sit inside the walls. Folded into the combined brief as Phase A.
+- [CQR-60](https://linear.app/cqr/issue/CQR-60)
+  — [cqr-60-adventurers-guild-quest-system/](./cqr-60-adventurers-guild-quest-system/)
+  — the Adventurers' Guild and the quest board: a building that needs something it
+  cannot make posts a funded quest for it. Phase 1 of two — the board, the posting and
+  the settlement rules, but not the adventurer who does the work
+  ([CQR-61](https://linear.app/cqr/issue/CQR-61)).
+  **Status: implemented** (2026-07-31, branch `CQR-60`) — all 6 tasks complete.
+  New `src/modules/quests/` board service and `src/modules/world/location.ts`; a
+  `reviewQuests()` per-tick hook on `BaseBuilding` that the Apothecary overrides; the
+  `AdventurersGuild` building at anchor `[3, 4]`; a read-only board panel and a 3D
+  hero mesh; and `quests` / `claim` / `fulfil` console commands. As-built deltas are
+  recorded on the affected requirements in
+  [requirements.md](./cqr-60-adventurers-guild-quest-system/requirements.md).
+  The seeded-random prefactor was split out to
+  [CQR-65](https://linear.app/cqr/issue/CQR-65) — it would have shipped dead here.

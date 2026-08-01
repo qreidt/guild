@@ -11,7 +11,8 @@ This directory is the canonical product and architecture spec for the current `g
 - Current playable surface: one-screen city dashboard with tick controls and a building sidebar
 - Current simulation scope: city state, building workers, time-based actions, in-memory inventory accounts, and a starter item economy
 - Implemented but not player-facing yet: adventurer domain model, equipment catalog, transaction-based inventory plumbing
-- Not implemented yet: persistence, quests, recruitment, combat, expeditions, dungeon exploration, save/load
+- Not implemented yet: persistence, recruitment, combat, expeditions, dungeon exploration, save/load
+- Quests: the board, posting and settlement rules ship (CQR-60); the adventurer who claims and fulfils does not (CQR-61)
 - Build status: `npm run build` passes cleanly after the items and inventory refactor (PR #1)
 
 ## Document map
@@ -24,7 +25,7 @@ This directory is the canonical product and architecture spec for the current `g
 - [features/interface-controls/README.md](./features/interface-controls/README.md): current screen layout and player controls
 - [features/adventurers-equipment/README.md](./features/adventurers-equipment/README.md): adventurer model, equipment rules, and gear definitions
 - [features/world-expeditions/README.md](./features/world-expeditions/README.md): planned world, mission, monster, and zone systems
-- [features/console-harness/README.md](./features/console-harness/README.md): planned headless `npm run console` entrypoint for driving and inspecting the simulation from a terminal
+- [features/console-harness/README.md](./features/console-harness/README.md): the headless `npm run console` entrypoint for driving and inspecting the simulation from a terminal
 
 ## Source of truth rules
 
