@@ -18,10 +18,13 @@ import marketService from './modules/market/market.service.ts';
 import questService from './modules/quests/quest.service.ts';
 import { QuestStatus, type Wallet } from './modules/quests/common.ts';
 import { InventoryAccountService } from './modules/inventory/inventory.service.ts';
-import { mapQuestBoard } from './modules/environment-view/environment-view.ts';
+import { mapQuestBoard, mapRoster } from './modules/environment-view/environment-view.ts';
+import adventurerService from './modules/adventurers/adventurer.service.ts';
 import { BuildingID } from './game/city/buildings/common/Building.ts';
 import { ItemID } from './modules/items/id.ts';
 import { ItemRegistry } from './modules/items/registry.ts';
+import { getWorldSeed, setWorldSeed } from './modules/random/random.ts';
+import { Location } from './modules/world/location.ts';
 
 type CommandHandler = (args: string[]) => void | Promise<void>;
 
@@ -51,10 +54,12 @@ function findItemId(raw: string): ItemID | null {
 }
 
 /**
- * Purses for stubbed claimants. Phase 1 has no adventurer to own one, but the
- * board's claim → fulfil path is fully implemented, so the harness supplies a
- * stand-in payee to exercise it. Phase 2 hands this job to the adventurer's own
- * wallet and these go away.
+ * Purses for stubbed claimants.
+ *
+ * Adventurers now claim and fulfil for themselves out of their own wallets, so
+ * nothing in play needs these. They stay because `claim` / `fulfil` are still
+ * the only way to drive the board directly — settling a quest without waiting
+ * out the travel and forage shifts that would otherwise get you there.
  */
 const debugPurses = new Map<string, number>();
 
@@ -148,6 +153,28 @@ const commands: Record<string, Command> = {
         run: () => {
             gameController.resume();
             print('running');
+        },
+    },
+
+    seed: {
+        help: 'seed [n] — pin the world seed every actor stream derives from (no args: show it)',
+        // The point of the command is reproducibility: pin the seed, run, and
+        // "the adventurer never finished this quest" becomes a report anyone can
+        // replay rather than a story. Pinning mid-run works too — live streams
+        // rebuild themselves — but only against identical code, since seeded
+        // streams are order-dependent (ADR 0005).
+        run: (args) => {
+            if (!args[0]) {
+                print(`world seed: ${getWorldSeed()}`);
+                return;
+            }
+            const n = Number(args[0]);
+            if (!Number.isFinite(n) || !Number.isInteger(n) || n < 0) {
+                print(`error: seed must be a non-negative integer`);
+                return;
+            }
+            setWorldSeed(n);
+            print(`world seed pinned to ${n} — every actor stream restarted`);
         },
     },
 
@@ -273,6 +300,36 @@ const commands: Record<string, Command> = {
         },
     },
 
+    adventurers: {
+        help: 'list the roster — class, location, current action, progress, quest, carried goods',
+        // Prints the AdventurerView DTO the roster screen renders, for the same
+        // reason `quests` prints QuestRow: it collapses the view mapper into
+        // this seam, so a DTO bug fails here in the terminal instead of hiding
+        // until someone opens the panel.
+        run: () => {
+            const rows = mapRoster(adventurerService.getAll(), questService.getAll());
+            if (rows.length === 0) {
+                print('roster: (empty)');
+                return;
+            }
+            print(`roster: ${rows.length} adventurer${rows.length === 1 ? '' : 's'}`);
+            for (const row of rows) {
+                const progress = `${Math.round(row.progress * 100)}%`;
+                print(
+                    `  ${row.name.padEnd(10)} ${row.rank} ${row.class}`.padEnd(32) +
+                    `${String(row.location).padEnd(8)} ` +
+                    `${(row.task ?? 'Idle').padEnd(10)} ${progress.padStart(4)}  ` +
+                    `${String(row.funds).padStart(5)}g  ` +
+                    (row.questObjective ? `on ${row.questObjective} (${row.questId})` : 'no quest')
+                );
+                const carrying = row.carrying.length === 0
+                    ? '(nothing)'
+                    : row.carrying.map((c) => `${c.name}x${c.count}`).join(', ');
+                print(`    carrying: ${carrying}`);
+            }
+        },
+    },
+
     quests: {
         help: 'list the quest board',
         // Prints the QuestRow DTO the board panel renders, NOT the service's
@@ -281,7 +338,11 @@ const commands: Record<string, Command> = {
         // hiding until someone opens the panel. The mappers are pure and
         // read-only, which makes reusing them free.
         run: () => {
-            const rows = mapQuestBoard(questService.getAll(), gameController.city);
+            const rows = mapQuestBoard(
+                questService.getAll(),
+                gameController.city,
+                adventurerService.getAll(),
+            );
             if (rows.length === 0) {
                 print('quest board: (empty)');
                 return;
@@ -293,7 +354,7 @@ const commands: Record<string, Command> = {
                     `  ${row.id.padEnd(9)} ${String(row.status).padEnd(10)} ` +
                     `${row.objective.padEnd(28)} ${row.location.padEnd(8)} ` +
                     `${String(row.reward).padStart(4)}g  from ${row.posterName}` +
-                    (row.claimant ? `  → ${row.claimant}` : '')
+                    (row.claimantName ? `  → ${row.claimantName}` : '')
                 );
             }
         },
@@ -319,9 +380,16 @@ const commands: Record<string, Command> = {
                 return;
             }
             const [questId, claimantId] = args;
+            // The stub stands in town: `fulfil` settles wherever the claimant
+            // is — it is the *planner* that decides you must be home to hand
+            // goods over, and this path deliberately skips the planner.
             const quest = questService.fulfil(
                 questId,
-                { id: claimantId, inventory: new InventoryAccountService(claimantId) },
+                {
+                    id: claimantId,
+                    inventory: new InventoryAccountService(claimantId),
+                    location: Location.Town,
+                },
                 debugPurse(claimantId),
             );
             print(

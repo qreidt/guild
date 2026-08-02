@@ -1,4 +1,5 @@
 import { ItemID } from "../items/id.ts";
+import type { BuildingID } from "../../game/city/buildings/common/Building.ts";
 
 /**
  * The places someone can be, and travel between — plus what can be foraged at
@@ -18,12 +19,46 @@ export enum Location {
 
 /**
  * One-way travel time from the town, in ticks (one tick is 30 minutes — ADR
- * 0001). Authored now; consumed when adventurers start moving (Phase 2).
+ * 0001).
+ *
+ * A table, not geometry. The 3D grid has no forest coordinate and inventing one
+ * to measure against would make travel times a side effect of scenery — read
+ * `travelCost` instead of this map.
  */
 export const TRAVEL_COST: Record<Location, number> = {
     [Location.Town]: 0,
     [Location.Forest]: 4, // 2 hours out, 2 hours back
 };
+
+/**
+ * Ticks to travel from one location to another.
+ *
+ * Every `TRAVEL_COST` entry is a one-way cost *from the town*, so the table
+ * authors a hub and nothing else. A leg between two non-town locations
+ * therefore routes through the town rather than inventing a distance nobody
+ * wrote down. When somewhere is reachable without passing through the town, it
+ * is this function that grows a real edge table — not its callers.
+ */
+export function travelCost(from: Location, to: Location): number {
+    if (from === to) return 0;
+    if (from === Location.Town) return TRAVEL_COST[to];
+    if (to === Location.Town) return TRAVEL_COST[from];
+
+    return TRAVEL_COST[from] + TRAVEL_COST[to];
+}
+
+/**
+ * Where a building stands.
+ *
+ * Every building is in the town and the game cannot build anywhere else, so the
+ * answer is a constant. It is a function anyway because "where do I hand this
+ * over?" is a question the quest planner has to ask, and a literal
+ * `Location.Town` at that call site is precisely the line nobody would find the
+ * day an outpost exists.
+ */
+export function buildingLocation(_building: BuildingID): Location {
+    return Location.Town;
+}
 
 /**
  * How hard something is to find, per **location/item pair** — never per item.

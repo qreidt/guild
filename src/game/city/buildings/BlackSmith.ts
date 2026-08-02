@@ -94,7 +94,7 @@ class MakeIngotAction extends Action {
     static building_id = BuildingID.BlackSmith;
     total_ticks = 2; // 1h
 
-    static input_origin = BuildingID.BlackSmith;
+    input_origin = BuildingID.BlackSmith;
     input = new Map([
         [ItemID.IronOre, 2],
     ]);
@@ -120,7 +120,7 @@ class MakeIronSwordAction extends Action {
 
     good_id = ItemID.IronSword;
 
-    static input_origin = BuildingID.BlackSmith;
+    input_origin = BuildingID.BlackSmith;
     input = new Map([[ItemID.IronIngot, 2]]);
 
     output_destination = BuildingID.BlackSmith;
@@ -132,7 +132,7 @@ class MakeIronShieldAction extends Action {
     static building_id = BuildingID.BlackSmith;
     total_ticks = 8; // 4 hours
 
-    static input_origin = BuildingID.BlackSmith;
+    input_origin = BuildingID.BlackSmith;
     input = new Map([[ItemID.IronIngot, 4]]);
 
     output_destination = BuildingID.BlackSmith;
@@ -144,7 +144,7 @@ class MakeIronHelmetAction extends Action {
     static building_id = BuildingID.BlackSmith;
     total_ticks = 8; // 4 hours
 
-    static input_origin = BuildingID.BlackSmith;
+    input_origin = BuildingID.BlackSmith;
     input = new Map([[ItemID.IronIngot, 2]]);
 
     output_destination = BuildingID.BlackSmith;
@@ -156,7 +156,7 @@ class MakeIronPlateAction extends Action {
     static building_id = BuildingID.BlackSmith;
     total_ticks = 8; // 4 hours
 
-    static input_origin = BuildingID.BlackSmith;
+    input_origin = BuildingID.BlackSmith;
     input = new Map([[ItemID.IronIngot, 6]]);
 
     output_destination = BuildingID.BlackSmith;
@@ -168,7 +168,7 @@ class MakeIronMailAction extends Action {
     static building_id = BuildingID.BlackSmith;
     total_ticks = 8; // 4 hours
 
-    static input_origin = BuildingID.BlackSmith;
+    input_origin = BuildingID.BlackSmith;
     input = new Map([[ItemID.IronIngot, 3]]);
 
     output_destination = BuildingID.BlackSmith;
@@ -180,7 +180,7 @@ class MakeIronPantsAction extends Action {
     static building_id = BuildingID.BlackSmith;
     total_ticks = 8; // 4 hours
 
-    static input_origin = BuildingID.BlackSmith;
+    input_origin = BuildingID.BlackSmith;
     input = new Map([[ItemID.IronIngot, 4]]);
 
     output_destination = BuildingID.BlackSmith;
@@ -192,7 +192,7 @@ class MakeIronBootsAction extends Action {
     static building_id = BuildingID.BlackSmith;
     total_ticks = 8; // 4 hours
 
-    static input_origin = BuildingID.BlackSmith;
+    input_origin = BuildingID.BlackSmith;
     input = new Map([[ItemID.IronIngot, 2]]);
 
     output_destination = BuildingID.BlackSmith;
@@ -204,7 +204,7 @@ class MakeIronGauntletAction extends Action {
     static building_id = BuildingID.BlackSmith;
     total_ticks = 8; // 4 hours
 
-    static input_origin = BuildingID.BlackSmith;
+    input_origin = BuildingID.BlackSmith;
     input = new Map([[ItemID.IronIngot, 2]]);
 
     output_destination = BuildingID.BlackSmith;
@@ -216,7 +216,7 @@ class MakeIronSpearAction extends Action {
     static building_id = BuildingID.BlackSmith;
     total_ticks = 8; // 4 hours
 
-    static input_origin = BuildingID.BlackSmith;
+    input_origin = BuildingID.BlackSmith;
     input = new Map([[ItemID.IronIngot, 1]]);
 
     output_destination = BuildingID.BlackSmith;

@@ -25,13 +25,15 @@ The application is a client-only SPA.
 - `Layout.vue`: fixed header/body/footer shell with optional sidebars
 - `components/Button.vue`: small reusable button primitive
 - `components/left-menu/BuildingsList.vue`: building selector sidebar
+- `components/adventurers/AdventurerRoster.vue`: the roster — every adventurer's location, current action, progress, claimed quest and carried goods. Read-only, and deliberately outside `environment-registry.ts`, which is keyed by `BuildingID`
 
 ### Game domain layer
 
 - `game/controllers/GameController.ts`: global simulation clock and pause/resume behavior
 - `game/city/City.ts`: root city aggregate
 - `game/city/buildings/**`: concrete building implementations, workers, and actions
-- `game/adventurer/**`: adventurer and equipment domain model
+- `game/adventurer/Adventurer.ts`: the adventurer — rank, class, attributes, proficiencies, equipment, wallet, inventory, and the claim → travel → forage → deliver loop. Maps an `ObjectiveStep` to an `Action` and knows no objective kind by name
+- `game/adventurer/actions/**`: `TravelAction` (table cost), `ForageAction` (per-tick roll, deferred settlement, night stall), `DeliverAction` (settles the quest). All extend the building `Action` base
 
 ### Items module
 
@@ -44,13 +46,21 @@ The application is a client-only SPA.
 
 ### Quests module
 
-- `modules/quests/common.ts`: `QuestStatus`, the `Objective` union, `Quest`, and the board's errors — all plain, serializable shapes
-- `modules/quests/objectives.ts`: the resolver registry keyed by objective `kind`, mirroring `ItemRegistry`. The one place that reads an objective
-- `modules/quests/quest.service.ts`: the public quest board — post (escrowing the reward), claim, fulfil, and the board queries. A reactive singleton, like `marketService`
+- `modules/quests/common.ts`: `QuestStatus`, the `Objective` union, `Quest`, `QuestClaimant`, the `ObjectiveStep` union, and the board's errors — all plain, serializable shapes
+- `modules/quests/objectives.ts`: the resolver registry keyed by objective `kind`, mirroring `ItemRegistry`. The one place that reads an objective — both halves, fulfilment and planning
+- `modules/quests/quest.service.ts`: the public quest board — post (escrowing the reward), claim, fulfil (which moves the goods *and* pays), and the board queries. A reactive singleton, like `marketService`
+
+### Adventurers module
+
+- `modules/adventurers/adventurer.service.ts`: the roster. A reactive singleton mirroring `questService`, ticked by `GameController` as a **sibling to the city** — adventurers belong to no building and are not city property. Seeds its roster lazily, for the same import-cycle reason `GameController.city` does
+
+### Random module
+
+- `modules/random/random.ts`: `mulberry32`, `actorSeed`, and `RandomStream` — one private stream per actor, seeded from its id. The project's only source of randomness; `Math.random` is absent from the simulation (ADR 0005)
 
 ### World module
 
-- `modules/world/location.ts`: the `Location` enum, travel costs, and the forage table (difficulty per location/item pair). `Zone` is reserved and unmodelled
+- `modules/world/location.ts`: the `Location` enum, travel costs (`TRAVEL_COST` authors one-way legs *from the town*; `travelCost` derives the rest), `buildingLocation`, and the forage table (difficulty per location/item pair). `Zone` is reserved and unmodelled
 
 ### Inventory/accounting layer
 

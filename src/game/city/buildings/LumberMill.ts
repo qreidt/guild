@@ -51,7 +51,7 @@ class TakeDownTreeAction extends Action {
     static building_id = BuildingID.LumberMill;
     total_ticks = 6; // 3 hours
 
-    static input_origin = BuildingID.LumberMill;
+    input_origin = BuildingID.LumberMill;
     input = new Map();
 
     output_destination = BuildingID.LumberMill;
@@ -78,7 +78,7 @@ class MakeWoodAction extends Action {
 
     total_ticks = 14; // 7 hours
 
-    static input_origin = BuildingID.LumberMill;
+    input_origin = BuildingID.LumberMill;
     input = new Map([
         [ItemID.Lumber, 1]
     ]);
@@ -111,7 +111,7 @@ class SellWoodAction extends TransportAction {
 
     total_ticks = 14; // 7 hours
 
-    static input_origin = BuildingID.LumberMill;
+    input_origin = BuildingID.LumberMill;
 
     constructor(amount: number) {
         super();

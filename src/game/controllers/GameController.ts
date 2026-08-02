@@ -1,5 +1,6 @@
 import {City} from "../city/City.ts";
 import {BaseBuilding, type BuildingID} from "../city/buildings/common/Building.ts";
+import adventurerService from "../../modules/adventurers/adventurer.service.ts";
 
 console.log(`[GameController] Loaded`);
 
@@ -44,6 +45,14 @@ export class GameController {
         }
 
         this.city.handleTick();
+
+        // A sibling to the city, not a part of it: adventurers are inhabitants
+        // of the world, not city property, and ticking them from inside
+        // `City.handleTick()` would smuggle that dependency back in.
+        //
+        // After the city, so a quest posted this tick is on the board before
+        // anyone looks at it — the board should never be a tick stale.
+        adventurerService.handleTick();
 
         this.tick++;
         this.autoTick();

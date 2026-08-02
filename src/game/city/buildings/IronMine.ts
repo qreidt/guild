@@ -38,7 +38,7 @@ class MineOres extends Action {
     static building_id = BuildingID.IronMine;
     total_ticks = 2; // 1 hours
 
-    static input_origin = BuildingID.IronMine;
+    input_origin = BuildingID.IronMine;
     input = new Map();
 
     output_destination = BuildingID.IronMine;
@@ -61,7 +61,7 @@ class SellOres extends TransportAction {
     static building_id = BuildingID.IronMine;
     total_ticks = 14; // 7 hours
 
-    static input_origin = BuildingID.IronMine;
+    input_origin = BuildingID.IronMine;
 
     constructor(amount: number) {
         super();
