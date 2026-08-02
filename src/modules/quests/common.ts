@@ -104,8 +104,13 @@ export type ObjectiveStep =
     | { step: 'travel'; to: Location }
     /** Search where you stand for one item. Repeatable; may find nothing. */
     | { step: 'forage'; item: ItemID; at: Location }
-    /** Hand the objective's goods to the poster and settle the quest. */
-    | { step: 'deliver'; to: BuildingID }
+    /**
+     * Hand the objective's goods to the poster and settle the quest. Carries no
+     * payload: settlement is by quest, and the caller already has the quest in
+     * hand — naming the poster here as well would leave two sources for one fact
+     * and no way to tell which is authoritative.
+     */
+    | { step: 'deliver' }
     /** Nothing left to do — the quest is Fulfilled. */
     | { step: 'done' };
 

@@ -47,6 +47,14 @@ independently revertable.
 > now-meaningless static. Verified by diffing a 200-tick console run
 > (`inspect` × 5 + `quests`) against the same run before the change:
 > byte-identical.
+>
+> _Verified at review:_ nothing shipped exercises the case the prefactor exists
+> for — there is only one adventurer. A throwaway probe added a second and
+> confirmed it: two adventurers running the same `ForageAction` class get
+> distinct destinations (`adventurer:1` vs `adventurer:2`), draw visibly
+> different streams from the same world seed, claim one quest each, and both
+> finish paid. Under the old static declaration the second would have
+> overwritten the first's origin.
 
 ## R1 — Shared seeded randomness (CQR-65)
 
@@ -130,6 +138,11 @@ travel there; otherwise → deliver. A settled quest yields "nothing left to do"
 
 **R4.3** The adventurer stays ignorant of objective kinds.
 
+> _Amended at review:_ the `deliver` step originally carried `to: BuildingID`,
+> which nothing read — the adventurer settles by quest id and the poster is
+> derivable from the quest. Removed as speculative generality: two sources for
+> one fact, with no way for a reader to tell which is authoritative.
+>
 > _As-built:_ the `done` short-circuit lives in `planObjective()`, the
 > dispatcher, not in each resolver — "is this quest still running?" is a question
 > about status, which no objective kind has an opinion about. The gather plan is
@@ -272,6 +285,11 @@ and `inventory` work unchanged.
 > (emptied stacks linger in the ledger at zero; "carrying 0 Bloodroot" reads as
 > progress toward a quest that is actually at nothing) — building shelves keep
 > theirs, where knowing you have run out is useful.
+>
+> _Fixed at review:_ selecting the roster left the previously-selected building
+> highlighted in the sidebar, so two rows read as selected at once. `showRoster()`
+> now clears `active_building_id` — the roster is a screen of its own, not an
+> overlay on a building.
 >
 > _R9.5 partially unmet:_ the roster screen and the board's "claimed by Wren"
 > were both read out of the live production build, and the 3D city view mounts

@@ -112,7 +112,10 @@ function showCity(): void {
   active_building_id.value = null;
 }
 
+// Clears the building too, or the sidebar shows two selected rows at once —
+// the roster is a screen of its own, not an overlay on a building.
 function showRoster(): void {
+  active_building_id.value = null;
   show_roster.value = true;
 }
 

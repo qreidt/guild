@@ -94,7 +94,7 @@ const gatherResolver: ObjectiveResolver<GatherObjective> = {
         const handover = buildingLocation(quest.poster);
 
         return claimant.location === handover
-            ? { step: 'deliver', to: quest.poster }
+            ? { step: 'deliver' }
             : { step: 'travel', to: handover };
     },
 };
