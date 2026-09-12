@@ -27,5 +27,9 @@
       "Read(//c/Users/CaioReidt/.claude/**)",
       "WebFetch(domain:registry.npmjs.org)"
     ]
-  }
+  },
+  "disabledMcpjsonServers": [],
+  "enabledMcpjsonServers": [
+    "spec-workflow"
+  ]
 }
