@@ -86,5 +86,6 @@ existed. To track a future cycle with the server, author that cycle under
   Show the completed action state. A finished action stays on its worker for one tick
   and the view reports it as "idle, 0%", so the bar never reaches 100%. The request: show
   100% for that tick, together with the next action at 0%.
-  **Status: requested** on 2026-09-12, branch `fix/show-completed-state`. Open questions
-  are listed in [request.md](./show-completed-action-state/request.md).
+  **Status: refined** on 2026-09-12, branch `fix/show-completed-state`. The decisions are
+  in [refined-brief.md](./show-completed-action-state/refined-brief.md). The hand-off
+  timing is ADR 0007.

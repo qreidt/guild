@@ -62,9 +62,24 @@ measured off the 3D map.
 _Avoid_: Walk, move, go, journey
 
 **Action**:
-A unit of work a worker performs *inside* its own building, over a number of ticks.
-Internal to one building; never posted, never claimed.
+A unit of work a worker or an adventurer performs over a number of ticks. Never
+posted, never claimed. The action of a worker stays inside its building.
 _Avoid_: Task, job
+
+**Finished**:
+The state of an action whose work is over. A finished action is shown once more, at
+full progress, beside the next action. Actions finish; quests are fulfilled.
+_Avoid_: Completed, done
+
+**Next action**:
+The action a worker or an adventurer takes up the moment the previous one finishes.
+It has received no work yet. Visible only beside a finished action.
+_Avoid_: Queued, pending, upcoming
+
+**Hand-off**:
+The moment a finished action gives way to the next action. For one tick, a worker or
+an adventurer shows both.
+_Avoid_: Transition, switch, swap
 
 ### People
 
