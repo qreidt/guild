@@ -318,19 +318,19 @@ steep roof, a chimney with a small still, and a hanging shop sign — readable a
 
 ### Changes to existing files
 
-| File | Change |
-|---|---|
-| `city/town-layout.ts` | Phase A in full; `BUILDING_PLOTS` gains `Apothecary` |
-| `items/id.ts` | +35 enum entries |
-| `items/values/goods.ts` | +35 classes, default export 4 → 39 |
-| `items/registry.ts` | +35 mappings |
-| `buildings/common/Building.ts` | `BuildingID.Apothecary = 'Apothecary'` |
-| `city/City.ts` | +1 `buildings` Map entry, +1 import |
-| `environment-view/environment-view.ts` | `WORKER_LABEL_PREFIX` += `Apothecary: 'Herbalist'` |
-| `environment/BuildingInterior2D.vue` | 4th `ThemeName` + `THEMES` entry |
-| `environment/environment-registry.ts` | +1 async-imported entry |
-| `environment/views/CityGlobalView3D.vue` | +1 static import, +1 `HERO_MODELS` entry |
-| `.specs/roadmap.md` | "Alchemist's Lab" → "Apothecary" |
+| File                                     | Change                                               |
+|------------------------------------------|------------------------------------------------------|
+| `city/town-layout.ts`                    | Phase A in full; `BUILDING_PLOTS` gains `Apothecary` |
+| `items/id.ts`                            | +35 enum entries                                     |
+| `items/values/goods.ts`                  | +35 classes, default export 4 → 39                   |
+| `items/registry.ts`                      | +35 mappings                                         |
+| `buildings/common/Building.ts`           | `BuildingID.Apothecary = 'Apothecary'`               |
+| `city/City.ts`                           | +1 `buildings` Map entry, +1 import                  |
+| `environment-view/environment-view.ts`   | `WORKER_LABEL_PREFIX` += `Apothecary: 'Herbalist'`   |
+| `environment/BuildingInterior2D.vue`     | 4th `ThemeName` + `THEMES` entry                     |
+| `environment/environment-registry.ts`    | +1 async-imported entry                              |
+| `environment/views/CityGlobalView3D.vue` | +1 static import, +1 `HERO_MODELS` entry             |
+| `.specs/roadmap.md`                      | "Alchemist's Lab" → "Apothecary"                     |
 
 ## Data Models
 

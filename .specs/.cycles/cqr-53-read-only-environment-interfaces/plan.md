@@ -281,10 +281,10 @@ graph TD
 
 ### Changes to existing files
 
-| File | Change |
-|------|--------|
-| [src/App.vue](../../../src/App.vue) | Replace `<pre v-else>{{ activeBuilding }}</pre>` with `<EnvironmentView v-else :building-id="active_building_id" />`; import the container; Market `v-if` branch unchanged. The **City** label is clickable to deselect (`active_building_id = null`). |
-| [package.json](../../../package.json) | Add `three` + `@tresjs/core` to `dependencies` (3D arm only). |
+| File                                  | Change                                                                                                                                                                                                                                                 |
+|---------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [src/App.vue](../../../src/App.vue)   | Replace `<pre v-else>{{ activeBuilding }}</pre>` with `<EnvironmentView v-else :building-id="active_building_id" />`; import the container; Market `v-if` branch unchanged. The **City** label is clickable to deselect (`active_building_id = null`). |
+| [package.json](../../../package.json) | Add `three` + `@tresjs/core` to `dependencies` (3D arm only).                                                                                                                                                                                          |
 
 ## Data Models
 

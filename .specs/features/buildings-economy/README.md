@@ -127,12 +127,12 @@ Items are defined in `src/modules/items/` and identified by `ItemID`. Stackable 
 
 ### Raw and refined materials (`modules/items/values/goods.ts`)
 
-| ItemID | Name | Value | Weight |
-| --- | --- | ---: | ---: |
-| Lumber | Lumber | 10 | 20 |
-| WoodPlank | Wood Plank | 1 | 1 |
-| IronOre | Iron Ore | 2 | 1 |
-| IronIngot | Iron Ingot | 5 | 1 |
+| ItemID    | Name       | Value | Weight |
+|-----------|------------|------:|-------:|
+| Lumber    | Lumber     |    10 |     20 |
+| WoodPlank | Wood Plank |     1 |      1 |
+| IronOre   | Iron Ore   |     2 |      1 |
+| IronIngot | Iron Ingot |     5 |      1 |
 
 ### Produced equipment (`modules/items/values/weapons.ts`, `armor.ts`)
 

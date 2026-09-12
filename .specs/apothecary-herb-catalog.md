@@ -21,41 +21,41 @@ ingredient catalog until the Apothecary cycle is opened.
 
 ## Catalog
 
-| Herb | Tier | Value |
-|---|---|---:|
-| Greycap | Common | 2 |
-| Stonemoss | Common | 2 |
-| Thistlewort | Common | 2 |
-| Hollowreed | Common | 2 |
-| Bloodroot | Common | 3 |
-| Manabloom | Common | 3 |
-| Sunleaf | Common | 3 |
-| Oxroot | Common | 3 |
-| Bitterleaf | Common | 3 |
-| Ashcap | Common | 3 |
-| Coldmint | Common | 4 |
-| Sourberry | Common | 4 |
-| Copperfern | Common | 4 |
-| Duskbloom | Common | 5 |
-| Gallnut | Uncommon | 8 |
-| Mirebloom | Uncommon | 8 |
-| Witchhazel | Uncommon | 9 |
-| Ironbark Moss | Uncommon | 10 |
-| Bloodcap | Uncommon | 10 |
-| Foxglove | Uncommon | 11 |
-| Moonwort | Uncommon | 12 |
-| Nightshade | Uncommon | 12 |
-| Emberfruit | Uncommon | 12 |
-| Amberseed | Uncommon | 14 |
-| Frostcap | Rare | 28 |
-| Ghostcap | Rare | 30 |
-| Glowspore | Rare | 32 |
-| Cryptbloom | Rare | 35 |
-| Starbloom | Rare | 36 |
-| Silverleaf | Rare | 38 |
-| Heartsap | Rare | 40 |
-| Emberheart | Rare | 42 |
-| Kingsroot | Rare | 45 |
+| Herb          | Tier     | Value |
+|---------------|----------|------:|
+| Greycap       | Common   |     2 |
+| Stonemoss     | Common   |     2 |
+| Thistlewort   | Common   |     2 |
+| Hollowreed    | Common   |     2 |
+| Bloodroot     | Common   |     3 |
+| Manabloom     | Common   |     3 |
+| Sunleaf       | Common   |     3 |
+| Oxroot        | Common   |     3 |
+| Bitterleaf    | Common   |     3 |
+| Ashcap        | Common   |     3 |
+| Coldmint      | Common   |     4 |
+| Sourberry     | Common   |     4 |
+| Copperfern    | Common   |     4 |
+| Duskbloom     | Common   |     5 |
+| Gallnut       | Uncommon |     8 |
+| Mirebloom     | Uncommon |     8 |
+| Witchhazel    | Uncommon |     9 |
+| Ironbark Moss | Uncommon |    10 |
+| Bloodcap      | Uncommon |    10 |
+| Foxglove      | Uncommon |    11 |
+| Moonwort      | Uncommon |    12 |
+| Nightshade    | Uncommon |    12 |
+| Emberfruit    | Uncommon |    12 |
+| Amberseed     | Uncommon |    14 |
+| Frostcap      | Rare     |    28 |
+| Ghostcap      | Rare     |    30 |
+| Glowspore     | Rare     |    32 |
+| Cryptbloom    | Rare     |    35 |
+| Starbloom     | Rare     |    36 |
+| Silverleaf    | Rare     |    38 |
+| Heartsap      | Rare     |    40 |
+| Emberheart    | Rare     |    42 |
+| Kingsroot     | Rare     |    45 |
 
 ### Value calibration
 
@@ -83,22 +83,22 @@ at roughly a staff.
 
 Kept for flavour and for differentiating forage sub-areas later.
 
-| Herb | Part | Habitat |
-|---|---|---|
-| Bloodroot | root | Forest floor, shade |
-| Manabloom | flower | Damp shade |
-| Sunleaf | leaf | Clearings, full sun |
-| Oxroot | root | Meadow, clearing edges |
-| Bitterleaf | leaf | Forest floor |
-| Greycap | fungus | Rotting logs, deadfall |
-| Ashcap | fungus | Old burn sites |
-| Thistlewort | stem | Disturbed ground, forest edge |
-| Sourberry | berry | Hedgerow, forest edge |
-| Coldmint | leaf | Streamside |
-| Hollowreed | stem | Riverbank, marsh |
-| Stonemoss | moss | Rocky outcrops |
-| Duskbloom | flower | Clearings, after dark |
-| Copperfern | frond | Deep shade, north slopes |
+| Herb        | Part   | Habitat                       |
+|-------------|--------|-------------------------------|
+| Bloodroot   | root   | Forest floor, shade           |
+| Manabloom   | flower | Damp shade                    |
+| Sunleaf     | leaf   | Clearings, full sun           |
+| Oxroot      | root   | Meadow, clearing edges        |
+| Bitterleaf  | leaf   | Forest floor                  |
+| Greycap     | fungus | Rotting logs, deadfall        |
+| Ashcap      | fungus | Old burn sites                |
+| Thistlewort | stem   | Disturbed ground, forest edge |
+| Sourberry   | berry  | Hedgerow, forest edge         |
+| Coldmint    | leaf   | Streamside                    |
+| Hollowreed  | stem   | Riverbank, marsh              |
+| Stonemoss   | moss   | Rocky outcrops                |
+| Duskbloom   | flower | Clearings, after dark         |
+| Copperfern  | frond  | Deep shade, north slopes      |
 
 ## Open / not yet decided
 

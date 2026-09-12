@@ -88,20 +88,23 @@ guild> quit
 
 Core commands:
 
-| Command | What it does |
-|---|---|
-| `help` | List all commands. |
-| `status` | Print tick, running flag, city money, citizens, and `isNight()`. |
-| `tick [n]` | Force-advance the simulation by `n` ticks (default 1), even while paused. |
-| `run <seconds>` | Resume auto-tick for a wall-clock duration, then pause. |
-| `pause` / `resume` | Toggle the game loop. |
-| `buildings` | List every building with ID, level, money, worker count. |
-| `inspect <buildingId>` | Dump one building's workers, actions, inventory, and money. |
-| `inventory [accountId]` | List accounts or dump a specific account's balances and transactions. |
-| `market` | Show current market offers and trade history. |
-| `give <accountId> <itemId> <qty>` | Debug: inject items into an account to test downstream flows. |
-| `quit` / `exit` | Exit the REPL. |
+| Command                           | What it does                                                                                  |
+|-----------------------------------|-----------------------------------------------------------------------------------------------|
+| `help`                            | List all commands.                                                                            |
+| `status`                          | Print tick, running flag, city money, citizens, and `isNight()`.                              |
+| `tick [n]`                        | Force-advance the simulation by `n` ticks (default 1), even while paused.                     |
+| `run <seconds>`                   | Resume auto-tick for a wall-clock duration, then pause.                                       |
+| `pause` / `resume`                | Toggle the game loop.                                                                         |
+| `seed [n]`                        | Pin the world seed that every actor stream derives from. No argument prints the current seed. |
+| `buildings`                       | List every building with ID, level, money, worker count.                                      |
+| `inspect <buildingId>`            | Dump one building's workers, actions, inventory, and money.                                   |
+| `inventory [accountId]`           | List accounts or dump a specific account's balances and transactions.                         |
+| `market`                          | Show current market offers and trade history.                                                 |
+| `adventurers`                     | List the roster: class, location, current action, progress, quest, carried goods.             |
+| `quests`                          | List the quest board.                                                                         |
+| `claim <questId> <claimantId>`    | Debug: claim an open quest for a stubbed claimant.                                            |
+| `fulfil <questId> <claimantId>`   | Debug: settle a claimed quest.                                                                |
+| `give <accountId> <itemId> <qty>` | Debug: inject items into an account to test downstream flows.                                 |
+| `quit` / `exit`                   | Exit the REPL.                                                                                |
 
 The entrypoint lives at `src/console.ts` and is run through `tsx` — no build step, no Vite, no DOM. See [.specs/features/console-harness](./.specs/features/console-harness/README.md) for the full spec and rationale.
-
-> **Status:** the spec for this command is checked in at `.specs/features/console-harness/README.md`. The `src/console.ts` entrypoint and `npm run console` script are planned and land in a follow-up change.

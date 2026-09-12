@@ -116,13 +116,13 @@ which is what makes the state machine testable headlessly.
 
 ## Error handling
 
-| Scenario | Handling |
-|---|---|
-| Poster cannot afford the reward | `post()` returns `null`, no debit. The board goes quiet, which is the intended "nobody's hiring" signal. |
-| Objective unobtainable anywhere | `post()` returns `null` and warns — an authoring bug, not a game state. |
-| Claiming a non-Open quest | `QuestNotClaimableError`. Outside the tick loop. |
-| Fulfilling with the wrong claimant, or an unsatisfied objective | `QuestNotFulfillableError`. |
-| Bad grid anchor | `buildOccupancy()` throws at module load, before anything renders. |
+| Scenario                                                        | Handling                                                                                                 |
+|-----------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
+| Poster cannot afford the reward                                 | `post()` returns `null`, no debit. The board goes quiet, which is the intended "nobody's hiring" signal. |
+| Objective unobtainable anywhere                                 | `post()` returns `null` and warns — an authoring bug, not a game state.                                  |
+| Claiming a non-Open quest                                       | `QuestNotClaimableError`. Outside the tick loop.                                                         |
+| Fulfilling with the wrong claimant, or an unsatisfied objective | `QuestNotFulfillableError`.                                                                              |
+| Bad grid anchor                                                 | `buildOccupancy()` throws at module load, before anything renders.                                       |
 
 ## Testing strategy
 

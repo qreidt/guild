@@ -265,12 +265,12 @@ that the herb catalog has an economic purpose and the city produces consumables.
     it: `HealthPotion 3`, `ManaPotion 3`, `Bloodroot 1`, `Manabloom 1`, `money` unchanged
     at its starting value, both workers on `WaitAction`.
 
-    | Tick | Event |
-    |---|---|
-    | 1 | Both workers brew health (Bloodroot 10 → 4) |
-    | 13 | Worker A brews health; worker B fails the Bloodroot check and falls through to mana |
-    | 25 | Both workers brew mana |
-    | 37 | Both targets met → `WaitAction` |
+    | Tick | Event                                                                               |
+    |------|-------------------------------------------------------------------------------------|
+    | 1    | Both workers brew health (Bloodroot 10 → 4)                                         |
+    | 13   | Worker A brews health; worker B fails the Bloodroot check and falls through to mana |
+    | 25   | Both workers brew mana                                                              |
+    | 37   | Both targets met → `WaitAction`                                                     |
 
     This trace exercises all three branches of `chooseNextAction()`: the priority loop, the
     `continue`-on-insufficient-input fallthrough, and the `WaitAction` terminal.

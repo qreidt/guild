@@ -9,13 +9,13 @@ already stale when CQR-59 used the harness to verify the Apothecary.
 
 Commands added since this spec was written, and not described below:
 
-| Command | Description | Cycle |
-|---|---|---|
-| `quests` | List the quest board. Prints the `QuestRow` DTO the board panel consumes, not the service's internal objects, so a DTO bug fails here rather than hiding until someone opens the panel. | CQR-60 |
-| `claim <questId> <claimantId>` | Take an open quest, against a stubbed claimant. Debug-only — adventurers claim for themselves. | CQR-60 |
+| Command                         | Description                                                                                                                                                                                      | Cycle                  |
+|---------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------|
+| `quests`                        | List the quest board. Prints the `QuestRow` DTO the board panel consumes, not the service's internal objects, so a DTO bug fails here rather than hiding until someone opens the panel.          | CQR-60                 |
+| `claim <questId> <claimantId>`  | Take an open quest, against a stubbed claimant. Debug-only — adventurers claim for themselves.                                                                                                   | CQR-60                 |
 | `fulfil <questId> <claimantId>` | Settle a claimed quest: move the objective's goods to the poster and pay the escrowed reward into a debug purse. Debug-only, and it skips the planner — it settles wherever the claimant stands. | CQR-60, amended CQR-61 |
-| `adventurers` | List the roster. Prints the `AdventurerView` DTO the roster panel consumes, for the same reason `quests` prints `QuestRow`. | CQR-61 |
-| `seed [n]` | Pin the world seed every actor stream derives from; no argument prints the current one. Works mid-run — live streams rebuild. A seed reproduces a run only against identical code (ADR 0005). | CQR-65 |
+| `adventurers`                   | List the roster. Prints the `AdventurerView` DTO the roster panel consumes, for the same reason `quests` prints `QuestRow`.                                                                      | CQR-61                 |
+| `seed [n]`                      | Pin the world seed every actor stream derives from; no argument prints the current one. Works mid-run — live streams rebuild. A seed reproduces a run only against identical code (ADR 0005).    | CQR-65                 |
 
 The harness runs **one command per invocation** when given argv, so pipe a script
 into the REPL for multi-step scenarios:
@@ -62,20 +62,20 @@ The harness must not duplicate game logic. Every command is a thin wrapper aroun
 
 ## Command surface (MVP)
 
-| Command | Description |
-|---|---|
-| `help` | List commands. |
-| `status` | Print `tick`, `running`, `city.money`, `city.citizens_count`, and `isNight()`. |
-| `tick [n]` | Force-advance the simulation `n` ticks (default 1). Uses `GameController.nextTick(true)` in a loop so ticks run even while paused. |
-| `run <seconds>` | Call `resume()`, wait the given seconds of wall-clock time, then `pause()`. Lets you watch auto-ticking without hand-stepping. |
-| `pause` | `GameController.pause()`. |
-| `resume` | `GameController.resume()`. |
-| `buildings` | List every building in `city.buildings` with ID, name, level, money, and worker count. |
-| `inspect <buildingId>` | Dump one building: workers, each worker's current action, inventory account snapshot, money. |
-| `inventory [accountId]` | Without args, list all account IDs in `InventoryRepository`. With an arg, dump that account's balances and recent transactions. |
-| `market` | Show the current `Market` buildings's offers and recent trade history from `marketService`. |
-| `give <accountId> <itemId> <qty>` | Debug-only: commit a transaction that adds items to an account so you can test downstream flows without running production ticks. |
-| `quit` / `exit` | Leave the REPL. |
+| Command                           | Description                                                                                                                        |
+|-----------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| `help`                            | List commands.                                                                                                                     |
+| `status`                          | Print `tick`, `running`, `city.money`, `city.citizens_count`, and `isNight()`.                                                     |
+| `tick [n]`                        | Force-advance the simulation `n` ticks (default 1). Uses `GameController.nextTick(true)` in a loop so ticks run even while paused. |
+| `run <seconds>`                   | Call `resume()`, wait the given seconds of wall-clock time, then `pause()`. Lets you watch auto-ticking without hand-stepping.     |
+| `pause`                           | `GameController.pause()`.                                                                                                          |
+| `resume`                          | `GameController.resume()`.                                                                                                         |
+| `buildings`                       | List every building in `city.buildings` with ID, name, level, money, and worker count.                                             |
+| `inspect <buildingId>`            | Dump one building: workers, each worker's current action, inventory account snapshot, money.                                       |
+| `inventory [accountId]`           | Without args, list all account IDs in `InventoryRepository`. With an arg, dump that account's balances and recent transactions.    |
+| `market`                          | Show the current `Market` buildings's offers and recent trade history from `marketService`.                                        |
+| `give <accountId> <itemId> <qty>` | Debug-only: commit a transaction that adds items to an account so you can test downstream flows without running production ticks.  |
+| `quit` / `exit`                   | Leave the REPL.                                                                                                                    |
 
 All commands are synchronous except `run <seconds>`, which returns when the timer resolves. The REPL prompt does not re-display while `run` is active; output from auto-ticks streams inline.
 

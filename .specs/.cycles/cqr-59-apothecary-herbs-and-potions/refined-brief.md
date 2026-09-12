@@ -1,11 +1,11 @@
 # Refined Request Brief: Apothecary + City Expansion
 
-|              |                                                                                      |
-|--------------|--------------------------------------------------------------------------------------|
-| **Source**   | [`request.md`](./request.md) + [`city-expansion/request.md`](./city-expansion/request.md) |
-| **Linear**   | [CQR-59](https://linear.app/cqr/issue/CQR-59)                                          |
-| **Branch**   | `feat/CQR-59`                                                                          |
-| **Refined**  | 2026-07-31                                                                             |
+|              |                                                                                                                                                   |
+|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Source**   | [`request.md`](./request.md) + [`city-expansion/request.md`](./city-expansion/request.md)                                                         |
+| **Linear**   | [CQR-59](https://linear.app/cqr/issue/CQR-59)                                                                                                     |
+| **Branch**   | `feat/CQR-59`                                                                                                                                     |
+| **Refined**  | 2026-07-31                                                                                                                                        |
 | **Delivery** | **One combined spec** (user decision) — expansion and Apothecary in a single Requirements → Design → Tasks chain, sequenced as Phase A → Phase B. |
 
 ---
@@ -67,14 +67,14 @@ building with 2 actions + 2 new Vue views + a shared-component change.
 
 ## Decisions resolved this round
 
-| Question | Decision |
-|---|---|
-| Spec delivery shape | **One combined spec**, phased A → B. |
-| Potion targets vs. seed | **Keep seed 10/10; drop `desired_amount` to 3 per potion.** Overrides the "20 of each" in `request.md`. |
-| East wall on farmland | **Shift both field rects ~6 units east.** Keeps the full 13×13 interior. |
-| LumberMill / wall abutment | **Move the anchor to `[-13, -1]`.** |
-| 2D accent theme | **Add a 4th `ThemeName`.** `'violet'` unless the spec writer prefers another — `amber` / `emerald` / `sky` are all taken. |
-| New housing volume | Spec writer's call — a modest cluster, north-gate band left clear. |
+| Question                   | Decision                                                                                                                  |
+|----------------------------|---------------------------------------------------------------------------------------------------------------------------|
+| Spec delivery shape        | **One combined spec**, phased A → B.                                                                                      |
+| Potion targets vs. seed    | **Keep seed 10/10; drop `desired_amount` to 3 per potion.** Overrides the "20 of each" in `request.md`.                   |
+| East wall on farmland      | **Shift both field rects ~6 units east.** Keeps the full 13×13 interior.                                                  |
+| LumberMill / wall abutment | **Move the anchor to `[-13, -1]`.**                                                                                       |
+| 2D accent theme            | **Add a 4th `ThemeName`.** `'violet'` unless the spec writer prefers another — `amber` / `emerald` / `sky` are all taken. |
+| New housing volume         | Spec writer's call — a modest cluster, north-gate band left clear.                                                        |
 
 ---
 

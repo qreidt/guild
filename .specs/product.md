@@ -22,18 +22,21 @@ The intended fantasy is:
 
 ## Current prototype scope
 
-The current codebase represents the earliest city-simulation slice of the full game. The implemented scope today is:
+The current codebase is the city-simulation slice of the full game, plus the first adventurer. The implemented scope today is:
 
 - one city with fixed starting stats
-- three buildings
+- six buildings: Lumber Mill, Iron Mine, BlackSmith, Apothecary, Adventurers' Guild and Market
 - workers that execute time-based actions
 - in-memory inventories and inventory transactions
-- a simple goods catalog with raw materials and iron equipment
-- a placeholder player interface for inspecting buildings and advancing time
+- a goods catalog with raw materials, iron equipment, and the Apothecary's herbs and potions
+- a Market that buys producer output, sells stock to buildings and exports at catalog prices
+- a quest board where a building posts a funded gather quest for goods it cannot make
+- one seeded adventurer who claims a quest, forages in the Forest and delivers
+- a read-only interface: a 3D city view, a 2D interior per building, a Market panel and an adventurer roster
 
 The following core game systems are not yet integrated into the playable surface:
 
-- adventurer recruitment and management
+- adventurer recruitment, parties and progression
 - combat and mission resolution
 - save/load
 - local economy balancing
@@ -44,11 +47,13 @@ The following core game systems are not yet integrated into the playable surface
 
 ### Current implemented loop
 
-1. The player opens the city dashboard.
+1. The player opens the city screen.
 2. The player resumes time or advances the game one tick at a time.
 3. Buildings assign available workers to actions.
 4. Actions consume time and may consume or produce goods.
-5. Some buildings attempt to convert stored goods into sale value.
+5. Producers sell their output to the Market. The BlackSmith buys inputs it lacks from the Market.
+6. The Apothecary posts a funded quest for herbs it cannot make.
+7. The adventurer claims the quest, forages the herbs and delivers them for the reward the Apothecary paid up front.
 
 ### Intended extended loop
 
@@ -68,11 +73,12 @@ The main player-controlled settlement. It currently stores:
 - citizen count
 - city-wide money display
 - a collection of buildings
-- a legacy city inventory object
+- an inventory account keyed `City`
+- a reference to the Market
 
 ### Building
 
-A city subsystem that owns workers, a building-specific money counter, and an inventory account. Buildings choose actions for idle workers on each tick.
+A city subsystem that owns workers, a building-specific money counter, and an inventory account. Buildings choose actions for idle workers on each tick. A building may also review the quest board on each tick and post a quest.
 
 ### Worker
 
@@ -80,11 +86,11 @@ A unit of production capacity inside a building. Each worker can perform one act
 
 ### Action
 
-A time-based unit of work. An action may validate inputs, reserve goods through a transaction, tick down over time, and commit results when complete.
+A time-based unit of work. An action may validate inputs, reserve goods through a transaction, tick down over time, and commit results when complete. Adventurer actions (travel, forage, deliver) extend the same base.
 
 ### Good
 
-A stackable economic item such as lumber, wood planks, iron ore, or iron ingots.
+A stackable economic item such as lumber, wood planks, iron ore, iron ingots, or a herb.
 
 ### Equipment
 
@@ -92,11 +98,15 @@ An equippable item with durability-related degradation, such as swords, spears, 
 
 ### Adventurer
 
-A future player-managed unit with class, rank, attributes, proficiencies, inventory, and equipment slots.
+A unit that belongs to no building, with class, rank, attributes, proficiencies, inventory, equipment slots and a wallet. One Scout exists today. The adventurer claims gather quests, travels, forages and delivers on its own. The player cannot recruit, equip or direct one yet.
+
+### Quest
+
+A funded request that a building posts on the board for goods it cannot make. The poster pays the reward when it posts the quest. The quest holds the money until delivery. Gather is the only objective kind today.
 
 ### Mission / Adventure / Zone
 
-Planned systems that connect the city economy to combat, loot, and exploration. These are described in the roadmap and world feature spec but are not implemented in gameplay yet.
+Planned systems that connect the city economy to combat, loot, and exploration. A `Location` enum with travel costs exists for the adventurer's trips to the Forest. `Zone` is reserved and unmodelled. Missions and combat are described in the roadmap and world feature spec but are not implemented in gameplay yet.
 
 ## Product boundaries
 
@@ -106,6 +116,8 @@ Planned systems that connect the city economy to combat, loot, and exploration. 
 - global ticking
 - building simulation
 - resource transformation
+- the Market
+- the quest board and one adventurer
 - gear production definitions
 - in-memory state
 

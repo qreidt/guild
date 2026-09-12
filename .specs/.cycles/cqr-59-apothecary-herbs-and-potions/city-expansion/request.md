@@ -1,11 +1,11 @@
 # Request: City expansion — grow the walled town inland
 
-|                  |                                                                                                                               |
-|------------------|---------------------------------------------------------------------------------------------------------------------------------|
-| **Source**       | Sub-feature of [CQR-59](https://linear.app/cqr/issue/CQR-59) — see [`../request.md`](../request.md)                              |
-| **Branch**       | `feat/CQR-59`                                                                                                                   |
-| **Captured**     | 2026-07-31                                                                                                                      |
-| **User framing** | "The city was already too small to begin with." Expand it; the Apothecary should be able to sit inside the walls.               |
+|                  |                                                                                                                   |
+|------------------|-------------------------------------------------------------------------------------------------------------------|
+| **Source**       | Sub-feature of [CQR-59](https://linear.app/cqr/issue/CQR-59) — see [`../request.md`](../request.md)               |
+| **Branch**       | `feat/CQR-59`                                                                                                     |
+| **Captured**     | 2026-07-31                                                                                                        |
+| **User framing** | "The city was already too small to begin with." Expand it; the Apothecary should be able to sit inside the walls. |
 
 ---
 
@@ -30,14 +30,14 @@ the current south wall line.
 
 Measured options (free 2×2 anchors = plots a hero building could take):
 
-| Shape | Interior cells | Water | Field | Free 2×2 anchors |
-|---|---:|---:|---:|---:|
-| Current (W=5) | 81 | 0 | 0 | **0** |
-| Symmetric W=6 | 121 | 11 | 0 | 1 |
-| Symmetric W=7 | 169 | 26 | 0 | 25 |
-| Symmetric W=8 | 225 | 45 | 10 | 47 |
-| **Chosen — inland** | **169** | **0** | **0** | **45** |
-| Inland, one cell larger | 196 | 0 | 0 | 68 |
+| Shape                   | Interior cells | Water | Field | Free 2×2 anchors |
+|-------------------------|---------------:|------:|------:|-----------------:|
+| Current (W=5)           |             81 |     0 |     0 |            **0** |
+| Symmetric W=6           |            121 |    11 |     0 |                1 |
+| Symmetric W=7           |            169 |    26 |     0 |               25 |
+| Symmetric W=8           |            225 |    45 |    10 |               47 |
+| **Chosen — inland**     |        **169** | **0** | **0** |           **45** |
+| Inland, one cell larger |            196 |     0 |     0 |               68 |
 
 The inland rectangle yields **80% more buildable land than symmetric growth of the same
 169-cell footprint**, and it reads correctly: a coastal town grows inland while its
@@ -117,16 +117,16 @@ buildings. Exact cells are a level-design pass, not a spec decision.
 
 ## Code touchpoints
 
-| # | File | Change |
-|---|---|---|
-| 1 | `city/town-layout.ts` | Replace `TOWN_HALF_CELLS` with per-axis bounds (or centre + extents) |
+| # | File                  | Change                                                                                         |
+|---|-----------------------|------------------------------------------------------------------------------------------------|
+| 1 | `city/town-layout.ts` | Replace `TOWN_HALF_CELLS` with per-axis bounds (or centre + extents)                           |
 | 2 | `city/town-layout.ts` | `buildWallCells()` — rework for a rectangle: 3 walled sides, open south, gates + corner towers |
-| 3 | `city/town-layout.ts` | `ROAD_CELLS` — extend the cross to the new gates |
-| 4 | `city/town-layout.ts` | `FIELD_1` / `FIELD_2` rects — shift east |
-| 5 | `city/town-layout.ts` | `BUILDING_PLOTS` — move `LumberMill`, add `Apothecary` |
-| 6 | `city/town-layout.ts` | `TRAIL_CELLS`, `LUMBER_CENTER` — follow the Mill |
-| 7 | `city/town-layout.ts` | `HOUSE_CELLS` — author the new band |
-| 8 | `city/town-layout.ts` | `buildTrees()` — the interior-greenery and forest-belt bands assume the old extents |
+| 3 | `city/town-layout.ts` | `ROAD_CELLS` — extend the cross to the new gates                                               |
+| 4 | `city/town-layout.ts` | `FIELD_1` / `FIELD_2` rects — shift east                                                       |
+| 5 | `city/town-layout.ts` | `BUILDING_PLOTS` — move `LumberMill`, add `Apothecary`                                         |
+| 6 | `city/town-layout.ts` | `TRAIL_CELLS`, `LUMBER_CENTER` — follow the Mill                                               |
+| 7 | `city/town-layout.ts` | `HOUSE_CELLS` — author the new band                                                            |
+| 8 | `city/town-layout.ts` | `buildTrees()` — the interior-greenery and forest-belt bands assume the old extents            |
 
 `GROUND_SIZE` is 100 world units (±50); the new walls reach world x −27…+15 and
 z ±21, so the ground plane does **not** need resizing.

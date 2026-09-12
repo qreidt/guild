@@ -4,12 +4,12 @@ Issues, tickets, and PRDs for this repo live in **Linear**, in the project **Gui
 under the team **CQR**. Access is through the Linear MCP connector (`mcp__claude_ai_Linear__*`).
 GitHub Issues is **not** used — GitHub (`qreidt/guild`) holds only code, branches, and PRs.
 
-| Thing            | Value                                                     |
-| ---------------- | --------------------------------------------------------- |
-| Team             | `CQR` (the only team in the workspace)                     |
-| Issue key prefix | `CQR-<n>` — e.g. `CQR-59`                                  |
-| Project          | `Guild Game`                                               |
-| Project URL      | https://linear.app/cqr/project/guild-game-3fea51450abb     |
+| Thing            | Value                                                  |
+|------------------|--------------------------------------------------------|
+| Team             | `CQR` (the only team in the workspace)                 |
+| Issue key prefix | `CQR-<n>` — e.g. `CQR-59`                              |
+| Project          | `Guild Game`                                           |
+| Project URL      | https://linear.app/cqr/project/guild-game-3fea51450abb |
 
 Always scope new issues to **both** `team: "CQR"` and `project: "Guild Game"`. An issue
 created without the project lands loose in the team backlog and falls out of the game's

@@ -4,31 +4,36 @@ This roadmap combines explicit goals from `README.md` with the additional design
 
 ## Current maturity
 
-The project is at prototype stage. The code already sketches the resource-production backbone of the game, but most player-facing progression systems are still planned.
+The project is at prototype stage. The city produces goods, trades them through a Market, and posts quests that one adventurer fulfils. Most player-facing progression systems are still planned.
 
 ## Near-term roadmap
 
+### Shipped since the April 2026 snapshot
+
+- the TypeScript build passes. `npm run build` was green on 2026-09-12
+- the raw building object dump is gone. Each building has a 2D interior and the city has a 3D view (CQR-53)
+- the building roster grew from three to six: Market, Apothecary and Adventurers' Guild (city-market, CQR-59, CQR-60)
+- building inventories and worker states are visible in each interior
+- a read-only adventurer roster exists, with one seeded Scout (CQR-61)
+
 ### 1. Stabilize the prototype
 
-- fix current TypeScript build failures
 - reconcile intended building recipes with actual action definitions
 - make produced economic value visible at the city level
-- replace the raw building object dump with a deliberate detail panel
 - document and normalize inventory/accounting rules
 
 ### 2. Complete the city resource loop
 
 - support reliable production of lumber, wood, ore, ingots, and finished gear
-- expose building inventories and worker states in the UI
 - add building upgrades and construction decisions
-- expand the building roster beyond the first three production buildings
+- expand the building roster further
 
 ### 3. Introduce adventurer management
 
 - recruit adventurers
 - assign classes, gear, and inventories
 - support traits, ranks, and leveling
-- surface adventurers in the UI as managed roster entities
+- surface adventurers in the UI as managed roster entities, not only as a read-only list
 
 ### 4. Add missions and expeditions
 
@@ -44,12 +49,17 @@ The project is at prototype stage. The code already sketches the resource-produc
 
 ## Planned buildings from design notes
 
+Built:
+
 - Mine
 - Lumber Mill
 - Black Smith
+- Apothecary
+
+Not yet built:
+
 - Tannery
 - Fletcher
-- Apothecary
 - Hunter's Lodge
 
 ## Planned world content from design notes

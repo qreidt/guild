@@ -38,34 +38,34 @@ Key existing-but-not-player-facing assets:
 
 ## Selected Ideas for Validation
 
-| # | Idea | Rationale |
-|---|------|-----------|
-| 1 | Persistence | Lowest-cost enabler; nothing progresses without it (later — see note) |
-| 2 | Adventurer Roster UI | Exposes an entire pillar already modeled in code |
-| 5 | Economy visibility (building detail panel) | Core "readable economy" pillar; pattern exists (CQR-45) |
+| # | Idea                                       | Rationale                                                             |
+|---|--------------------------------------------|-----------------------------------------------------------------------|
+| 1 | Persistence                                | Lowest-cost enabler; nothing progresses without it (later — see note) |
+| 2 | Adventurer Roster UI                       | Exposes an entire pillar already modeled in code                      |
+| 5 | Economy visibility (building detail panel) | Core "readable economy" pillar; pattern exists (CQR-45)               |
 
 > Chosen via "Foundational 3" shortlist. Validation focus subsequently narrowed to **UI** —
 > persistence (feasibility/sequencing) parked; effort concentrated on roster + economy UI.
 
 ## Critical Assumptions
 
-| # | Assumption | Category | Impact | Uncertainty | Priority |
-|---|-----------|----------|--------|-------------|----------|
-| A | Persistence pays off now despite a churning data model (sequencing) | Viability | High | High | Leap of faith (parked) |
-| B | A roster adds engagement without missions to use adventurers | Value | High | High | Leap of faith (parked) |
-| C | Singleton/class-instance state serializes & rehydrates cleanly | Feasibility | High | Med-High | Critical (parked) |
-| D | Players parse 9 attrs + proficiencies without overwhelm | Usability | Med | Med-High | **Targeted** |
-| E | Economy visibility is valuable before upgrade/construction decisions | Value | Med | Med | **Targeted** |
-| F | Detail panel is cheap & low-risk to build (MarketPanel pattern exists) | Feasibility | High-value/low-risk | Low | Just do it |
+| # | Assumption                                                             | Category    | Impact              | Uncertainty | Priority               |
+|---|------------------------------------------------------------------------|-------------|---------------------|-------------|------------------------|
+| A | Persistence pays off now despite a churning data model (sequencing)    | Viability   | High                | High        | Leap of faith (parked) |
+| B | A roster adds engagement without missions to use adventurers           | Value       | High                | High        | Leap of faith (parked) |
+| C | Singleton/class-instance state serializes & rehydrates cleanly         | Feasibility | High                | Med-High    | Critical (parked)      |
+| D | Players parse 9 attrs + proficiencies without overwhelm                | Usability   | Med                 | Med-High    | **Targeted**           |
+| E | Economy visibility is valuable before upgrade/construction decisions   | Value       | Med                 | Med         | **Targeted**           |
+| F | Detail panel is cheap & low-risk to build (MarketPanel pattern exists) | Feasibility | High-value/low-risk | Low         | Just do it             |
 
 ## Validation Experiments (UI focus)
 
-| # | Tests | Method | Success Criteria | Effort |
-|---|-------|--------|------------------|--------|
-| X1 | E | Figma/paper mockup of building detail panel (inventory, workers, money flow), reusing CQR-45 MarketPanel layout | 5-second look → viewer states what the building produces, holds, earns | XS (~2h) |
-| X2 | E, F | Thin read-only Building Detail Panel replacing `<pre>` dump, wired to live reactive state | You + 2–3 playtesters answer "what's this building doing & why" in <10s, no code-reading | S (1–2d) |
-| X3 | D | Static roster mockup + 5-second test, flat vs. progressive-disclosure layouts | Viewer IDs an adventurer's role/strength at a glance; pick winning layout | XS (~3h) |
-| X4 | D | Read-only Roster view wired to 3–4 seeded `Adventurer` instances (recruitment stubbed) | Roster scannable, adventurers distinguishable, decide what to hide behind "details" | S (1–2d) |
+| #  | Tests | Method                                                                                                          | Success Criteria                                                                         | Effort   |
+|----|-------|-----------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|----------|
+| X1 | E     | Figma/paper mockup of building detail panel (inventory, workers, money flow), reusing CQR-45 MarketPanel layout | 5-second look → viewer states what the building produces, holds, earns                   | XS (~2h) |
+| X2 | E, F  | Thin read-only Building Detail Panel replacing `<pre>` dump, wired to live reactive state                       | You + 2–3 playtesters answer "what's this building doing & why" in <10s, no code-reading | S (1–2d) |
+| X3 | D     | Static roster mockup + 5-second test, flat vs. progressive-disclosure layouts                                   | Viewer IDs an adventurer's role/strength at a glance; pick winning layout                | XS (~3h) |
+| X4 | D     | Read-only Roster view wired to 3–4 seeded `Adventurer` instances (recruitment stubbed)                          | Roster scannable, adventurers distinguishable, decide what to hide behind "details"      | S (1–2d) |
 
 ### Experiment details
 

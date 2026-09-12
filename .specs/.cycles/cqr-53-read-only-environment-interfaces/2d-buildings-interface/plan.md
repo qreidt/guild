@@ -117,14 +117,14 @@ lands on the slotted SVG (verified in the browser — see Verification 6).
 
 ### The two new interiors
 
-| | LumberMill | IronMine |
-|---|---|---|
-| Theme | `emerald` | `sky` |
-| Funds glyph | 🪵 | ⛏ |
-| Banner | saw bench + log mid-cut, toothed blade, plank/log yard, conifers | framed shaft mouth + depth glow, pit lantern, ore cart on rails |
-| Ambient motion | blade rotation (`lm-spin`) | lantern pulse (`im-pulse`) |
-| Particles | sawdust falling (`lm-dust`) | rock dust drifting (`im-dust`) |
-| `<defs>` prefix | `lm-` | `im-` |
+|                 | LumberMill                                                       | IronMine                                                        |
+|-----------------|------------------------------------------------------------------|-----------------------------------------------------------------|
+| Theme           | `emerald`                                                        | `sky`                                                           |
+| Funds glyph     | 🪵                                                               | ⛏                                                              |
+| Banner          | saw bench + log mid-cut, toothed blade, plank/log yard, conifers | framed shaft mouth + depth glow, pit lantern, ore cart on rails |
+| Ambient motion  | blade rotation (`lm-spin`)                                       | lantern pulse (`im-pulse`)                                      |
+| Particles       | sawdust falling (`lm-dust`)                                      | rock dust drifting (`im-dust`)                                  |
+| `<defs>` prefix | `lm-`                                                            | `im-`                                                           |
 
 **SVG id prefixes are load-bearing:** `<defs>` ids are document-global and are *not*
 scoped by Vue. Gradients must be `lm-wall` / `im-glow` etc., never a shared `wall`.

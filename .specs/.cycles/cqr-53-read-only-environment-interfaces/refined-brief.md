@@ -92,11 +92,11 @@ dashboard.
    request.** The prior brief told the spec to read `active_action.name` (instance
    property). Verified against the real action classes:
 
-   | Action (real instance) | `active_action.name` (prior brief) | `active_action.static.name` (≡ `constructor.name`) |
-   |---|---|---|
-   | `MakeIngot` + every Blacksmith recipe | **`undefined`** | `"MakeIngot"` |
-   | `SellOres` / `SellWood` (transport) | `"Transport"` (generic) | `"SellOres"` (specific) |
-   | `WaitAction` | `"Wait"` | `"WaitAction"` |
+   | Action (real instance)                | `active_action.name` (prior brief) | `active_action.static.name` (≡ `constructor.name`) |
+   |---------------------------------------|------------------------------------|----------------------------------------------------|
+   | `MakeIngot` + every Blacksmith recipe | **`undefined`**                    | `"MakeIngot"`                                      |
+   | `SellOres` / `SellWood` (transport)   | `"Transport"` (generic)            | `"SellOres"` (specific)                            |
+   | `WaitAction`                          | `"Wait"`                           | `"WaitAction"`                                     |
 
    The Blacksmith's production actions set `static name = '…'` and **no** instance
    `name` (e.g. [BlackSmith.ts:90-91](../../../src/game/city/buildings/BlackSmith.ts#L90)),

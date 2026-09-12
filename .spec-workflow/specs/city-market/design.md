@@ -193,18 +193,18 @@ const wallet: Wallet = {
 
 ### Changes to existing files
 
-| File | Change |
-|------|--------|
-| `src/modules/inventory/common.ts` | Add `'market'` as a valid `InventoryID` string constant / `BuildingID` union |
-| `src/modules/inventory/inventory.repository.ts:164` | Fix `validateLedger`: replace `forEach` with `for...of` / `Array.prototype.every` so early-return on missing goods works |
-| `src/game/city/City.ts` | Instantiate `Market`; add to `buildings`; call `marketService.init(market)` |
-| `src/game/city/buildings/common/Action.ts` | `TransportAction.finished()`: replace `this.building.money += this.value` with `marketService.sell(this.building.id, buildingWallet, this.input)` |
-| `src/game/city/buildings/LumberMill.ts` | `SellWoodAction` destination inventory already set to Market via `TransportAction`; no other change needed once `TransportAction.finished()` delegates |
-| `src/game/city/buildings/IronMine.ts` | Same as LumberMill |
-| `src/game/city/buildings/BlackSmith.ts` | Add `BuyFromMarketAction` branch in `chooseNextAction()`: if `IronOre < BLACKSMITH_ORE_BUY_THRESHOLD && money >= price * BLACKSMITH_ORE_BATCH` |
-| `src/components/left-menu/BuildingsList.vue` | Add Market entry |
-| `src/App.vue` | Wrap `market` in `reactive()`; wire `MarketPanel` in building-selection switch |
-| `src/game/adventurer/Adventurer.ts` | Expose temporary buy/sell method that builds a `Wallet` adapter and calls `MarketService.buy/sell` |
+| File                                                | Change                                                                                                                                                 |
+|-----------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `src/modules/inventory/common.ts`                   | Add `'market'` as a valid `InventoryID` string constant / `BuildingID` union                                                                           |
+| `src/modules/inventory/inventory.repository.ts:164` | Fix `validateLedger`: replace `forEach` with `for...of` / `Array.prototype.every` so early-return on missing goods works                               |
+| `src/game/city/City.ts`                             | Instantiate `Market`; add to `buildings`; call `marketService.init(market)`                                                                            |
+| `src/game/city/buildings/common/Action.ts`          | `TransportAction.finished()`: replace `this.building.money += this.value` with `marketService.sell(this.building.id, buildingWallet, this.input)`      |
+| `src/game/city/buildings/LumberMill.ts`             | `SellWoodAction` destination inventory already set to Market via `TransportAction`; no other change needed once `TransportAction.finished()` delegates |
+| `src/game/city/buildings/IronMine.ts`               | Same as LumberMill                                                                                                                                     |
+| `src/game/city/buildings/BlackSmith.ts`             | Add `BuyFromMarketAction` branch in `chooseNextAction()`: if `IronOre < BLACKSMITH_ORE_BUY_THRESHOLD && money >= price * BLACKSMITH_ORE_BATCH`         |
+| `src/components/left-menu/BuildingsList.vue`        | Add Market entry                                                                                                                                       |
+| `src/App.vue`                                       | Wrap `market` in `reactive()`; wire `MarketPanel` in building-selection switch                                                                         |
+| `src/game/adventurer/Adventurer.ts`                 | Expose temporary buy/sell method that builds a `Wallet` adapter and calls `MarketService.buy/sell`                                                     |
 
 ## Data Models
 

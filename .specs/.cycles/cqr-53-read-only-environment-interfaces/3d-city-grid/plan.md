@@ -214,14 +214,14 @@ graph TD
   *(No single `TOWN_MAP` object — see As-built deltas.)*
 - **Authored values (carried-over placement):**
 
-  | Building   | anchor `(i,j)` | block centre    | mesh offset note                                                                 |
-  |------------|----------------|-----------------|----------------------------------------------------------------------------------|
-  | Market     | `(2, 2)`       | `[7.5, 7.5]`    | mesh ~centred; offset `[0,0]`                          |
-  | Blacksmith | `(-2, -2)`     | `[-4.5,-4.5]`   | moved 1 cell north off the E–W road (C9 resolved)     |
-  | LumberMill | `(-11, -1)`    | `[-31.5,-1.5]`  | mesh authored off-origin → centring offset `[-1.0, 0]` |
-  | IronMine   | `(-10, -9)`    | `[-28.5,-25.5]` | mesh ~centred; offset `[0,0]`                          |
-  | **Port**   | `(3, -2)`      | `[10.5,-4.5]`   | `structure` (model `port`); dock/boat extend over sea |
-  | **Storage**| `(3, -4)`      | `[10.5,-10.5]`  | `structure` (model `storage`); between port and farm  |
+  | Building    | anchor `(i,j)` | block centre    | mesh offset note                                       |
+  |-------------|----------------|-----------------|--------------------------------------------------------|
+  | Market      | `(2, 2)`       | `[7.5, 7.5]`    | mesh ~centred; offset `[0,0]`                          |
+  | Blacksmith  | `(-2, -2)`     | `[-4.5,-4.5]`   | moved 1 cell north off the E–W road (C9 resolved)      |
+  | LumberMill  | `(-11, -1)`    | `[-31.5,-1.5]`  | mesh authored off-origin → centring offset `[-1.0, 0]` |
+  | IronMine    | `(-10, -9)`    | `[-28.5,-25.5]` | mesh ~centred; offset `[0,0]`                          |
+  | **Port**    | `(3, -2)`      | `[10.5,-4.5]`   | `structure` (model `port`); dock/boat extend over sea  |
+  | **Storage** | `(3, -4)`      | `[10.5,-10.5]`  | `structure` (model `storage`); between port and farm   |
 
 - **Dependencies:** `grid.ts`, `BuildingID`. **No Vue, no `three`.**
 
@@ -263,14 +263,14 @@ graph TD
 
 ### Changes to existing files
 
-| File                                                                                      | Change                                                                                                                                                                                           |
-|-------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [town-layout.ts](../../../../src/components/environment/views/city/town-layout.ts)        | Refactor from continuous scatter to authored cell data + assembly (merge + assertion). Keep `PALETTE`, `GROUND_SIZE`, `MOUNTAINS`, `GROUND_PATCHES` (sea/fields), compass comment, PRNG helpers. |
-| [CityGlobalView3D.vue](../../../../src/components/environment/views/CityGlobalView3D.vue) | Render from the derived export arrays (`WALL_BOXES`, `GROUND_PATCHES`, `HERO_PLOTS`, `STRUCTURES`, `DECORATIVE_HOUSES`, `DENSE_HOUSES`, `TREES`); add `STRUCTURE_MODELS` dispatch + the `SHOW_GRID` grid; **remove** the money/citizens overlay and legend; widen the camera.                                                                            |
-| `city/grid.ts`                                                                            | **New** model module (incl. the `structure` occupant kind).                                                                                                                                                                            |
-| `city/HouseDenseMesh.vue`                                                                 | **New** dense-housing mesh. |
-| `city/PortMesh.vue`, `city/StorageMesh.vue`                                               | **New** structure meshes (port, storage). |
-| [App.vue](../../../../src/App.vue)                                                         | The **City** top-bar label deselects to the 3D city view (`active_building_id = null`).                                                                                                                                                                      |
+| File                                                                                      | Change                                                                                                                                                                                                                                                                        |
+|-------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [town-layout.ts](../../../../src/components/environment/views/city/town-layout.ts)        | Refactor from continuous scatter to authored cell data + assembly (merge + assertion). Keep `PALETTE`, `GROUND_SIZE`, `MOUNTAINS`, `GROUND_PATCHES` (sea/fields), compass comment, PRNG helpers.                                                                              |
+| [CityGlobalView3D.vue](../../../../src/components/environment/views/CityGlobalView3D.vue) | Render from the derived export arrays (`WALL_BOXES`, `GROUND_PATCHES`, `HERO_PLOTS`, `STRUCTURES`, `DECORATIVE_HOUSES`, `DENSE_HOUSES`, `TREES`); add `STRUCTURE_MODELS` dispatch + the `SHOW_GRID` grid; **remove** the money/citizens overlay and legend; widen the camera. |
+| `city/grid.ts`                                                                            | **New** model module (incl. the `structure` occupant kind).                                                                                                                                                                                                                   |
+| `city/HouseDenseMesh.vue`                                                                 | **New** dense-housing mesh.                                                                                                                                                                                                                                                   |
+| `city/PortMesh.vue`, `city/StorageMesh.vue`                                               | **New** structure meshes (port, storage).                                                                                                                                                                                                                                     |
+| [App.vue](../../../../src/App.vue)                                                        | The **City** top-bar label deselects to the 3D city view (`active_building_id = null`).                                                                                                                                                                                       |
 
 ## Data Models
 

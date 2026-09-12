@@ -2,7 +2,7 @@
 
 ## Status
 
-Spec complete, implementation pending. Branch: `feature/city-market`. Linear: [CQR-36](https://linear.app/cqr/issue/CQR-36/feature-city-market).
+Implemented in April 2026. All 11 tasks are complete and logged under `.spec-workflow/specs/city-market/`. Linear: [CQR-36](https://linear.app/cqr/issue/CQR-36/feature-city-market).
 
 ## Goal
 
@@ -75,16 +75,16 @@ items are skipped with a warn log (the market never holds instances today).
 
 ## Files changed from prior spec
 
-| File | Change |
-|------|--------|
-| `src/modules/inventory/inventory.repository.ts` | Fix `validateLedger` forEach early-return bug |
-| `src/modules/inventory/common.ts` | Add `'market'` to `BuildingID`/`InventoryID` |
-| `src/game/city/City.ts` | Instantiate Market, call `marketService.init` |
-| `src/game/city/buildings/common/Action.ts` | `TransportAction.finished()` → `MarketService.sell` |
-| `src/game/city/buildings/BlackSmith.ts` | Add `BuyFromMarketAction` branch |
-| `src/components/left-menu/BuildingsList.vue` | Add Market entry |
-| `src/App.vue` | Wire Market panel + reactive wrapping |
-| `src/game/adventurer/Adventurer.ts` | Add temporary `buyFromMarket`/`sellToMarket` methods |
+| File                                            | Change                                               |
+|-------------------------------------------------|------------------------------------------------------|
+| `src/modules/inventory/inventory.repository.ts` | Fix `validateLedger` forEach early-return bug        |
+| `src/modules/inventory/common.ts`               | Add `'market'` to `BuildingID`/`InventoryID`         |
+| `src/game/city/City.ts`                         | Instantiate Market, call `marketService.init`        |
+| `src/game/city/buildings/common/Action.ts`      | `TransportAction.finished()` → `MarketService.sell`  |
+| `src/game/city/buildings/BlackSmith.ts`         | Add `BuyFromMarketAction` branch                     |
+| `src/components/left-menu/BuildingsList.vue`    | Add Market entry                                     |
+| `src/App.vue`                                   | Wire Market panel + reactive wrapping                |
+| `src/game/adventurer/Adventurer.ts`             | Add temporary `buyFromMarket`/`sellToMarket` methods |
 
 ## Error handling
 
