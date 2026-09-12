@@ -23,8 +23,7 @@ Introduce a single city-wide **Market** building that acts as the canonical sink
 src/
 ├── modules/market/
 │   ├── common.ts            # Wallet interface, TradeRecord, error classes
-│   ├── market.service.ts    # MarketService singleton (sell/buy/export)
-│   └── market.console.ts    # INTENTIONAL GAP — autonomous decider stub
+│   └── market.service.ts    # MarketService singleton (sell/buy/export)
 ├── game/city/buildings/
 │   ├── Market.ts            # Market extends BaseBuilding
 │   └── actions/
@@ -94,7 +93,7 @@ items are skipped with a warn log (the market never holds instances today).
 
 ## Known gaps / out of scope for this iteration
 
-- **Autonomous market export (`market.console.ts` gap).** `Market.chooseNextAction()` still returns `WaitAction`. The `marketConsole.decide(market)` stub in `src/modules/market/market.console.ts` is where the autonomous export policy will live (e.g. export when `stock.value > threshold` and `treasury < floor`, or on a cadence). For now, only the player can trigger exports, via the MarketPanel button. Nothing imports `market.console.ts` yet; calling `decide()` throws `ToBeImplemented`. This file was originally planned as `src/console.ts` but that path is already the headless REPL harness, so the gap moved into the market module.
+- **Autonomous market export.** `Market.chooseNextAction()` returns `WaitAction`; only the player triggers exports, from the MarketPanel button. A future policy, for example export when stock value passes a threshold and the treasury is low, would live in `Market.chooseNextAction()`.
 - **Export price multiplier is neutral.** `EXPORT_PRICE_MULTIPLIER` in `market.service.ts` defaults to `1.0`, meaning export exactly refunds what the market paid producers — it prevents bankruptcy but does not let the market fund structural growth. A real balance pass should tune this below 1.0 in combination with a producer sell price also below 1.0 of buyer cost to create a true spread. Held at 1.0 until there is data to tune against.
 - **Export sink is a memory leak.** The `market:export` destination account is write-only and never garbage-collected. Acceptable at prototype scale; a real caravan/trade entity (or a dedicated `takeGoods`-only path on the repository) would replace it.
 - **Per-row export with quantity selector.** The MarketPanel exposes one "Export All Stock" button; a finer affordance (per-good row, quantity field) is explicitly out of scope here. Do not rescope into this iteration.

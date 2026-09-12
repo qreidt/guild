@@ -7,8 +7,6 @@ import inventoryRepository from "../../../modules/inventory/inventory.repository
 import {BuyFromMarketAction} from "./actions/BuyFromMarketAction.ts";
 import marketService from "../../../modules/market/market.service.ts";
 
-console.log(`[BlackSmith] Loaded`);
-
 export class BlackSmith extends BaseBuilding {
     level = 1;
     money = 100;
@@ -32,8 +30,6 @@ export class BlackSmith extends BaseBuilding {
             new Worker(),
             new Worker(),
         ];
-
-        console.log(`[BlackSmith] OK`);
     }
 
     protected chooseNextAction(): Action {

@@ -143,7 +143,6 @@ export abstract class Action {
 }
 
 export abstract class TransportAction extends Action {
-    name = 'Transport';
     public money: number = 0;
 
     get value(): number {
@@ -184,17 +183,10 @@ export abstract class TransportAction extends Action {
 }
 
 export class WaitAction extends Action {
-    name = 'Wait';
     public total_ticks: number = 1;
 
     // Every other concrete action carries a `static name`; without one here the
     // task label falls back to the class name, which minification mangles.
     static name = 'Wait';
-
-    static building_id = null;
-
-    protected started() {
-        // console.debug(`${this.building_id} is waiting.`);
-    }
 }
 

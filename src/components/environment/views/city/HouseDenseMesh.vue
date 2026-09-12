@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { mulberry32 } from "../../../../modules/random/random.ts";
 import HouseMesh from "./HouseMesh.vue";
 import { PALETTE } from "./town-layout.ts";
 
@@ -32,15 +33,7 @@ const SLOTS: { x: number; z: number }[] = [
   { x: 0.1, z: -1.7 },
 ];
 
-function rng(n: number): () => number {
-  let s = (props.seed + n * 2654435761) >>> 0;
-  return () => {
-    s = (s + 0x6d2b79f5) | 0;
-    let t = Math.imul(s ^ (s >>> 15), 1 | s);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+const rng = (n: number) => mulberry32((props.seed + n * 2654435761) >>> 0);
 
 const dwellings = computed(() =>
   SLOTS.map((slot, i) => {

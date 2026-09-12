@@ -4,7 +4,6 @@ import {
     type TransactionID,
 } from "./common.ts";
 import {InventoryAccountService} from "./inventory.service.ts";
-import {ToBeImplemented} from "../../exceptions/ToBeImplemented.ts";
 import inventoryRepository from "./inventory.repository.ts";
 
 
@@ -24,7 +23,7 @@ export class TransactionService {
 
             if (input?.instances) {
                 // ToDo: Implement instances validations
-                throw new ToBeImplemented('Instances Transactions');
+                throw new Error('To be implemented: instance transactions');
             }
         }
 

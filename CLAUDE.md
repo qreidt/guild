@@ -52,8 +52,8 @@ workflow state. See `docs/agents/triage-labels.md`.
 
 ### Domain docs
 
-Single-context: one `CONTEXT.md` and `docs/adr/` at the repo root (neither exists yet —
-that's fine). See `docs/agents/domain.md`.
+Single-context: `CONTEXT.md` is the glossary and `docs/adr/` holds the decision records,
+both at the repo root. See `docs/agents/domain.md`.
 
 ## Specs
 

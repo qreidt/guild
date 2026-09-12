@@ -1,4 +1,4 @@
-import {EquippableItem, type IItem, Item} from "../item.ts";
+import {EquippableItem, type IItem} from "../item.ts";
 import {ItemID} from "../id.ts";
 
 export enum ArmorType {

@@ -44,16 +44,9 @@ export interface EnvironmentView {
 
 export interface CityBuildingSummary {
     id: BuildingID;
-    name: string;
-    funds: number;
-    workerCount: number;
 }
 
 export interface CityView {
-    /** city.money */
-    money: number;
-    /** city.citizens_count */
-    citizens: number;
     buildings: CityBuildingSummary[];
 }
 

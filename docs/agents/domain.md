@@ -10,12 +10,8 @@ This is a **single-context** repo: one `CONTEXT.md` and one `docs/adr/` at the r
 - **`CONTEXT.md`** at the repo root — the glossary / ubiquitous language.
 - **`docs/adr/`** — read ADRs that touch the area you're about to work in.
 
-If any of these files don't exist, **proceed silently**. Don't flag their absence; don't
-suggest creating them upfront. The `/domain-modeling` skill (reached via
-`/grill-with-docs` and `/improve-codebase-architecture`) creates them lazily when terms or
-decisions actually get resolved.
-
-Neither file exists yet — that's expected.
+Add a term to `CONTEXT.md` or a record to `docs/adr/` when a term or a decision is
+actually resolved, not upfront. The `/domain-modeling` skill maintains both.
 
 ## File structure
 

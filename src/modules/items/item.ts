@@ -1,5 +1,4 @@
 import {ItemID} from "./id.ts";
-import type {IArmor} from "./values/armor.ts";
 
 export interface IItem {
     readonly id: ItemID;

@@ -15,9 +15,6 @@ import type { BuildingID } from "../../../../game/city/buildings/common/Building
 
 /** World units per grid cell — every authored wall line lands on an integer cell. */
 export const CELL = 3;
-/** Inclusive index bounds — covers the ±48 range of the 100-unit ground plane. */
-export const GRID_MIN = -16;
-export const GRID_MAX = 16;
 
 /** Integer grid indices `(i, j)`. */
 export type Cell = readonly [number, number];

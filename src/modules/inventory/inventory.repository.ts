@@ -6,7 +6,6 @@ import type {EquippableItem} from "../items/item.ts";
 
 let global_transaction_id = 0;
 
-console.log(`[InventoryRepository] Loaded`);
 /**
  * InventoryService
  *
@@ -16,10 +15,6 @@ console.log(`[InventoryRepository] Loaded`);
  * validate and remove goods.
  */
 export class InventoryRepository {
-
-    constructor() {
-        console.log(`[InventoryRepository] OK`);
-    }
 
     /** Map of building id -> inventory account */
     public readonly accounts: Map<InventoryID, InventoryAccount> = new Map();
@@ -40,16 +35,7 @@ export class InventoryRepository {
      */
     public getCount(id: InventoryID, item_id: ItemID): number {
         const item = ItemRegistry[item_id];
-        const account = this.accounts.get(id);
-
-        if (! account) {
-            this.accounts.set(id, {
-                stacks: new Map(),
-                instances: [],
-            });
-
-            return 0;
-        }
+        const account = this.getAccount(id);
 
         if (item.stackable) {
             return account.stacks.get(item_id) ?? 0;

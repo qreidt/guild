@@ -23,7 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 
-# MemPalace tooling artifacts
-chroma.sqlite3
-mempalace.yaml
-entities.json
+# spec-workflow MCP server output, regenerated on every run
+.spec-workflow/templates/
+.spec-workflow/user-templates/README.md
+.spec-workflow/approvals/
+.spec-workflow/specs/*/Implementation Logs/

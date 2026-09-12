@@ -1,6 +1,5 @@
 import { reactive } from 'vue';
 import { Adventurer, AdventurerClass } from '../../game/adventurer/Adventurer.ts';
-import type { ClaimantID } from '../quests/common.ts';
 
 /**
  * The roster.
@@ -34,10 +33,6 @@ class AdventurerService {
     /** Everyone, in the order they joined. */
     public getAll(): readonly Adventurer[] {
         return this.roster;
-    }
-
-    public get(id: ClaimantID): Adventurer | null {
-        return this.roster.find((a) => a.gid === id) ?? null;
     }
 
     public handleTick(): void {

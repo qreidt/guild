@@ -47,7 +47,6 @@
     <MarketPanel
         v-else-if="activeBuilding instanceof Market"
         :market="activeBuilding"
-        :market-service="marketServiceReactive"
     />
     <EnvironmentView v-else :building-id="active_building_id" />
 
@@ -76,21 +75,14 @@ import Layout from "./Layout.vue";
 import Button from "./components/Button.vue";
 import {computed, reactive, ref} from "vue";
 import GameControllerSingleton, {GameController} from "./game/controllers/GameController.ts";
-import inventoryRepository, {InventoryRepository} from "./modules/inventory/inventory.repository.ts";
 import BuildingsList from "./components/left-menu/BuildingsList.vue";
 import {BaseBuilding, BuildingID} from "./game/city/buildings/common/Building.ts";
 import {Market} from "./game/city/buildings/Market.ts";
-import marketServiceSingleton from "./modules/market/market.service.ts";
 import MarketPanel from "./components/buildings/MarketPanel.vue";
 import EnvironmentView from "./components/environment/EnvironmentView.vue";
 import AdventurerRoster from "./components/adventurers/AdventurerRoster.vue";
 
 const c = reactive(GameControllerSingleton) as GameController;
-const inventory = reactive(inventoryRepository) as InventoryRepository;
-// marketServiceSingleton is already a reactive singleton at its source, so the
-// engine and UI share the exact same proxy — engine writes (money, recentTrades,
-// inventory) now invalidate the MarketPanel bindings each tick.
-const marketServiceReactive = marketServiceSingleton;
 const city = c.city;
 const buildings = city.buildings;
 

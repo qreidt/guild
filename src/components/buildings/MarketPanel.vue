@@ -1,17 +1,14 @@
 <script setup lang="ts">
 import type { Market } from '../../game/city/buildings/Market.ts';
-import type marketServiceType from '../../modules/market/market.service.ts';
+import marketService from '../../modules/market/market.service.ts';
 import { ItemRegistry } from '../../modules/items/registry.ts';
 import { MarketInsufficientStockError } from '../../modules/market/common.ts';
 
-const props = defineProps<{
-  market: Market;
-  marketService: typeof marketServiceType;
-}>();
+defineProps<{ market: Market }>();
 
 function onExportAll(): void {
   try {
-    props.marketService.exportAll();
+    marketService.exportAll();
   } catch (err) {
     if (err instanceof MarketInsufficientStockError) {
       console.warn(`[MarketPanel] export failed: ${err.message}`);

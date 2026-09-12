@@ -7,8 +7,6 @@ import questService from "../../../modules/quests/quest.service.ts";
 import type {Wallet} from "../../../modules/quests/common.ts";
 import {forageLocationFor} from "../../../modules/world/location.ts";
 
-console.log(`[Apothecary] Loaded`);
-
 /** Herbs to ask for per quest, and what the errand pays. */
 const HERB_QUEST_QUANTITY = 10;
 
@@ -61,8 +59,6 @@ export class Apothecary extends BaseBuilding {
             new Worker(),
             new Worker(),
         ];
-
-        console.log(`[Apothecary] OK`);
     }
 
     protected chooseNextAction(): Action {

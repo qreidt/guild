@@ -1,5 +1,5 @@
 import {ItemID} from "./id.ts";
-import type {IItem, Item} from "./item.ts";
+import type {IItem} from "./item.ts";
 import Goods from "./values/goods.ts";
 import Weapons from "./values/weapons.ts";
 import Armors from "./values/armor.ts";

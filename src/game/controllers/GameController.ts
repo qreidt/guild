@@ -2,8 +2,6 @@ import {City} from "../city/City.ts";
 import {BaseBuilding, type BuildingID} from "../city/buildings/common/Building.ts";
 import adventurerService from "../../modules/adventurers/adventurer.service.ts";
 
-console.log(`[GameController] Loaded`);
-
 const autoTickInterval = 1;
 
 export class GameController {
@@ -23,7 +21,6 @@ export class GameController {
     }
 
     constructor(public auto_tick_interval: number) {
-        console.log(`[GameController] OK`);
     }
 
     private timeout_id: null | ReturnType<typeof setTimeout> = null;

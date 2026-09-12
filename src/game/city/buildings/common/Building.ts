@@ -2,9 +2,6 @@ import {City} from "../../City.ts";
 import type {Action} from "./Action.ts";
 import {Worker} from "./Worker.ts";
 import {InventoryAccountService} from "../../../../modules/inventory/inventory.service.ts";
-import type {IArmor} from "../../../../modules/items/values/armor.ts";
-
-console.log(`[Building] Loaded`);
 
 export enum BuildingID {
     BlackSmith = 'BlackSmith',
@@ -30,8 +27,6 @@ export abstract class BaseBuilding {
 
     public workers: Worker[] = [];
 
-    _data: any = {};
-
     /** Shortcut to access static props from the subclass */
     get static(): IBuilding {
         return this.constructor as unknown as IBuilding;
@@ -46,8 +41,6 @@ export abstract class BaseBuilding {
     }
 
     public handleTick(_city: City): void {
-        this._data.inventory = this.inventory.getCountByGoodId();
-
         this.reviewQuests();
 
         const availableWorkers = this.workers.filter((w) => w.isAvailable());
@@ -55,7 +48,6 @@ export abstract class BaseBuilding {
         if (availableWorkers.length > 0) {
             for (const worker of availableWorkers) {
                 worker.active_action = this.chooseNextAction();
-                console.log(`[${worker.active_action?.static?.building_id}] Action Chosen is: ${worker.active_action.constructor.name}`);
                 worker.active_action.start();
             }
         }

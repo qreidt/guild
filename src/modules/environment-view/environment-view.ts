@@ -151,19 +151,10 @@ export function mapCityView(city: City): CityView {
     const buildings: CityBuildingSummary[] = [];
 
     city.buildings.forEach((building) => {
-        buildings.push({
-            id: building.id,
-            name: building.static.name,
-            funds: building.money,
-            workerCount: building.workers.length,
-        });
+        buildings.push({ id: building.id });
     });
 
-    return {
-        money: city.money,
-        citizens: city.citizens_count,
-        buildings,
-    };
+    return { buildings };
 }
 
 /**

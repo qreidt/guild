@@ -8,8 +8,6 @@ import {Market} from "./buildings/Market.ts";
 import {InventoryAccountService} from "../../modules/inventory/inventory.service.ts";
 import marketService from "../../modules/market/market.service.ts";
 
-console.log(`[City] Loaded`);
-
 export class City {
     public citizens_count: number;
     public money: number;
@@ -36,8 +34,6 @@ export class City {
         ]);
 
         marketService.init(this.market);
-
-        console.log(`[EquippableItem] OK`);
     }
 
     handleTick(): void {

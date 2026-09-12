@@ -4,8 +4,6 @@ import {Action, TransportAction} from "./common/Action.ts";
 import {Worker} from "./common/Worker.ts";
 import {ItemID} from "../../../modules/items/id.ts";
 
-console.log(`[IronMine] Loaded`);
-
 export class IronMine extends BaseBuilding {
     static name = "Iron Mine";
     static building_id = BuildingID.IronMine;
@@ -20,8 +18,6 @@ export class IronMine extends BaseBuilding {
             new Worker(),
             //new Worker(),
         ];
-
-        console.log(`[IronMine] OK`);
     }
 
     protected chooseNextAction(): Action {

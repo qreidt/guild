@@ -3,8 +3,6 @@ import { WaitAction } from './common/Action.ts';
 import { InventoryAccountService } from '../../../modules/inventory/inventory.service.ts';
 import type { Action } from './common/Action.ts';
 
-console.log(`[AdventurersGuild] Loaded`);
-
 const GUILD_INITIAL_MONEY = 100;
 
 /**
@@ -33,7 +31,6 @@ export class AdventurersGuild extends BaseBuilding {
         super();
         this.inventory = InventoryAccountService.init(BuildingID.AdventurersGuild);
         this.workers = [];
-        console.log(`[AdventurersGuild] OK`);
     }
 
     protected chooseNextAction(): Action {

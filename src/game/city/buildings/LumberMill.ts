@@ -1,12 +1,9 @@
 import GameControllerSingleton from "../../controllers/GameController.ts";
 import {BaseBuilding, BuildingID} from "./common/Building.ts";
 import {Action, TransportAction} from "./common/Action.ts";
-import type {City} from "../City.ts";
 import {Worker} from "./common/Worker.ts";
 import {ItemID} from "../../../modules/items/id.ts";
 import {InventoryAccountService} from "../../../modules/inventory/inventory.service.ts";
-
-console.log(`[LumberMill] Loaded`);
 
 export class LumberMill extends BaseBuilding {
     static name = "LumberMill";
@@ -25,12 +22,6 @@ export class LumberMill extends BaseBuilding {
         ];
 
         this.inventory = InventoryAccountService.init(BuildingID.LumberMill);
-
-        console.log(`[LumberMill] OK`);
-    }
-
-    handleTick(city: City) {
-        super.handleTick(city);
     }
 
     protected chooseNextAction(): Action {
@@ -87,10 +78,6 @@ class MakeWoodAction extends Action {
     output = new Map([
         [ItemID.WoodPlank, 20],
     ]);
-
-    constructor() {
-        super();
-    };
 
     protected started() {
         console.debug('LumberMill started chopping lumber into wood.');

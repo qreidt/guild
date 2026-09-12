@@ -63,10 +63,10 @@ const GRID_POS: [number, number, number] = [1.5, 0.02, 1.5];
 // Real buildings placed at their fixed plots. Keyed by id so per-tick
 // re-renders patch the existing nodes rather than recreating them.
 const heroBuildings = computed(() => {
-  const out: { id: BuildingID; name: string; plot: HeroPlot }[] = [];
+  const out: { id: BuildingID; plot: HeroPlot }[] = [];
   for (const b of props.view.buildings) {
     const plot = HERO_PLOTS[b.id];
-    if (plot) out.push({ id: b.id, name: b.name, plot });
+    if (plot) out.push({ id: b.id, plot });
   }
   return out;
 });

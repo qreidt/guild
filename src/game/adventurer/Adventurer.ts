@@ -14,8 +14,6 @@ import {TravelAction} from "./actions/TravelAction.ts";
 import {ForageAction} from "./actions/ForageAction.ts";
 import {DeliverAction} from "./actions/DeliverAction.ts";
 
-console.log(`[Adventurer] Loaded`);
-
 let global_id = 1;
 
 export enum AdventurerRank {

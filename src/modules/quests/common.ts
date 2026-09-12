@@ -114,18 +114,7 @@ export type ObjectiveStep =
     /** Nothing left to do — the quest is Fulfilled. */
     | { step: 'done' };
 
-/**
- * A money holder. Structurally identical to the market's `Wallet` and
- * interchangeable with it at every call site — declared separately so the quest
- * board does not depend on the market. Callers construct one inline over
- * whatever holds their money, as `TransportAction` and `Adventurer` already do.
- * If a third *declaration* of this shape appears, lift all three into a shared
- * module rather than importing one from another.
- */
-export interface Wallet {
-    get(): number;
-    add(n: number): void;
-}
+export type { Wallet } from "../market/common.ts";
 
 export class QuestNotFoundError extends Error {
     constructor(id: QuestID) {

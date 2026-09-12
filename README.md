@@ -37,7 +37,7 @@ Clone the repository:
 
 ```bash
 git clone https://github.com/qreidt/guild.git
-cd fantasy-city-manager
+cd guild
 ```
 
 Install dependencies:
@@ -53,7 +53,7 @@ npm run build    # type-check + production build
 npm run preview  # preview the built output
 ```
 
-### Headless console (planned)
+### Headless console
 
 Guild also ships a terminal-only harness for driving the simulation without a browser. It runs the exact same `GameController`, `City`, buildings, and inventory singletons the Vue UI wraps, so behavior in the REPL matches behavior in the browser.
 
@@ -63,48 +63,6 @@ Start it with:
 npm run console
 ```
 
-You will get an interactive prompt:
-
-```
-guild> status
-tick: 0   running: false   money: 500   citizens: 100   night: false
-guild> tick 10
-(advances 10 simulation ticks)
-guild> buildings
-- LumberMill  level 1  money 0  workers 3
-- IronMine    level 1  money 0  workers 3
-- BlackSmith  level 1  money 0  workers 2
-- Market      level 1  money 0  workers 0
-guild> inspect LumberMill
-(dumps workers, their current actions, inventory account, and money)
-guild> inventory City
-(dumps the city account and recent transactions)
-guild> market
-(dumps current offers and trade history)
-guild> run 5
-(resumes auto-tick for 5 seconds, then pauses)
-guild> quit
-```
-
-Core commands:
-
-| Command                           | What it does                                                                                  |
-|-----------------------------------|-----------------------------------------------------------------------------------------------|
-| `help`                            | List all commands.                                                                            |
-| `status`                          | Print tick, running flag, city money, citizens, and `isNight()`.                              |
-| `tick [n]`                        | Force-advance the simulation by `n` ticks (default 1), even while paused.                     |
-| `run <seconds>`                   | Resume auto-tick for a wall-clock duration, then pause.                                       |
-| `pause` / `resume`                | Toggle the game loop.                                                                         |
-| `seed [n]`                        | Pin the world seed that every actor stream derives from. No argument prints the current seed. |
-| `buildings`                       | List every building with ID, level, money, worker count.                                      |
-| `inspect <buildingId>`            | Dump one building's workers, actions, inventory, and money.                                   |
-| `inventory [accountId]`           | List accounts or dump a specific account's balances and transactions.                         |
-| `market`                          | Show current market offers and trade history.                                                 |
-| `adventurers`                     | List the roster: class, location, current action, progress, quest, carried goods.             |
-| `quests`                          | List the quest board.                                                                         |
-| `claim <questId> <claimantId>`    | Debug: claim an open quest for a stubbed claimant.                                            |
-| `fulfil <questId> <claimantId>`   | Debug: settle a claimed quest.                                                                |
-| `give <accountId> <itemId> <qty>` | Debug: inject items into an account to test downstream flows.                                 |
-| `quit` / `exit`                   | Exit the REPL.                                                                                |
+Type `help` at the prompt for the command list.
 
 The entrypoint lives at `src/console.ts` and is run through `tsx` — no build step, no Vite, no DOM. See [.specs/features/console-harness](./.specs/features/console-harness/README.md) for the full spec and rationale.

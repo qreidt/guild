@@ -163,10 +163,6 @@ class QuestService {
         return this.quests.filter((q) => q.status === QuestStatus.Open);
     }
 
-    public getByPoster(poster: BuildingID): Quest[] {
-        return this.quests.filter((q) => q.poster === poster);
-    }
-
     /**
      * Quests still in flight (Open or Claimed) that concern `item`, optionally
      * narrowed to one poster. This is how a building answers "am I already
