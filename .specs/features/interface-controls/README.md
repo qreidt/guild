@@ -55,8 +55,8 @@ to an art component:
   worker with the raw action name, and the inventory shelf.
 - Adventurers' Guild: its own 2D view, with the quest board in place of workers and
   inventory.
-- Any building without a registry entry: `GenericEnvironmentView.vue`, a plain table of
-  workers and inventory. No building uses it today.
+- The registry must name a view for every building except the Market. A missing entry
+  fails `vue-tsc`, so no building renders blank.
 
 All of these read one view-model from `src/modules/environment-view/`. The composable in
 `useEnvironmentView.ts` makes it reactive through the per-tick heartbeat. None of them

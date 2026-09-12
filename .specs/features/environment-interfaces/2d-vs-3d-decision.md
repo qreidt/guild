@@ -21,7 +21,8 @@ dispatches by registry to one of three consumers of that **same** view-model:
   money/citizens overlay.
 - **Generic fallback** — `GenericEnvironmentView.vue`: plain-HTML table view (IronMine,
   LumberMill today). Proves the view-model is genuinely render-agnostic — a third
-  consumer with zero art.
+  consumer with zero art. Removed on 2026-09-12 once every building had art; a
+  missing registry entry is now a build error.
 
 That three renderers consume one unchanged view-model is the central result: **the data
 layer is shared; only the art differs.** The 2D-vs-3D question is therefore a real

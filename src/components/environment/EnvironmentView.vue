@@ -3,7 +3,6 @@ import { computed, defineAsyncComponent, toRef } from "vue";
 import type { BuildingID } from "../../game/city/buildings/common/Building.ts";
 import { environmentArtRegistry } from "./environment-registry.ts";
 import { useCityView, useEnvironmentView } from "./useEnvironmentView.ts";
-import GenericEnvironmentView from "./GenericEnvironmentView.vue";
 
 // Lazy-loaded so `three` / `@tresjs/core` stay out of the 2D / initial bundle.
 const CityGlobalView3D = defineAsyncComponent(() => import("./views/CityGlobalView3D.vue"));
@@ -27,8 +26,5 @@ const artComponent = computed(() =>
   <CityGlobalView3D v-if="buildingId === null" :view="cityView" />
 
   <!-- Building with a registered art view. -->
-  <component :is="artComponent" v-else-if="artComponent" :view="view" />
-
-  <!-- Fallback: generic read-only view, driven by the same view-model. -->
-  <GenericEnvironmentView v-else :view="view" />
+  <component :is="artComponent" v-else :view="view" />
 </template>

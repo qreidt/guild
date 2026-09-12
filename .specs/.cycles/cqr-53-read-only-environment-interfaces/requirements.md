@@ -91,6 +91,9 @@ that I see its state instead of a raw object dump.
 3. WHEN the selected building has a registered art view THEN the container SHALL render
    that view; otherwise it SHALL render a thin **generic** read-only view driven by the
    same view-model (so no environment falls back to a raw dump).
+   > **Update (as-built, 2026-09-12):** the generic view was removed once every
+   > building had art. A missing registry entry now fails `vue-tsc` (`satisfies` on
+   > `environmentArtRegistry`), so the "never a raw dump" intent holds at build time.
 4. WHEN the Market is selected THEN the existing `MarketPanel.vue` (with its controls)
    SHALL continue to render unchanged — the Market is **excluded** from the read-only
    treatment.
@@ -213,6 +216,7 @@ cannot regress game state while we are only validating presentation.
   action SHALL never produce `NaN`, negative, or out-of-range progress.
 - A building with no registered art view SHALL still render (generic fallback) — never a
   blank panel or raw dump.
+  > **Update (as-built, 2026-09-12):** superseded by a build-time check; see R2.3.
 
 ### Usability
 - Every non-Market environment SHALL be reachable from the existing `BuildingsList`

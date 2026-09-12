@@ -10,7 +10,9 @@ import { BuildingID } from "../../game/city/buildings/common/Building.ts";
  *
  * All production environments share the `BuildingInterior2D` shell; only
  * the banner art and accent theme differ. The Market keeps its own `MarketPanel`
- * (with controls) and is deliberately absent here.
+ * (with controls) and is deliberately absent here. Every other `BuildingID` must
+ * have an entry: the `satisfies` clause fails the build otherwise. It replaced
+ * the generic fallback view on 2026-09-12.
  *
  * The Adventurers' Guild is the one entry that does not use the shared shell —
  * it has no workers and no inventory, and its quest board replaces both. It is
@@ -23,4 +25,4 @@ export const environmentArtRegistry: Partial<Record<BuildingID, Component>> = {
     [BuildingID.IronMine]: defineAsyncComponent(() => import('./views/IronMineView2D.vue')),
     [BuildingID.Apothecary]: defineAsyncComponent(() => import('./views/ApothecaryView2D.vue')),
     [BuildingID.AdventurersGuild]: defineAsyncComponent(() => import('./views/AdventurersGuildView2D.vue')),
-};
+} satisfies Record<Exclude<BuildingID, BuildingID.Market>, Component>;
