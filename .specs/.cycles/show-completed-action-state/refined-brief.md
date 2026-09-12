@@ -61,6 +61,7 @@ loops, two templates, the console dump, and the docs.
 | Sequencing                  | **One PR, two commits**: view layer first, engine hand-off second. The user commits.                                                                                      |
 | ADR                         | **Yes, ADR 0007**: the next action is picked when the current one finishes.                                                                                               |
 | CQR-53 R1.3 and R1.4        | **A pointer to this cycle**, not a rewrite.                                                                                                                               |
+| Spec files                  | **All three**: `requirements.md`, `plan.md`, `tasks.md`, so tasks cite R-numbers as every other cycle does. Settled in the `/refine-request` round of 2026-09-12.         |
 
 ---
 
@@ -100,9 +101,12 @@ The Iron Mine after the change. `MineOres` takes 2 ticks:
 3. The row height SHALL be the same in both states.
 4. For a 2-tick action the sequence SHALL read 50%, then 100% with next, then 50%.
    Today it reads 50%, then idle 0%, then 50%.
-5. Output over 100 ticks SHALL not change. The one runnable check: `seed 1`, `tick 100`,
-   then `inspect` on each production building, before and after the change. Inventory
-   counts and money match.
+5. Completion ticks SHALL not change. The one runnable check: `seed 1`, `tick 100`, then
+   `inspect` on the Lumber Mill, the Iron Mine and the Blacksmith, before and after the
+   change. Inventory counts and money match exactly. The Apothecary and Wren see each
+   other across the tick boundary, so for them the check is the event log: the same
+   events in the same order, each at most one tick later per preceding posting or
+   delivery. Refined in `requirements.md` R3.5 and R6.4.
 6. The tick loop SHALL survive a hand-off with contested stock. Check: `give Apothecary
    Bloodroot 4`, then tick through a hand-off with both herbalists free. No throw.
 7. The roster SHALL show the same hand-off for Wren, for example "Travel, 100%, next
