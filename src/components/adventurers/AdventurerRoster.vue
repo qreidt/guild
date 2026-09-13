@@ -48,20 +48,29 @@ const adventurers = useAdventurerRoster();
           <span class="text-gray-400">
             at the <span class="text-gray-200">{{ adventurer.location }}</span>
           </span>
-          <span
-            class="rounded border px-2 py-0.5 text-xs font-semibold"
-            :class="adventurer.status === 'working'
-              ? 'bg-sky-900/40 border-sky-700 text-sky-300'
-              : 'bg-gray-700/40 border-gray-600 text-gray-400'"
-          >
-            {{ adventurer.task ?? 'Idle' }}
+          <!--
+            Status-driven, as in `BuildingInterior2D`: a finished action keeps the
+            accent and shows once at 100% beside the next action. An idle badge never
+            shows a stale name.
+          -->
+          <span class="flex items-center gap-2">
+            <span
+              class="rounded border px-2 py-0.5 text-xs font-semibold"
+              :class="adventurer.status === 'idle'
+                ? 'bg-gray-700/40 border-gray-600 text-gray-400'
+                : 'bg-sky-900/40 border-sky-700 text-sky-300'"
+            >
+              {{ adventurer.status === 'idle' ? 'Idle' : adventurer.task }}
+            </span>
+            <span v-if="adventurer.next" class="text-xs text-gray-500">· next {{ adventurer.next }}</span>
           </span>
         </div>
 
         <!-- Progress on the current action -->
         <div class="h-1.5 w-full rounded bg-gray-700 overflow-hidden">
           <div
-            class="h-full bg-sky-500 transition-all duration-300"
+            class="h-full transition-all duration-300"
+            :class="adventurer.status === 'idle' ? 'bg-gray-600' : 'bg-sky-500'"
             :style="{ width: `${Math.round(adventurer.progress * 100)}%` }"
           />
         </div>

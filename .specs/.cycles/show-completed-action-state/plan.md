@@ -116,6 +116,13 @@ passes `worker.finished_action` and `worker.active_action`; `mapAdventurer()` pa
 adventurer's two slots. `workerProgress()` stays exported and keeps its sentinel guards;
 only its finished branch returns `1` instead of `0`.
 
+> _As-built (commit 1):_ `activity()` takes one `ActionSlots` object,
+> `{ finished_action, active_action }`, not two positional arguments. Two nullable
+> `Action` parameters of one type invited a silent swap, and the object is the shape
+> `Worker` and `Adventurer` carry from commit 2, so both mappers can then pass the owner
+> directly. The function is one return over `shown = finished_action ?? active_action`;
+> the table above is unchanged.
+
 ## The rows
 
 `BuildingInterior2D.vue` keys everything on `status`, so `'finished'` slots in beside
@@ -141,6 +148,11 @@ also fixes today's stale name over a 0% bar for a done action.
 the progress. Both commands print what the panels render, so a mapper bug fails in the
 terminal before anyone opens a screen. That is the only test seam this repo has, and it
 is enough: the sequences in R6.2 and R6.5 are three `tick 1` commands each.
+
+> _As-built (commit 1):_ the mapper also has a `node:test` file,
+> `environment-view.test.ts`, one test per row of the table, run by `npm test` through
+> the installed `tsx`. Agreed with the user at implementation as the seam for the pure
+> view-model. The console stays the seam for the engine.
 
 ## What can be checked exactly, and what cannot
 

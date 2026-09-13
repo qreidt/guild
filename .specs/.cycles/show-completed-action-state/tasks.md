@@ -14,7 +14,7 @@
 
 ## Commit 1 — view layer
 
-- [ ] 1. View-model: the finished status, the next field, one shared activity function
+- [x] 1. View-model: the finished status, the next field, one shared activity function
   - Files: `src/modules/environment-view/types.ts`,
     `src/modules/environment-view/environment-view.ts`, `src/console.ts` (modify)
   - `WorkerStatus` gains `'finished'`. An `Activity` shape `{ task, progress, status,
@@ -29,7 +29,7 @@
     `types.ts` comment on the shared triple, which becomes the `Activity` type_
   - _Requirements: R1.1–R1.7, R2.5_
 
-- [ ] 2. Rows: the shell and the roster render the hand-off
+- [x] 2. Rows: the shell and the roster render the hand-off
   - Files: `src/components/environment/BuildingInterior2D.vue`,
     `src/components/adventurers/AdventurerRoster.vue` (modify)
   - Shell: `'finished'` joins `'working'` in the task-span class, the bar-fill class and
