@@ -95,5 +95,8 @@ existed. To track a future cycle with the server, author that cycle under
   full six ticks after the adventurer already holds the quantity, so they carry a
   surplus home. At `seed 7`, Wren ends two quests for 10 with 11 and 12. The request:
   end the shift when the quantity is held, when the forage serves a gather quest.
-  **Status: requested** on 2026-09-12, branch `fix/max-garthering`. The open questions
-  are in [request.md](./forage-stops-at-the-quest-quantity/request.md).
+  **Status: specified** on 2026-09-13, branch `fix/max-garthering`. The decisions of the
+  grilling round are folded into
+  [request.md](./forage-stops-at-the-quest-quantity/request.md). The spec is
+  `requirements.md`, `plan.md` and `tasks.md`: six requirement groups, three tasks, one
+  commit.
