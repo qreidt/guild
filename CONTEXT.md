@@ -50,6 +50,11 @@ a gather objective. How hard something is to forage is a property of looking
 *here* for *this*, not of the item itself.
 _Avoid_: Harvest, pick, farm, grind
 
+**Shift**:
+One forage action: a span of searching with a fixed maximum length. It ends when the
+time is up, or earlier when the gather objective it serves is satisfied.
+_Avoid_: Session, attempt, run, cycle
+
 **Deliver**:
 To hand a satisfied objective's goods to the poster. Inseparable from fulfilling:
 the goods and the reward change hands in the same event, so neither happens
