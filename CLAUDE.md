@@ -11,8 +11,10 @@ inventory, and a market economy.
   re-check after edits, otherwise it can no-op and print nothing).
 - `npm run console` — runs `src/console.ts` via tsx; handy for exercising pure functions
   or module-load assertions outside the browser.
-
-No automated test runner is configured — verify via the dev server and `vue-tsc`.
+- `npm test` — runs every `src/**/*.test.ts` file with Node's built-in `node:test` through
+  tsx. No test framework is installed. Tests sit only at agreed seams, pure functions
+  such as the view-model mappers. Verify UI and engine behavior via the dev server,
+  the console harness and `vue-tsc`.
 
 ## Conventions
 

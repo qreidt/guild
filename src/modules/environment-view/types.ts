@@ -11,16 +11,28 @@ import type { Location } from "../world/location.ts";
  * the same shapes so the data layer stays shared and only the art differs.
  */
 
-export type WorkerStatus = 'idle' | 'working';
+export type WorkerStatus = 'idle' | 'working' | 'finished';
 
-export interface WorkerView {
-    /** Index-based label, e.g. "Smith 1". */
-    label: string;
+/**
+ * What someone does, judged the same way for a worker and an adventurer.
+ *
+ * `finished` is the one tick in which an action finishes and the next action
+ * has not yet received a tick: the hand-off (CONTEXT.md). `next` is non-null
+ * only then.
+ */
+export interface Activity {
     /** Raw action identifier (constructor.name), null when idle. */
     task: string | null;
-    /** Clamped to 0..1. */
+    /** Clamped to 0..1. `1` for a finished action. */
     progress: number;
     status: WorkerStatus;
+    /** Raw identifier of the next action, non-null only at a hand-off. */
+    next: string | null;
+}
+
+export interface WorkerView extends Activity {
+    /** Index-based label, e.g. "Smith 1". */
+    label: string;
 }
 
 export interface InventoryRow {
@@ -53,12 +65,12 @@ export interface CityView {
 /**
  * One line of the roster.
  *
- * `task` / `progress` / `status` are deliberately the same three fields a
- * `WorkerView` carries, and mean the same things — an adventurer's work is
- * judged the same way a worker's is, even though they are nothing alike
- * otherwise. `carrying` reuses `InventoryRow` for the same reason.
+ * The `Activity` fields are the same ones a `WorkerView` carries, and mean the
+ * same things. An adventurer's work is judged the same way a worker's is, even
+ * though they are nothing alike otherwise. `carrying` reuses `InventoryRow` for
+ * the same reason.
  */
-export interface AdventurerView {
+export interface AdventurerView extends Activity {
     id: ClaimantID;
     name: string;
     /** Enum name, e.g. "Scout". */
@@ -67,11 +79,6 @@ export interface AdventurerView {
     rank: string;
     /** A named place, never a coordinate. */
     location: Location;
-    /** Raw action identifier (constructor.name), null when idle. */
-    task: string | null;
-    /** Clamped to 0..1. */
-    progress: number;
-    status: WorkerStatus;
     /** Their purse. */
     funds: number;
     /** The quest they hold; null when they have none. */

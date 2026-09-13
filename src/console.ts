@@ -315,10 +315,11 @@ const commands: Record<string, Command> = {
             print(`roster: ${rows.length} adventurer${rows.length === 1 ? '' : 's'}`);
             for (const row of rows) {
                 const progress = `${Math.round(row.progress * 100)}%`;
+                const next = row.next ? `-> next ${row.next}  ` : '';
                 print(
                     `  ${row.name.padEnd(10)} ${row.rank} ${row.class}`.padEnd(32) +
                     `${String(row.location).padEnd(8)} ` +
-                    `${(row.task ?? 'Idle').padEnd(10)} ${progress.padStart(4)}  ` +
+                    `${(row.task ?? 'Idle').padEnd(10)} ${progress.padStart(4)}  ${next}` +
                     `${String(row.funds).padStart(5)}g  ` +
                     (row.questObjective ? `on ${row.questObjective} (${row.questId})` : 'no quest')
                 );

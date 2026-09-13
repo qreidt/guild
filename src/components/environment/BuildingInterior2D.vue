@@ -15,9 +15,9 @@ type ThemeName = 'amber' | 'emerald' | 'sky' | 'violet';
 interface Theme {
   /** Funds chip: background + border + text. */
   funds: string;
-  /** Task label of a working row. */
+  /** Task label of a working or finished row. */
   task: string;
-  /** Progress-bar fill of a working row. */
+  /** Progress-bar fill of a working or finished row. */
   bar: string;
   /** Inventory count emphasis. */
   count: string;
@@ -104,19 +104,22 @@ function pct(progress: number): string {
             <span class="font-medium">{{ worker.label }}</span>
             <div class="flex items-center gap-2">
               <!--
-                Idle is status-driven, not `task ?? 'idle'`: the view-model emits a
-                non-null task for a *done* action, which would show a stale label.
+                Status-driven, so an idle row never shows a stale label. A finished row
+                keeps the accent: its action finishes in this tick and shows once at
+                100%, beside the next action (CONTEXT.md, Hand-off). The next span adds
+                width, not height, so the row keeps its size across a hand-off.
               -->
-              <span :class="worker.status === 'working' ? t().task : 'text-gray-500 italic'">
-                {{ worker.status === 'working' ? (worker.task ?? 'idle') : 'idle' }}
+              <span :class="worker.status === 'idle' ? 'text-gray-500 italic' : t().task">
+                {{ worker.status === 'idle' ? 'idle' : worker.task }}
               </span>
+              <span v-if="worker.next" class="text-xs text-gray-500">· next {{ worker.next }}</span>
               <span class="text-xs text-gray-400 tabular-nums w-9 text-right">{{ pct(worker.progress) }}</span>
             </div>
           </div>
           <div class="h-2 w-full rounded bg-gray-700 overflow-hidden">
             <div
               class="h-full rounded transition-all duration-300"
-              :class="worker.status === 'working' ? t().bar : 'bg-gray-600'"
+              :class="worker.status === 'idle' ? 'bg-gray-600' : t().bar"
               :style="{ width: pct(worker.progress) }"
             />
           </div>

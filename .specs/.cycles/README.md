@@ -9,6 +9,9 @@ that work:
 3. `requirements.md`, `plan.md` and `tasks.md`: the spec, authored in the cycle folder.
    `tasks.md` uses the `[ ]`, `[-]` and `[x]` markers.
 
+Name the folder `cqr-<n>-<slug>`, after the Linear issue. If the cycle starts before the
+issue exists, name the folder `<slug>` alone. Rename it when the issue exists.
+
 When the build deviates from the spec, record the deviation as an as-built delta on the
 affected requirement. Do not rewrite the original brief.
 
@@ -78,3 +81,11 @@ existed. To track a future cycle with the server, author that cycle under
   the roster screen, and the `adventurers` and `seed` console commands. As-built deltas
   are on the affected requirements in
   [requirements.md](./cqr-61-basic-adventurer/requirements.md).
+- No Linear issue yet, folder
+  [show-completed-action-state/](./show-completed-action-state/).
+  Show the completed action state. A finished action stays on its worker for one tick
+  and the view reports it as "idle, 0%", so the bar never reaches 100%. The request: show
+  100% for that tick, together with the next action at 0%.
+  **Status: refined** on 2026-09-12, branch `fix/show-completed-state`. The decisions are
+  in [refined-brief.md](./show-completed-action-state/refined-brief.md). The hand-off
+  timing is ADR 0007.

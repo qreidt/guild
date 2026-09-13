@@ -8,13 +8,13 @@ import { ItemRegistry } from "../items/registry.ts";
 import { summarizeObjective } from "../quests/objectives.ts";
 import type { Quest } from "../quests/common.ts";
 import type {
+    Activity,
     AdventurerView,
     CityBuildingSummary,
     CityView,
     EnvironmentView,
     InventoryRow,
     QuestRow,
-    WorkerStatus,
     WorkerView,
 } from "./types.ts";
 
@@ -49,28 +49,60 @@ export function resolveTaskLabel(action: Action | null): string | null {
 
 /**
  * Progress in [0, 1]. Guards every edge case the engine can present:
- * - no action / finished action -> 0
+ * - no action -> 0; a finished action -> 1
  * - the `999` pre-start sentinel (ticks_remaining > total_ticks) -> clamped to 0
  * - total_ticks <= 0 (non-finite division) -> 0
  */
 export function workerProgress(action: Action | null): number {
-    if (!action || action.isDone()) {
+    if (!action) {
         return 0;
+    }
+
+    if (action.isDone()) {
+        return 1;
     }
 
     const progress = 1 - action.ticks_remaining / action.total_ticks;
     return Number.isFinite(progress) ? Math.min(1, Math.max(0, progress)) : 0;
 }
 
-export function mapWorker(worker: Worker, index: number, labelPrefix: string): WorkerView {
-    const action = worker.active_action;
-    const status: WorkerStatus = action && !action.isDone() ? 'working' : 'idle';
+/**
+ * The two action slots a worker or an adventurer carries. Until the engine
+ * hand-off lands, callers pass `null` for `finished_action`.
+ */
+export interface ActionSlots {
+    finished_action: Action | null;
+    active_action: Action | null;
+}
+
+/**
+ * What someone does, from their two action slots.
+ *
+ * | `finished_action` | `active_action`     | task     | progress | status   | next   |
+ * |-------------------|---------------------|----------|----------|----------|--------|
+ * | present           | started, not ticked | finished | 1        | finished | active |
+ * | null              | running             | active   | 1 − r/t  | working  | null   |
+ * | null              | finished            | active   | 1        | finished | null   |
+ * | null              | null                | null     | 0        | idle     | null   |
+ *
+ * The third row is an action that finishes with no next action on record. The
+ * row shows it once, at 100%, under its own name.
+ */
+export function activity({ finished_action, active_action }: ActionSlots): Activity {
+    const shown = finished_action ?? active_action;
 
     return {
+        task: resolveTaskLabel(shown),
+        progress: workerProgress(shown),
+        status: !shown ? 'idle' : shown.isDone() ? 'finished' : 'working',
+        next: finished_action ? resolveTaskLabel(active_action) : null,
+    };
+}
+
+export function mapWorker(worker: Worker, index: number, labelPrefix: string): WorkerView {
+    return {
         label: `${labelPrefix} ${index + 1}`,
-        task: resolveTaskLabel(action),
-        progress: workerProgress(action),
-        status,
+        ...activity({ finished_action: null, active_action: worker.active_action }),
     };
 }
 
@@ -112,7 +144,6 @@ export function mapAdventurer(
     adventurer: Adventurer,
     quests: readonly Quest[],
 ): AdventurerView {
-    const action = adventurer.active_action;
     const quest = quests.find((q) => q.id === adventurer.claimed_quest_id) ?? null;
 
     return {
@@ -121,9 +152,7 @@ export function mapAdventurer(
         class: AdventurerClass[adventurer.class],
         rank: AdventurerRank[adventurer.rank],
         location: adventurer.location,
-        task: resolveTaskLabel(action),
-        progress: workerProgress(action),
-        status: action && !action.isDone() ? 'working' : 'idle',
+        ...activity({ finished_action: null, active_action: adventurer.active_action }),
         funds: adventurer.money,
         questId: adventurer.claimed_quest_id,
         questObjective: quest ? summarizeObjective(quest.objective) : null,
