@@ -9,9 +9,9 @@
 One commit. The user makes it. Four small touches, one test, and the doc deltas.
 
 ```
-modules   common.ts        the `until?` field on the forage step                 (R1.1, R1.3)
+modules   common.ts        the `until?` field on the forage step                 (R1.1)
           objectives.ts    the gather resolver sets it                            (R1.2)
-engine    Adventurer.ts    the switch passes it through                           (R1.4)
+engine    Adventurer.ts    the switch passes it through                           (R1.3)
           ForageAction.ts  the check after a find                                 (R2)
 test      ForageAction.test.ts                                                    (R4)
 docs      CQR-61 pointers, architecture.md, CLAUDE.md, the cycles README          (R5)
@@ -19,14 +19,10 @@ docs      CQR-61 pointers, architecture.md, CLAUDE.md, the cycles README        
 
 ## The dependency the design turns on
 
-Settlement is deferred. The finds of a running shift live in `found` on the action, not
-in the inventory, until `finished()` commits them. The planner's `isFulfilled` reads the
-inventory, so it cannot stop a shift halfway. Two ways out: move each find into the
-inventory as it happens, or hand the count to the action. CQR-61 rejected the first for
-good reasons that still hold. A per-find transaction multiplies settlements, and topping
-up an open transaction's goods map works only through the mutated-map coupling the brief
-flagged. So the count travels. The resolver knows it, the step carries it, the adventurer
-passes it, the action checks it.
+Settlement is deferred, so the finds of a running shift live in `found` on the action,
+not in the inventory, and the planner's `isFulfilled` cannot stop a shift halfway. The
+count therefore travels to the action, instead of the finds travelling to the inventory
+per tick. The reasons are in [`request.md`](./request.md), "The shape of the change".
 
 ## The count, end to end
 
@@ -97,25 +93,10 @@ framework.
 
 ## Determinism and the trace
 
-A capped shift makes fewer rolls, so the stream moves from the first capped shift on. The
-request's seed-7 finds go stale. R6.2 re-records them as an as-built note in
-`requirements.md`; CQR-61 R10.1 keeps its numbers with a pointer here. Two runs of the
-same script still diff clean, which is the property ADR 0005 promises.
+A capped shift makes fewer rolls, so the stream moves from the first capped shift on.
+R6.2 re-records the seed-7 finds; CQR-61 R10.1 keeps its numbers with a pointer here.
 
 ## Import hygiene
 
-`common.ts` gains a number on a type. `objectives.ts` sets it from data it already holds.
-`ForageAction` gains a constructor parameter and reads `this.adventurer.inventory`, which
-it already can. `Adventurer.ts` passes a field it already receives. The test lives under
-`src/game/` and imports engine modules from there. No `modules/` file imports the engine.
-No new edge in the cycle ADR 0006 warns about.
-
-## Docs
-
-- CQR-61 R4.2, R7.3 and R10.1: an as-built note each, pointing here.
-- `.specs/architecture.md`: the `ForageAction` summary reads "per-tick roll, deferred
-  settlement, night stall, ends early at the quest quantity".
-- `CLAUDE.md`, the `npm test` line, a proposed wording: "Tests sit only at agreed seams:
-  pure functions such as the view-model mappers, and engine actions ticked directly
-  under a pinned seed."
-- The cycles README: status implemented, with the new seed-7 finds.
+No file gains an import edge: a number on a type, a field set from data the resolver
+already holds, a constructor argument passed through, and a test under `src/game/`.

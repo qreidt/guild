@@ -37,10 +37,7 @@ of the item the claimant is to hold, at which the shift may stop.
 **R1.2** WHEN the gather resolver plans a forage step THEN it sets `until` to
 `objective.quantity`.
 
-**R1.3** The step stays a serializable descriptor with no behavior, per ADR 0006. No
-resolver imports the engine.
-
-**R1.4** `Adventurer.chooseNextAction()` passes `next.until` to the `ForageAction`
+**R1.3** `Adventurer.chooseNextAction()` passes `next.until` to the `ForageAction`
 constructor. It learns no objective kind, per CQR-61 R4.3.
 
 ## R2 — The shift finishes at the count
@@ -64,30 +61,21 @@ tick, run no check.
 
 **R2.6** The base `Action` class does not change.
 
-**R2.7** The finish log line keeps its form: "[name] searched the [location] and found
-N × item."
-
 ## R3 — What does not change
 
 **R3.1** Settlement stays deferred: no transaction at start, one transaction created and
 committed in `finished()`, whatever the finish tick. Finds are never moved into the
 inventory per tick.
 
-**R3.2** The additive find chance, its cap, the night penalty and the night stall are
-unchanged, per CQR-61 R7.4 and R8.
+**R3.2** Nothing else in the action, the planner, travel or delivery changes. `fulfil`
+still moves exactly the objective quantity.
 
-**R3.3** Travel and delivery are unchanged. `fulfil` still moves exactly the objective
-quantity, per CQR-61 R2.2 and ADR 0003.
-
-**R3.4** WHEN the adventurer already holds the quantity when they claim THEN the planner
-asks for no forage, as today.
-
-**R3.5** The view-model and the components do not change. A finished shift maps to
+**R3.3** The view-model and the components do not change. A finished shift maps to
 progress `1` and status `'finished'` through the existing `activity()` function. Before
 the finish, the bar shows the shift's own progress, for example 17% then 33%, and then
 100%. Accepted in the round.
 
-**R3.6** Same seed, same code, same run, per ADR 0005. Runs recorded before this cycle
+**R3.4** Same seed, same code, same run, per ADR 0005. Runs recorded before this cycle
 are not reproduced: a capped shift makes fewer rolls, so every later roll moves.
 
 ## R4 — The engine test
@@ -107,9 +95,7 @@ it in a comment.
 done after five ticks, is done after the sixth, and that the inventory count is
 8 plus `found`.
 
-**R4.4** The test ticks the action directly and never the game controller. The
-controller starts no timer at import; `isNight()` returns false; each `new Adventurer()`
-gets its own inventory account, so cases share no stock.
+**R4.4** The test ticks the action directly and never the game controller.
 
 **R4.5** `CLAUDE.md`, the `npm test` line, records the new seam: engine actions ticked
 directly under a pinned seed, beside the pure view-model mappers.
@@ -127,8 +113,6 @@ quest quantity".
 **R5.4** `.specs/.cycles/README.md` marks the cycle implemented and quotes the new
 seed-7 finds.
 
-**R5.5** `CONTEXT.md` gained **Shift** in the round and needs no further change. No ADR.
-
 ## R6 — Verification
 
 **R6.1** `npx vue-tsc -b --force` is clean. `npm test` passes, including R4.
@@ -137,9 +121,3 @@ seed-7 finds.
 `Fulfilled`, each delivery paid 45g, and the roster reads `carrying: (nothing)`. The finds
 per shift are recorded here as an as-built note, replacing the request's `2 + 4 + 1 + 4`
 and `4 + 2 + 2 + 4`.
-
-**R6.3** The early finish is visible: step with `tick 1` through the last shift of
-`quest:1` and print `adventurers` after each tick. The `Forage` row reaches 100% from a
-value below 83%. A full shift reaches 100% only from 83%.
-
-**R6.4** Determinism: two runs of the R6.2 script diff clean, per CQR-61 R10.2.
