@@ -87,7 +87,7 @@ const gatherResolver: ObjectiveResolver<GatherObjective> = {
     plan: (objective, quest, claimant) => {
         if (!gatherResolver.isFulfilled(objective, claimant)) {
             return claimant.location === objective.location
-                ? { step: 'forage', item: objective.item, at: objective.location }
+                ? { step: 'forage', item: objective.item, at: objective.location, until: objective.quantity }
                 : { step: 'travel', to: objective.location };
         }
 

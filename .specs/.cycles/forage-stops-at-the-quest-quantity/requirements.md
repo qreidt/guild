@@ -5,7 +5,8 @@
 > named by slug, per the [cycles README](../README.md). No steering docs exist, so
 > "Alignment" references the canonical `.specs/` docs, `CONTEXT.md` and the ADRs.
 >
-> **Status: not started.** Branch `fix/max-garthering`.
+> **Status: implemented** on 2026-09-13, branch `fix/max-garthering`, uncommitted at
+> hand-over.
 
 ## Introduction
 
@@ -105,8 +106,8 @@ directly under a pinned seed, beside the pure view-model mappers.
 **R5.1** CQR-61 R4.2, R7.3 and R10.1 each gain an as-built note that points to this
 cycle's R1.2, R2.2 and R6.2. Their text is not rewritten.
 
-**R5.2** `.specs/architecture.md`, the `ForageAction` summary, gains "ends early at the
-quest quantity".
+**R5.2** `.specs/architecture.md`, the `ForageAction` summary, gains "finishes early at
+the quest quantity".
 
 **R5.3** `CLAUDE.md` gains the seam of R4.5.
 
@@ -121,3 +122,9 @@ seed-7 finds.
 `Fulfilled`, each delivery paid 45g, and the roster reads `carrying: (nothing)`. The finds
 per shift are recorded here as an as-built note, replacing the request's `2 + 4 + 1 + 4`
 and `4 + 2 + 2 + 4`.
+
+> _As-built, 2026-09-13:_ at `seed 7`, `tick 130`, `quest:1` forages `2 + 4 + 1 + 3 = 10`
+> Bloodroot and `quest:2` forages `4 + 3 + 2 + 1 = 10` Manabloom. Before this cycle the
+> same seed gave `2 + 4 + 1 + 4 = 11` and `4 + 2 + 2 + 4 = 12`. Both quests `Fulfilled`,
+> 45g each, Wren holds 190g and `carrying: (nothing)`. The stream moved from the first
+> capped shift on, as R3.4 says: the second quest's shifts changed shape entirely.

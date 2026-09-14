@@ -136,6 +136,11 @@ never precomputed as a fixed plan.
 objective not satisfied → forage (repeatable); not back where the poster is →
 travel there; otherwise → deliver. A settled quest yields "nothing left to do".
 
+> _Amended by
+> [forage-stops-at-the-quest-quantity](../forage-stops-at-the-quest-quantity/requirements.md)
+> R1.2:_ the forage step now carries `until`, the objective quantity, so the shift
+> finishes early, in the tick that quantity is held.
+
 **R4.3** The adventurer stays ignorant of objective kinds.
 
 > _Amended at review:_ the `deliver` step originally carried `to: BuildingID`,
@@ -213,6 +218,11 @@ derived from 3D geometry.
 
 **R7.3** **Forage** runs a fixed-length shift and rolls **once per tick**; each
 success yields one unit.
+
+> _Amended by
+> [forage-stops-at-the-quest-quantity](../forage-stops-at-the-quest-quantity/requirements.md)
+> R2.2:_ the shift length is now a fixed **maximum**. A shift that carries `until`
+> finishes early, in the tick the inventory count plus the shift's finds reach it.
 
 **R7.4** The find chance is **additive**: a non-zero base from the location's
 forage table plus bonuses from herbalism proficiency and perception. Never
@@ -303,6 +313,12 @@ and `inventory` work unchanged.
 
 **R10.1 Full loop.** Pin the seed, run until the Apothecary's herbs are
 exhausted, and confirm the whole cycle.
+
+> _Amended by
+> [forage-stops-at-the-quest-quantity](../forage-stops-at-the-quest-quantity/requirements.md)
+> R6.2:_ the seed-7 finds in the as-built note below predate that cycle. Since it, the
+> same seed reads `2 + 4 + 1 + 3` Bloodroot and `4 + 3 + 2 + 1` Manabloom, 10 each,
+> and Wren carries nothing home.
 
 **R10.2 Reproducibility.** The same seed and tick count produce identical
 results.

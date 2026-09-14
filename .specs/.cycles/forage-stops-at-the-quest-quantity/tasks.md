@@ -8,7 +8,7 @@
 > and `finished()` stays the single place a shift settles (plan.md, "The count, end to
 > end").
 
-- [ ] 1. The count travels: step, resolver, pass-through, check
+- [x] 1. The count travels: step, resolver, pass-through, check
   - Files: `src/modules/quests/common.ts`, `src/modules/quests/objectives.ts`,
     `src/game/adventurer/Adventurer.ts`, `src/game/adventurer/actions/ForageAction.ts`
     (modify)
@@ -23,7 +23,7 @@
     `afterTick()`; `InventoryAccountService.getCount()`; the existing `found` counter_
   - _Requirements: R1.1–R1.3, R2.1–R2.6, R3.1–R3.4_
 
-- [ ] 2. The engine test and the seam rule
+- [x] 2. The engine test and the seam rule
   - Files: `src/game/adventurer/actions/ForageAction.test.ts` (new), `CLAUDE.md`
     (modify)
   - Two cases, per R4.2 and R4.3, in the shape of `environment-view.test.ts`. Pin the
@@ -36,7 +36,7 @@
     usage; `setWorldSeed()` in `src/modules/random/random.ts`_
   - _Requirements: R4.1–R4.5, R5.3, R6.1_
 
-- [ ] 3. Docs, pointers and the recorded trace
+- [x] 3. Docs, pointers and the recorded trace
   - Files: `.specs/.cycles/cqr-61-basic-adventurer/requirements.md`,
     `.specs/architecture.md`, `.specs/.cycles/README.md`, this cycle's
     `requirements.md` (modify)

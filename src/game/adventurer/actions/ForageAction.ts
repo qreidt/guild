@@ -65,7 +65,9 @@ export function forageFindChance(
 }
 
 /**
- * Searching a location for one item, over a fixed shift.
+ * Searching a location for one item, over a shift of fixed maximum length. A shift
+ * that carries `until` finishes early, in the tick the inventory count plus this
+ * shift's finds reach it, so a gather quest never over-gathers.
  *
  * **Rolls once per tick**, so progress is smooth and visible rather than a
  * single verdict at the end, and a shift that comes up short simply leads to
@@ -96,6 +98,11 @@ export class ForageAction extends Action {
         private readonly adventurer: Adventurer,
         public readonly item: ItemID,
         public readonly location: Location,
+        /**
+         * The total count to hold. The shift finishes early when it is reached.
+         * Without it, the shift runs its full length.
+         */
+        public readonly until?: number,
     ) {
         super();
         this.output_destination = adventurer.gid;
@@ -120,6 +127,18 @@ export class ForageAction extends Action {
 
         if (this.adventurer.random.chance(chance)) {
             this.found++;
+
+            // The inventory count plus this shift's finds reach `until`: the shift
+            // finishes now. The base class finishes an action on `ticks_remaining <= 0`
+            // right after this hook.
+            // ponytail: sets the base counter directly; add Action.finishNow() when a
+            // second action needs an early finish.
+            if (
+                this.until !== undefined &&
+                this.adventurer.inventory.getCount(this.item) + this.found >= this.until
+            ) {
+                this.ticks_remaining = 0;
+            }
         }
     }
 
