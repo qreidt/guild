@@ -33,7 +33,7 @@ The application is a client-only SPA.
 - `game/city/City.ts`: root city aggregate
 - `game/city/buildings/**`: concrete building implementations, workers, and actions
 - `game/adventurer/Adventurer.ts`: the adventurer — rank, class, attributes, proficiencies, equipment, wallet, inventory, and the claim → travel → forage → deliver loop. Maps an `ObjectiveStep` to an `Action` and knows no objective kind by name
-- `game/adventurer/actions/**`: `TravelAction` (table cost), `ForageAction` (per-tick roll, deferred settlement, night stall), `DeliverAction` (settles the quest). All extend the building `Action` base
+- `game/adventurer/actions/**`: `TravelAction` (table cost), `ForageAction` (per-tick roll, deferred settlement, night stall, finishes early at the quest quantity), `DeliverAction` (settles the quest). All extend the building `Action` base
 
 ### Items module
 

@@ -102,8 +102,12 @@ export interface QuestClaimant {
 export type ObjectiveStep =
     /** Go somewhere. The only step whose cost is a distance. */
     | { step: 'travel'; to: Location }
-    /** Search where you stand for one item. Repeatable; may find nothing. */
-    | { step: 'forage'; item: ItemID; at: Location }
+    /**
+     * Search where you stand for one item. Repeatable; may find nothing. `until` is
+     * the total count to hold; the shift finishes early when it is reached. Without
+     * it, the shift runs its full length.
+     */
+    | { step: 'forage'; item: ItemID; at: Location; until?: number }
     /**
      * Hand the objective's goods to the poster and settle the quest. Carries no
      * payload: settlement is by quest, and the caller already has the quest in

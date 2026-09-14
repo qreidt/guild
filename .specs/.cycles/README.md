@@ -89,3 +89,15 @@ existed. To track a future cycle with the server, author that cycle under
   **Status: refined** on 2026-09-12, branch `fix/show-completed-state`. The decisions are
   in [refined-brief.md](./show-completed-action-state/refined-brief.md). The hand-off
   timing is ADR 0007.
+- No Linear issue yet, folder
+  [forage-stops-at-the-quest-quantity/](./forage-stops-at-the-quest-quantity/).
+  Forage stops at the quest quantity. The last forage shift of a gather quest runs its
+  full six ticks after the adventurer already holds the quantity, so they carry a
+  surplus home. At `seed 7`, Wren ends two quests for 10 with 11 and 12. The request:
+  end the shift when the quantity is held, when the forage serves a gather quest.
+  **Status: implemented** on 2026-09-13, branch `fix/max-garthering`. All 3 tasks
+  complete. The forage step carries `until`, the shift finishes in the tick the count is
+  held, and `ForageAction.test.ts` is the first engine test. At `seed 7` Wren now
+  forages `2 + 4 + 1 + 3` Bloodroot and `4 + 3 + 2 + 1` Manabloom, 10 each, and carries
+  nothing home. The decisions of the grilling round are folded into
+  [request.md](./forage-stops-at-the-quest-quantity/request.md).

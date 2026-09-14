@@ -212,7 +212,7 @@ export class Adventurer {
                 return new TravelAction(this, next.to);
 
             case 'forage':
-                return new ForageAction(this, next.item, next.at);
+                return new ForageAction(this, next.item, next.at, next.until);
 
             case 'deliver':
                 return new DeliverAction(this, quest.id);
