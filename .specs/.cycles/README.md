@@ -107,7 +107,8 @@ existed. To track a future cycle with the server, author that cycle under
   makes for townsfolk — soap, syrup, tea, a bandage, a balm, a draught, an ointment —
   each built on an ingredient adventurers gather, so the board has more to ask for than
   Bloodroot and Manabloom.
-  **Status: implemented** on 2026-10-24, branch `CQR-118`. All 6 tasks complete. Two
+  **Status: implemented** on 2026-10-24, branch
+  `feat/add-everyday-apothecary-items-ingredients-and-recipes`. All 6 tasks complete. Two
   refinement rounds and 9 decisions are folded into
   [request.md](./cqr-118-everyday-apothecary-items/request.md). 15 items, 8 forage-table
   entries, 7 make actions and a sell action, and per-recipe quest quantities and rewards

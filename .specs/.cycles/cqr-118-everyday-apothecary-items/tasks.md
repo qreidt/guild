@@ -14,7 +14,8 @@
 >
 > ---
 >
-> **All 6 tasks complete (2026-10-24, branch `CQR-118`).** `npx vue-tsc -b --force`
+> **All 6 tasks complete (2026-10-24, branch
+> `feat/add-everyday-apothecary-items-ingredients-and-recipes`).** `npx vue-tsc -b --force`
 > clean, `npm run build` clean, `npm test` 11/11. At `seed 1`, `tick 300` the
 > Apothecary's money rose 1000 → 1139 on twelve sales totalling 490g, all seven
 > products made and sold, potions untouched. R6.7 was verified by disabling the guard
