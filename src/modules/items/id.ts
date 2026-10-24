@@ -63,6 +63,25 @@ export enum ItemID {
     Emberheart = 'Emberheart',
     Kingsroot = 'Kingsroot',
 
+    // Everyday ingredients
+    Kelp = 'Kelp',
+    Mint = 'Mint',
+    CarrageenMoss = 'CarrageenMoss',
+    WillowBark = 'WillowBark',
+    SphagnumMoss = 'SphagnumMoss',
+    PineResin = 'PineResin',
+    ValerianRoot = 'ValerianRoot',
+    Sulfur = 'Sulfur',
+
+    // Everyday goods
+    KelpSoap = 'KelpSoap',
+    CoughSyrup = 'CoughSyrup',
+    WillowBarkTea = 'WillowBarkTea',
+    MossBandage = 'MossBandage',
+    PineBalm = 'PineBalm',
+    SleepingDraught = 'SleepingDraught',
+    SulfurOintment = 'SulfurOintment',
+
     // Potions
     HealthPotion = 'HealthPotion',
     ManaPotion = 'ManaPotion',

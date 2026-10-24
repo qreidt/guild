@@ -72,6 +72,25 @@ export const ItemRegistry: Record<ItemID, IItem> = {
     [ItemID.Emberheart]: Goods.Emberheart,
     [ItemID.Kingsroot]: Goods.Kingsroot,
 
+    // Everyday ingredients
+    [ItemID.Kelp]: Goods.Kelp,
+    [ItemID.Mint]: Goods.Mint,
+    [ItemID.CarrageenMoss]: Goods.CarrageenMoss,
+    [ItemID.WillowBark]: Goods.WillowBark,
+    [ItemID.SphagnumMoss]: Goods.SphagnumMoss,
+    [ItemID.PineResin]: Goods.PineResin,
+    [ItemID.ValerianRoot]: Goods.ValerianRoot,
+    [ItemID.Sulfur]: Goods.Sulfur,
+
+    // Everyday goods
+    [ItemID.KelpSoap]: Goods.KelpSoap,
+    [ItemID.CoughSyrup]: Goods.CoughSyrup,
+    [ItemID.WillowBarkTea]: Goods.WillowBarkTea,
+    [ItemID.MossBandage]: Goods.MossBandage,
+    [ItemID.PineBalm]: Goods.PineBalm,
+    [ItemID.SleepingDraught]: Goods.SleepingDraught,
+    [ItemID.SulfurOintment]: Goods.SulfurOintment,
+
     // Potions
     [ItemID.HealthPotion]: Goods.HealthPotion,
     [ItemID.ManaPotion]: Goods.ManaPotion,

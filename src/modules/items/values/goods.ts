@@ -270,6 +270,133 @@ export class Kingsroot extends Item {
 }
 
 // ---------------------------------------------------------------------------
+// Everyday ingredients — what the Apothecary's townsfolk goods are made from.
+// Deliberately NOT part of the herb catalog above: nothing brews a potion from
+// these. `value` does double duty — it is the market price AND the per-unit
+// reward the Apothecary pays to have one gathered, because the engine has one
+// value field. Tuning one tunes the other. Stackable, all weight 1.
+//
+// Where each one grows is authored as a comment in `FORAGE_TABLE`, not here:
+// every one of them forages from the Forest until a Coast exists.
+// ---------------------------------------------------------------------------
+
+export class Kelp extends Item {
+    static id = ItemID.Kelp;
+    static name = 'Kelp';
+    static value = 1;
+    static weight = 1;
+}
+
+export class Mint extends Item {
+    static id = ItemID.Mint;
+    static name = 'Mint';
+    static value = 1;
+    static weight = 1;
+}
+
+export class CarrageenMoss extends Item {
+    static id = ItemID.CarrageenMoss;
+    static name = 'Carrageen Moss';
+    static value = 2;
+    static weight = 1;
+}
+
+export class WillowBark extends Item {
+    static id = ItemID.WillowBark;
+    static name = 'Willow Bark';
+    static value = 2;
+    static weight = 1;
+}
+
+export class SphagnumMoss extends Item {
+    static id = ItemID.SphagnumMoss;
+    static name = 'Sphagnum Moss';
+    static value = 2;
+    static weight = 1;
+}
+
+export class PineResin extends Item {
+    static id = ItemID.PineResin;
+    static name = 'Pine Resin';
+    static value = 3;
+    static weight = 1;
+}
+
+export class ValerianRoot extends Item {
+    static id = ItemID.ValerianRoot;
+    static name = 'Valerian Root';
+    static value = 4;
+    static weight = 1;
+}
+
+export class Sulfur extends Item {
+    static id = ItemID.Sulfur;
+    static name = 'Sulfur';
+    static value = 5;
+    static weight = 1;
+}
+
+// ---------------------------------------------------------------------------
+// Everyday goods — the Apothecary's townsfolk line, taken to market the moment
+// they are made. `value` IS the sale price; the market prices every trade at
+// `ItemRegistry[item].value`, so there is no second field to set.
+//
+// Sale price is 2× the ingredient cost, except Moss Bandage (3×) and Pine Balm
+// (2.67×). Those two are authored, not slips: the brief gave them a pantry
+// ingredient each — linen and beeswax — which CQR-118 dropped, taking 2g of
+// cost out without changing the price. Tuned later.
+// ---------------------------------------------------------------------------
+
+export class KelpSoap extends Item {
+    static id = ItemID.KelpSoap;
+    static name = 'Kelp Soap';
+    static value = 6;
+    static weight = 1;
+}
+
+export class CoughSyrup extends Item {
+    static id = ItemID.CoughSyrup;
+    static name = 'Cough Syrup';
+    static value = 8;
+    static weight = 1;
+}
+
+export class WillowBarkTea extends Item {
+    static id = ItemID.WillowBarkTea;
+    static name = 'Willow Bark Tea';
+    static value = 10;
+    static weight = 1;
+}
+
+export class MossBandage extends Item {
+    static id = ItemID.MossBandage;
+    static name = 'Moss Bandage';
+    static value = 12;
+    static weight = 1;
+}
+
+export class PineBalm extends Item {
+    static id = ItemID.PineBalm;
+    static name = 'Pine Balm';
+    static value = 16;
+    static weight = 1;
+}
+
+export class SleepingDraught extends Item {
+    static id = ItemID.SleepingDraught;
+    static name = 'Sleeping Draught';
+    static value = 16;
+    static weight = 1;
+}
+
+export class SulfurOintment extends Item {
+    static id = ItemID.SulfurOintment;
+    static name = 'Sulfur Ointment';
+    static value = 20;
+    static weight = 1;
+}
+
+// ---------------------------------------------------------------------------
 // Potions — brewed by the Apothecary. 3 herbs (9g) → 1 potion (20g), the same
 // ~2× markup the LumberMill takes on Lumber → WoodPlank.
 // ---------------------------------------------------------------------------
@@ -296,6 +423,12 @@ export default {
     Gallnut, Mirebloom, Witchhazel, IronbarkMoss, Bloodcap, Foxglove, Moonwort,
     Nightshade, Emberfruit, Amberseed, Frostcap, Ghostcap, Glowspore, Cryptbloom,
     Starbloom, Silverleaf, Heartsap, Emberheart, Kingsroot,
+    // Everyday ingredients
+    Kelp, Mint, CarrageenMoss, WillowBark, SphagnumMoss, PineResin,
+    ValerianRoot, Sulfur,
+    // Everyday goods
+    KelpSoap, CoughSyrup, WillowBarkTea, MossBandage, PineBalm,
+    SleepingDraught, SulfurOintment,
     // Potions
     HealthPotion, ManaPotion,
 };
