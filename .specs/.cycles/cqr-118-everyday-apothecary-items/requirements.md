@@ -217,6 +217,17 @@ with `MIN_QUEST_VALUE = 20`. It is the smallest multiple of the recipe amount wh
 value reaches the floor, so nothing is left over after brewing and the trip is worth
 making.
 
+> _As-built, 2026-10-24:_ the function and the constant live in
+> **`src/modules/quests/sizing.ts`**, not exported from `Apothecary.ts` as `plan.md`
+> said. Importing a building module as a test entry point throws
+> `ReferenceError: Cannot access 'Action' before initialization` from `IronMine.ts:32`:
+> `common/Action.ts`, `common/Building.ts` and `City.ts` form an import cycle, which the
+> app's own entry order happens to resolve and a direct import does not. Sizing a quest
+> is quest policy rather than apothecary policy, so `modules/quests/` is also the better
+> home under the `CLAUDE.md` rule that framework-agnostic logic lives in `src/modules/`.
+> **The cycle is pre-existing and was not fixed here** — it means no test may import a
+> building module directly.
+
 **R7.2** The derived quantities SHALL be:
 
 | Ingredient      | Value | Recipe amount | Quantity | Reward |
@@ -272,10 +283,13 @@ fields it will need exist.
 
 ## R9 — The test
 
-**R9.1** A `node:test` file `src/game/city/buildings/Apothecary.test.ts` SHALL cover
-`gatherQuantityFor`, and `npm test` SHALL run it. This is the agreed pure-function seam
-from `CLAUDE.md`; the rotation and the sell guard are verified by the console trace in
-R11.2, not by a test.
+**R9.1** A `node:test` file SHALL cover `gatherQuantityFor`, and `npm test` SHALL run
+it. This is the agreed pure-function seam from `CLAUDE.md`; the rotation and the sell
+guard are verified by the console trace in R11.2, not by a test.
+
+> _As-built, 2026-10-24:_ the file is **`src/modules/quests/sizing.test.ts`**, beside
+> the function, rather than `Apothecary.test.ts` — see the R7.1 delta. Four cases, 11
+> assertions across the suite, `npm test` green.
 
 **R9.2** Cases SHALL cover every row of the R7.2 table, plus the two potion reagents
 (Bloodroot and Manabloom at value 3, recipe amount 3, giving 9).

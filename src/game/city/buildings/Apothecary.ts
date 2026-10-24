@@ -3,21 +3,31 @@ import {Worker} from "./common/Worker.ts";
 import {Action, WaitAction} from "./common/Action.ts";
 import {InventoryAccountService} from "../../../modules/inventory/inventory.service.ts";
 import {ItemID} from "../../../modules/items/id.ts";
+import {ItemRegistry} from "../../../modules/items/registry.ts";
+import type {GoodLedger} from "../../../modules/inventory/common.ts";
 import questService from "../../../modules/quests/quest.service.ts";
+import {gatherQuantityFor} from "../../../modules/quests/sizing.ts";
 import type {Wallet} from "../../../modules/quests/common.ts";
 import {forageLocationFor} from "../../../modules/world/location.ts";
 
-/** Herbs to ask for per quest, and what the errand pays. */
-const HERB_QUEST_QUANTITY = 10;
-
 /**
- * Author-set, not derived from item value. Deriving it (goods value × a margin)
- * is the better long-term answer and is a drop-in replacement later — the field
- * is a number either way — but a hand-set figure is easier to tune while the
- * system is new. 10 Bloodroot is worth 30g; 45g is what makes the trip worth an
- * adventurer's time.
+ * A recipe — what one batch consumes — read off the action itself.
+ *
+ * Deliberately derived rather than restated on the production row. The row used
+ * to carry a `reagent: ItemID` beside the action with a comment warning the two
+ * could drift — "an action whose reagent is wrong here brews fine and then
+ * never asks for more". Three recipes now take two ingredients, so the field
+ * would have to become a list: a longer thing to keep in step, with the same
+ * failure. Reading the action's own `input` cannot disagree with it.
+ *
+ * ponytail: constructs an action per review pass to read its recipe. If that
+ * ever shows up in a profile, lift the recipe to a static beside the instance
+ * property — NOT by making `input` itself static, which is the footgun
+ * described above `BrewHealthPotionAction`.
  */
-const HERB_QUEST_REWARD = 45;
+function recipeOf(row: ProductionRow): GoodLedger {
+    return new row.action().input!;
+}
 
 /** Post once stock falls below two brews' worth (a recipe consumes 3). */
 const HERB_RESTOCK_THRESHOLD = 6;
@@ -85,34 +95,44 @@ export class Apothecary extends BaseBuilding {
     }
 
     /**
-     * One quest per herb, posted the moment the shelf runs low.
+     * One quest per ingredient, posted the moment the shelf runs low.
      *
-     * Each clause earns its place. Separate quests per herb so a Bloodroot
+     * Each clause earns its place. Separate quests per ingredient so a Bloodroot
      * shortage does not hide behind a Manabloom one. The outstanding-quest check
      * is what stops an identical quest going up every single tick for as long as
      * stock stays low. And the reward leaves the wallet inside `post()`, so a
-     * quest on the board is always funded — when the money runs out (it will,
-     * see ADR 0004) `post()` returns null and the board simply goes quiet.
+     * quest on the board is always funded — when the money runs out `post()`
+     * returns null and the board simply goes quiet.
+     *
+     * Quantity and reward are derived, not authored: the reward is the
+     * ingredient's own value per unit, and the quantity is whatever multiple of
+     * the recipe amount makes the errand worth `MIN_QUEST_VALUE`. A recipe with
+     * two ingredients posts two quests, each sized to its own ingredient.
      */
     protected reviewQuests(): void {
         const stock = this.inventory.getCountByGoodId();
 
-        for (const recipe of PRODUCTION_LIST) {
-            if ((stock.get(recipe.reagent) ?? 0) >= HERB_RESTOCK_THRESHOLD) continue;
+        for (const row of PRODUCTION_LIST) {
+            for (const [reagent, recipe_amount] of recipeOf(row)) {
+                if ((stock.get(reagent) ?? 0) >= HERB_RESTOCK_THRESHOLD) continue;
 
-            if (questService.getOutstandingFor(recipe.reagent, this.id).length > 0) continue;
+                if (questService.getOutstandingFor(reagent, this.id).length > 0) continue;
 
-            // Ask the world where the herb grows rather than hard-coding a
-            // forest, so a herb that moves table stays askable.
-            const location = forageLocationFor(recipe.reagent);
-            if (!location) continue;
+                // Ask the world where it grows rather than hard-coding a
+                // forest, so an ingredient that moves table stays askable.
+                const location = forageLocationFor(reagent);
+                if (!location) continue;
 
-            questService.post(
-                this.id,
-                this.wallet,
-                { kind: 'gather', item: recipe.reagent, quantity: HERB_QUEST_QUANTITY, location },
-                HERB_QUEST_REWARD,
-            );
+                const unit_value = ItemRegistry[reagent].value;
+                const quantity = gatherQuantityFor(unit_value, recipe_amount);
+
+                questService.post(
+                    this.id,
+                    this.wallet,
+                    { kind: 'gather', item: reagent, quantity, location },
+                    unit_value * quantity,
+                );
+            }
         }
     }
 
@@ -155,25 +175,30 @@ class BrewManaPotionAction extends Action {
 }
 
 /**
- * Everything the Apothecary makes, in priority order — and the herb each recipe
- * eats. One table so the brew loop and the quest loop can never disagree about
- * what this building needs: `chooseNextAction` reads `product`/`desired_amount`,
- * `reviewQuests` reads `reagent`.
- *
- * `reagent` restates the action's `input` key. Keep them in step: an action
- * whose reagent is wrong here brews fine and then never asks for more.
+ * One row of what the Apothecary makes. `action` is the class, not an instance:
+ * the recipe is read off a fresh one, never restated here.
  */
-const PRODUCTION_LIST = [
+interface ProductionRow {
+    product: ItemID;
+    desired_amount: number;
+    action: new () => Action;
+}
+
+/**
+ * Everything the Apothecary makes, in priority order. One table so the
+ * production loop and the quest loop can never disagree about what this
+ * building needs: `chooseNextAction` reads `product`/`desired_amount`, and
+ * `reviewQuests` reads the ingredients off `action` through `reagentsOf`.
+ */
+const PRODUCTION_LIST: ProductionRow[] = [
     {
         product: ItemID.HealthPotion,
         desired_amount: 3,
         action: BrewHealthPotionAction,
-        reagent: ItemID.Bloodroot,
     },
     {
         product: ItemID.ManaPotion,
         desired_amount: 3,
         action: BrewManaPotionAction,
-        reagent: ItemID.Manabloom,
     },
 ];
