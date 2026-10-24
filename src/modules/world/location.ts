@@ -98,6 +98,23 @@ export const FORAGE_TABLE: Record<Location, Partial<Record<ItemID, number>>> = {
         [ItemID.Sourberry]: 0.3,
         [ItemID.Copperfern]: 0.25,
         [ItemID.Duskbloom]: 0.2,
+
+        // The Apothecary's everyday ingredients (CQR-118). Every one of them
+        // is authored as growing somewhere else — the comments below are the
+        // brief's own locations — but the world has only Town and Forest, so
+        // they all forage here. The names are kept so that the day a Coast and
+        // a Mountains exist, moving these rows is a cut and paste and nothing
+        // else in the game has to know.
+        //
+        // Chances follow the same value-inverse ladder as the herbs above.
+        [ItemID.Kelp]: 0.6,            // Beach
+        [ItemID.Mint]: 0.6,            // Forest streams
+        [ItemID.CarrageenMoss]: 0.55,  // Shore rocks
+        [ItemID.WillowBark]: 0.55,     // Forest streams
+        [ItemID.SphagnumMoss]: 0.55,   // Damp forest ground
+        [ItemID.PineResin]: 0.45,      // Forest
+        [ItemID.ValerianRoot]: 0.3,    // Damp woods
+        [ItemID.Sulfur]: 0.2,          // Mountain springs
     },
 };
 
