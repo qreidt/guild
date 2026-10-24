@@ -1,0 +1,30 @@
+wing: guild
+rooms:
+- name: public
+  description: Files from public/
+  keywords:
+  - public
+  - public
+- name: src
+  description: Files from src/
+  keywords:
+  - src
+  - src
+- name: planning
+  description: Files from specs/
+  keywords:
+  - planning
+  - specs
+- name: design
+  description: Files from assets/
+  keywords:
+  - design
+  - assets
+- name: frontend
+  description: Files from components/
+  keywords:
+  - frontend
+  - components
+- name: general
+  description: Files that don't fit other rooms
+  keywords: []

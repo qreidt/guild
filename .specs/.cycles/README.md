@@ -101,3 +101,24 @@ existed. To track a future cycle with the server, author that cycle under
   forages `2 + 4 + 1 + 3` Bloodroot and `4 + 3 + 2 + 1` Manabloom, 10 each, and carries
   nothing home. The decisions of the grilling round are folded into
   [request.md](./forage-stops-at-the-quest-quantity/request.md).
+- [CQR-118](https://linear.app/cqr/issue/CQR-118/add-everyday-apothecary-items-ingredients-and-recipes),
+  folder [cqr-118-everyday-apothecary-items/](./cqr-118-everyday-apothecary-items/).
+  Everyday apothecary items, ingredients and recipes. Seven cheap items the Apothecary
+  makes for townsfolk — soap, syrup, tea, a bandage, a balm, a draught, an ointment —
+  each built on an ingredient adventurers gather, so the board has more to ask for than
+  Bloodroot and Manabloom.
+  **Status: specified** on 2026-10-23, 6 tasks, not yet built. Two refinement rounds and
+  9 decisions are folded into
+  [request.md](./cqr-118-everyday-apothecary-items/request.md). 15 items, 8 forage-table
+  entries, 7 make actions and a sell action, and per-recipe quest quantities and rewards
+  derived from a 20g floor. Locations stay documentation only and the pantry ingredients
+  were dropped, so no new `Location` and no new machinery. Products are sold the moment
+  they are made, which puts the Apothecary's first income line in this cycle and means
+  ADR 0004 is amended here — for everyday goods only; selling potions stays forbidden.
+  Three things carry the design and each is a silent failure if missed:
+  `desired_amount` stays at 1 because it is the rotation, the sell check runs after the
+  production scan and not before it, and a second concurrent sell throws out of
+  `handleTick` and kills the tick loop. Deriving quest quantities uniformly also moves
+  the potion quests from 10 Bloodroot at 45g to 9 at 27g. The Linear ticket's tables are
+  a lossy copy of the handoff and still need correcting. How the Apothecary decides when
+  to post is deferred to a sibling issue.
