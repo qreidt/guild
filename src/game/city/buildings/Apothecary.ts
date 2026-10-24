@@ -1,6 +1,7 @@
 import {BaseBuilding, BuildingID} from "./common/Building.ts";
 import {Worker} from "./common/Worker.ts";
-import {Action, WaitAction} from "./common/Action.ts";
+import {Action, TransportAction, WaitAction} from "./common/Action.ts";
+import type {Worker as BuildingWorker} from "./common/Worker.ts";
 import {InventoryAccountService} from "../../../modules/inventory/inventory.service.ts";
 import {ItemID} from "../../../modules/items/id.ts";
 import {ItemRegistry} from "../../../modules/items/registry.ts";
@@ -90,6 +91,15 @@ export class Apothecary extends BaseBuilding {
         ];
     }
 
+    /**
+     * Make what is missing; otherwise take the shelf to market; otherwise wait.
+     *
+     * **The order matters.** The sale is the fall-through, not the first check.
+     * The LumberMill sells first, and copying that here would empty the shelf
+     * between every batch — every row would be under target again on the next
+     * pass, the first one would win, and the rotation that `desired_amount`
+     * buys would be undone.
+     */
     protected chooseNextAction(): Action {
         const list = this.inventory.getCountByGoodId();
 
@@ -110,7 +120,35 @@ export class Apothecary extends BaseBuilding {
             return action;
         }
 
+        // Nothing left to make. One seller at a time, and only this one kind of
+        // action needs the rule: a brew debits its ingredients at start(), but
+        // TransportAction deliberately does not, so two sellers would snapshot
+        // the same shelf. The first sale empties it and the second throws
+        // InsufficientGoodsError out of takeGoods — which TransportAction does
+        // NOT catch, it only handles MarketInsufficientFundsError — and that
+        // kills the tick loop. Both workers reach this line together on every
+        // round, so it is the common case, not a corner.
+        //
+        // Sound because handleTick assigns and starts each worker before
+        // choosing for the next, so the second worker sees the first's action.
+        if (this.workers.some(isSelling)) return new WaitAction();
+
+        const shelf = this.everydayShelf(list);
+        if (shelf.size > 0) return new SellEverydayGoodsAction(shelf);
+
         return new WaitAction();
+    }
+
+    /** What is on the everyday shelf right now. Never potions — see EVERYDAY_GOODS. */
+    private everydayShelf(stock: GoodLedger): GoodLedger {
+        const shelf: GoodLedger = new Map();
+
+        for (const item of EVERYDAY_GOODS) {
+            const amount = stock.get(item) ?? 0;
+            if (amount > 0) shelf.set(item, amount);
+        }
+
+        return shelf;
     }
 
     /**
@@ -339,8 +377,16 @@ const PRODUCTION_LIST: ProductionRow[] = [
     { product: ItemID.SulfurOintment, desired_amount: 1, action: MakeSulfurOintmentAction },
 ];
 
-/** The everyday line, in list order — what the sell action takes to market. */
-export const EVERYDAY_GOODS: readonly ItemID[] = [
+/**
+ * The everyday line — what the sell action takes to market.
+ *
+ * An explicit list, never "everything stackable on the shelf". ADR 0004
+ * forbids selling **potions** to the market and is not amended on that point:
+ * the Apothecary's potion revenue is meant to be adventurers buying them here
+ * directly. A snapshot of the whole inventory would breach that silently, and
+ * would also cart the ingredients off to be sold.
+ */
+const EVERYDAY_GOODS: readonly ItemID[] = [
     ItemID.KelpSoap,
     ItemID.CoughSyrup,
     ItemID.WillowBarkTea,
@@ -349,3 +395,40 @@ export const EVERYDAY_GOODS: readonly ItemID[] = [
     ItemID.SleepingDraught,
     ItemID.SulfurOintment,
 ];
+
+/** Is this worker already on a market run? */
+function isSelling(worker: BuildingWorker): boolean {
+    return worker.active_action instanceof SellEverydayGoodsAction
+        && !worker.active_action.isDone();
+}
+
+/**
+ * One trip to market with the whole everyday shelf.
+ *
+ * `TransportAction` moves nothing at `start()` — the goods stay here until
+ * `finished()` hands them to `marketService.sell()`. That is what makes two of
+ * these in flight at once fatal rather than merely wasteful; see the guard in
+ * `chooseNextAction`.
+ */
+class SellEverydayGoodsAction extends TransportAction {
+    static name = 'SellEverydayGoods';
+    static building_id = BuildingID.Apothecary;
+
+    total_ticks = 4; // 2 hours — the Market is inside the walls
+
+    input_origin = BuildingID.Apothecary;
+
+    constructor(shelf: GoodLedger) {
+        super();
+        this.input = shelf;
+    }
+
+    protected started() {
+        console.debug(`Apothecary sent ${this.input!.size} everyday lines to market.`);
+    }
+
+    protected finished() {
+        super.finished();
+        console.debug(`Apothecary sold its everyday goods for ${this.value} g.`);
+    }
+}
