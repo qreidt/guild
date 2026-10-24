@@ -335,3 +335,32 @@ time that has been true — and that the tick loop survived concurrent sells (R6
 
 **R11.3** The dev server renders the Apothecary interior with no console errors, and the
 everyday products appear in its inventory panel and then leave it.
+
+> _As-built, 2026-10-24:_ `npx vue-tsc -b --force` clean, `npm run build` clean,
+> `npm test` 11/11.
+>
+> **`seed 1`, `tick 300`.** The Apothecary's money rose **1000 → 1139**, the first time
+> it has ever gained any, net of every quest it funded. Twelve sales totalling **490g**;
+> the first was the full shelf at **176g**, which is exactly 2 × (6+8+10+12+16+16+20).
+> All seven products were made and sold — the shelf reads 0 across the everyday line at
+> the end, with both workers back on Kelp Soap — so the rotation turned and kept turning
+> (R5.5). Potions sat untouched at 3 and 3 throughout (R6.3, R8.3).
+>
+> At `tick 60` the board carried all ten quests at exactly the R7.2 quantities: 21 Kelp
+> 21g, 20 Mint 20g, 10 Carrageen Moss 20g, 10 Willow Bark 20g, 10 Sphagnum Moss 20g, 8
+> Pine Resin 24g, 6 Valerian Root 24g, 4 Sulfur 20g, 9 Bloodroot 27g, 9 Manabloom 27g.
+> The R7.6 potion delta is visible there: 9 at 27g, not 10 at 45g.
+>
+> **R6.7 was verified by breaking it.** With the one-seller guard disabled, the same run
+> throws `Insufficient contents to perform the transaction. Origin: Apothecary,
+> Destination: market`. With it, 300 ticks and twelve sales pass clean. The guard is
+> load-bearing, not defensive.
+>
+> R7.7's mint surplus is real and visible: 15 Mint on the shelf at tick 200, since a
+> quest brings 20 and a tea takes 1.
+>
+> **R11.3, dev server, tick 89.** The Apothecary interior renders the full catalog with
+> its display names and no console errors. All seven products reached the shelf at ×2,
+> then left it: money went **777 → 953** in one step, which is the 176g full-shelf sale
+> to the gold piece. The guard is visible in the worker rows — `Herbalist 1
+> SellEverydayGoods`, `Herbalist 2 Wait` — rather than two sellers and a dead clock.

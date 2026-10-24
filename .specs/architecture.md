@@ -40,7 +40,7 @@ The application is a client-only SPA.
 - `modules/items/id.ts`: `ItemID` enum covering all goods, weapons, and armor
 - `modules/items/item.ts`: abstract base classes — `Item`, `ItemInstance`, `EquippableItem`
 - `modules/items/registry.ts`: `ItemRegistry` mapping every `ItemID` to its class constructor
-- `modules/items/values/goods.ts`: stackable goods (Lumber, WoodPlank, IronOre, IronIngot)
+- `modules/items/values/goods.ts`: stackable goods, in four authored sections — raw and worked materials (Lumber, WoodPlank, IronOre, IronIngot), the Apothecary's herb catalog, its everyday ingredients and everyday goods, and potions
 - `modules/items/values/weapons.ts`: weapon classes, `WeaponType`, `WeaponID`, `WeaponRegistry`
 - `modules/items/values/armor.ts`: armor classes, `ArmorType`, `ArmorID`, `ArmorRegistry`
 
@@ -49,6 +49,7 @@ The application is a client-only SPA.
 - `modules/quests/common.ts`: `QuestStatus`, the `Objective` union, `Quest`, `QuestClaimant`, the `ObjectiveStep` union, and the board's errors — all plain, serializable shapes
 - `modules/quests/objectives.ts`: the resolver registry keyed by objective `kind`, mirroring `ItemRegistry`. The one place that reads an objective — both halves, fulfilment and planning
 - `modules/quests/quest.service.ts`: the public quest board — post (escrowing the reward), claim, fulfil (which moves the goods *and* pays), and the board queries. A reactive singleton, like `marketService`
+- `modules/quests/sizing.ts`: how big a gather quest should be — a minimum value per quest, and the quantity derived from it as a whole number of recipe batches. Pure policy over numbers. It sits here rather than on the posting building because a building module cannot be imported on its own: `common/Action.ts`, `common/Building.ts` and `City.ts` form an import cycle
 
 ### Adventurers module
 
@@ -60,7 +61,7 @@ The application is a client-only SPA.
 
 ### World module
 
-- `modules/world/location.ts`: the `Location` enum, travel costs (`TRAVEL_COST` authors one-way legs *from the town*; `travelCost` derives the rest), `buildingLocation`, and the forage table (difficulty per location/item pair). `Zone` is reserved and unmodelled
+- `modules/world/location.ts`: the `Location` enum, travel costs (`TRAVEL_COST` authors one-way legs *from the town*; `travelCost` derives the rest), `buildingLocation`, and the forage table (difficulty per location/item pair), which now feeds the Apothecary's everyday production as well as its potions. Only `Town` and `Forest` exist, so everything forages from the Forest; the authored spot for each item — Beach, Shore rocks, Mountain springs — is a comment on its forage row, waiting for a world that has those places. `Zone` is reserved and unmodelled
 
 ### Inventory/accounting layer
 
@@ -158,6 +159,8 @@ This keeps the prototype simple, but it tightly couples the UI to mutable single
 - `validateLedger` in `InventoryRepository` uses `forEach` with an early `return false` inside the callback, which exits only the callback — validation always returns `true`. Economy integrity is not enforced until this is fixed.
 - Equipment stats (damage, armor value, weight, value) are uniform placeholders across all item classes; differentiation by tier is needed before combat or crafting comparisons are meaningful.
 - `damage_value` and `armor_value` are computed once in the constructor and never updated; they should be getters so they reflect wear changes over time.
+- `common/Action.ts`, `common/Building.ts` and `City.ts` form an import cycle. The app's own entry order resolves it, but entering the graph at a building module throws `ReferenceError: Cannot access 'Action' before initialization` from `IronMine.ts`. **No test can import a building directly**, so building logic worth testing has to be lifted into `modules/` first — as CQR-118 did with `quests/sizing.ts`.
+- `TransportAction` does not debit its goods at `start()`, so two concurrent sellers from one building snapshot the same stock and the second throws `InsufficientGoodsError` out of `takeGoods` — uncaught, killing the tick loop. The Apothecary guards against this; the LumberMill is only safe because its second worker is commented out. A building that gains a second worker and a sales line inherits the bug.
 
 ## Intended evolution
 

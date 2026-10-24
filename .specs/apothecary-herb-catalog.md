@@ -129,3 +129,16 @@ Also settled by that cycle: the roadmap's "Alchemist's Lab" line now reads
   it holds 3 of each.
 - Adventurer delivery of ingredients (supply is seeded: `Bloodroot 10`,
   `Manabloom 10`).
+
+## The everyday ingredients are not in this catalog
+
+CQR-118 gave the Apothecary a second input catalog — kelp, mint, carrageen moss,
+willow bark, sphagnum moss, pine resin, valerian root, sulfur — for the everyday
+goods it sells to townsfolk. They are deliberately **not** herbs and are not
+listed above: nothing brews a potion from them, they carry no tier, and their
+value is the per-unit reward the Apothecary pays to have one gathered rather than
+a point on this catalog's rarity ladder.
+
+They live in their own section of `values/goods.ts` for the same reason. If a
+recipe ever crosses the two — a potion wanting mint, say — that is the moment to
+decide whether the two catalogs are really one.

@@ -11,8 +11,21 @@
 > same pass throw out of `handleTick`, where nothing catches. It ships by itself.
 >
 > The user makes the commits and opens the PR.
+>
+> ---
+>
+> **All 6 tasks complete (2026-10-24, branch `CQR-118`).** `npx vue-tsc -b --force`
+> clean, `npm run build` clean, `npm test` 11/11. At `seed 1`, `tick 300` the
+> Apothecary's money rose 1000 → 1139 on twelve sales totalling 490g, all seven
+> products made and sold, potions untouched. R6.7 was verified by disabling the guard
+> and reproducing the throw. Two as-built deltas are recorded on
+> [requirements.md](./requirements.md) R7.1 and R9.1 — `gatherQuantityFor` lives in
+> `modules/quests/sizing.ts`, not on the Apothecary, because no test can import a
+> building module through the `Action`/`Building`/`City` import cycle. One deviation
+> not in the spec: two batches of each ingredient are seeded at construction, as CQR-59
+> did for the herbs, so the rotation is watchable before an adventurer has walked.
 
-- [ ] 1. The fifteen items
+- [x] 1. The fifteen items
   - Files: `src/modules/items/id.ts`, `src/modules/items/values/goods.ts`,
     `src/modules/items/registry.ts` (modify)
   - Eight ingredients and seven products per the R1.1 and R2.1 tables: `ItemID` entries,
@@ -28,7 +41,7 @@
   - _Leverage: the CQR-59 herb block in `goods.ts` is the shape to copy_
   - _Requirements: R1.1–R1.4, R2.1–R2.3_
 
-- [ ] 2. The eight forage rows
+- [x] 2. The eight forage rows
   - Files: `src/modules/world/location.ts` (modify)
   - The R3.1 chances under `FORAGE_TABLE[Location.Forest]`, each with the brief's
     authored spot as a trailing comment — Beach, Shore rocks, Forest streams, Damp
@@ -41,7 +54,7 @@
     Duskbloom at 0.2) — the new chances slot into that same ladder_
   - _Requirements: R3.1–R3.4_
 
-- [ ] 3. Prefactor — derived reagents and derived quest quantity
+- [x] 3. Prefactor — derived reagents and derived quest quantity
   - Files: `src/game/city/buildings/Apothecary.ts` (modify),
     `src/game/city/buildings/Apothecary.test.ts` (new)
   - Still only the two potions in `PRODUCTION_LIST`. Drop the `reagent: ItemID` field
@@ -64,7 +77,7 @@
     intended replacement; `ForageAction.test.ts` for the test shape_
   - _Requirements: R5.2, R7.1–R7.7, R9.1–R9.4_
 
-- [ ] 4. The seven make actions, and rotation
+- [x] 4. The seven make actions, and rotation
   - Files: `src/game/city/buildings/Apothecary.ts` (modify)
   - Seven `Action` subclasses per the R4.4 table, named `Make…` not `Brew…` (R4.5), with
     `static building_id`, **instance** `input` / `input_origin` / `output` /
@@ -81,7 +94,7 @@
     about instance vs static `output`_
   - _Requirements: R4.1–R4.5, R5.1, R5.3–R5.6, R8.1, R8.2, R8.5, R8.6_
 
-- [ ] 5. The sell action, the fall-through, and the one-sell guard
+- [x] 5. The sell action, the fall-through, and the one-sell guard
   - Files: `src/game/city/buildings/Apothecary.ts` (modify)
   - `SellEverydayGoodsAction extends TransportAction` with
     `static building_id = BuildingID.Apothecary` — `TransportAction.finished()` resolves
@@ -107,7 +120,7 @@
     same latent bug and cannot hit it, because its second worker is commented out_
   - _Requirements: R6.1–R6.9, R8.3_
 
-- [ ] 6. Documentation, the ADR amendment and the Linear correction
+- [x] 6. Documentation, the ADR amendment and the Linear correction
   - Files: `docs/adr/0004-the-apothecary-is-meant-to-run-out-of-money.md`,
     `.specs/architecture.md`, `.specs/apothecary-herb-catalog.md`,
     `.specs/.cycles/README.md`, this cycle's `requirements.md` (modify), plus the Linear

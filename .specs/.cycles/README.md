@@ -107,18 +107,26 @@ existed. To track a future cycle with the server, author that cycle under
   makes for townsfolk — soap, syrup, tea, a bandage, a balm, a draught, an ointment —
   each built on an ingredient adventurers gather, so the board has more to ask for than
   Bloodroot and Manabloom.
-  **Status: specified** on 2026-10-23, 6 tasks, not yet built. Two refinement rounds and
-  9 decisions are folded into
+  **Status: implemented** on 2026-10-24, branch `CQR-118`. All 6 tasks complete. Two
+  refinement rounds and 9 decisions are folded into
   [request.md](./cqr-118-everyday-apothecary-items/request.md). 15 items, 8 forage-table
   entries, 7 make actions and a sell action, and per-recipe quest quantities and rewards
   derived from a 20g floor. Locations stay documentation only and the pantry ingredients
   were dropped, so no new `Location` and no new machinery. Products are sold the moment
-  they are made, which puts the Apothecary's first income line in this cycle and means
-  ADR 0004 is amended here — for everyday goods only; selling potions stays forbidden.
-  Three things carry the design and each is a silent failure if missed:
-  `desired_amount` stays at 1 because it is the rotation, the sell check runs after the
-  production scan and not before it, and a second concurrent sell throws out of
-  `handleTick` and kills the tick loop. Deriving quest quantities uniformly also moves
-  the potion quests from 10 Bloodroot at 45g to 9 at 27g. The Linear ticket's tables are
-  a lossy copy of the handoff and still need correcting. How the Apothecary decides when
-  to post is deferred to a sibling issue.
+  they are made, which gives the Apothecary its first income line and amends ADR 0004 —
+  for everyday goods only; selling potions stays forbidden, and `EVERYDAY_GOODS` is an
+  explicit list so a whole-inventory snapshot cannot breach that by accident.
+  At `seed 1`, `tick 300`: money **1000 → 1139**, twelve sales totalling 490g, the first
+  the full shelf at 176g, all seven products made and sold, potions untouched at 3 and 3.
+  Three things carry the design and each fails silently: `desired_amount` stays at 1
+  because it is the rotation, the sell check runs after the production scan and not
+  before it, and a second concurrent sell throws out of `handleTick` — verified by
+  disabling the guard, which reproduces the throw. Deriving quest quantities uniformly
+  also moved the potion quests from 10 Bloodroot at 45g to 9 at 27g, so the forage
+  cycle's seed-7 trace belongs to the old world. Two as-built deltas are on
+  [requirements.md](./cqr-118-everyday-apothecary-items/requirements.md) R7.1 and R9.1:
+  `gatherQuantityFor` lives in `modules/quests/sizing.ts`, not on the Apothecary,
+  because `Action`/`Building`/`City` form an import cycle and no test can enter the
+  graph at a building. The Linear ticket's tables are a lossy copy of the handoff and
+  still need correcting. How the Apothecary decides when to post is deferred to a
+  sibling issue.
