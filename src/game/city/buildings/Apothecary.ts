@@ -53,11 +53,30 @@ export class Apothecary extends BaseBuilding {
 
     static building_id = BuildingID.Apothecary;
 
+    /**
+     * Seeded supply, as CQR-59 did for the herbs: enough to watch the building
+     * work before an adventurer has walked anywhere.
+     *
+     * The everyday ingredients get two batches each. Two, not twenty, because
+     * the point is to see the rotation turn and the first shelf reach the
+     * market — not to make the quest loop redundant. Every one of them is below
+     * `HERB_RESTOCK_THRESHOLD`, so the Apothecary posts for all of them on its
+     * first tick and keeps asking as it burns through the seed.
+     */
     public inventory: InventoryAccountService = InventoryAccountService.init(
         BuildingID.Apothecary, {
             stacks: new Map([
                 [ItemID.Bloodroot, 10],
                 [ItemID.Manabloom, 10],
+
+                [ItemID.Kelp, 6],
+                [ItemID.Mint, 2],
+                [ItemID.CarrageenMoss, 4],
+                [ItemID.WillowBark, 4],
+                [ItemID.SphagnumMoss, 4],
+                [ItemID.PineResin, 4],
+                [ItemID.ValerianRoot, 4],
+                [ItemID.Sulfur, 4],
             ]),
         });
 
@@ -175,11 +194,117 @@ class BrewManaPotionAction extends Action {
 }
 
 /**
+ * Everyday goods take half a potion's time. They are meant to be simple, and a
+ * flat figure rather than a ladder per product because the production list
+ * rotates: every product is made equally often whatever its tick cost, so
+ * scaling the time by value would buy nothing and cost seven constants.
+ */
+const MAKE_TICKS = 6; // 3 hours
+
+class MakeKelpSoapAction extends Action {
+    static name = 'MakeKelpSoap';
+    static building_id = BuildingID.Apothecary;
+    total_ticks = MAKE_TICKS;
+
+    input_origin = BuildingID.Apothecary;
+    input = new Map([[ItemID.Kelp, 3]]);
+
+    output_destination = BuildingID.Apothecary;
+    output = new Map([[ItemID.KelpSoap, 1]]);
+}
+
+class MakeCoughSyrupAction extends Action {
+    static name = 'MakeCoughSyrup';
+    static building_id = BuildingID.Apothecary;
+    total_ticks = MAKE_TICKS;
+
+    input_origin = BuildingID.Apothecary;
+    input = new Map([[ItemID.CarrageenMoss, 2]]);
+
+    output_destination = BuildingID.Apothecary;
+    output = new Map([[ItemID.CoughSyrup, 1]]);
+}
+
+class MakeWillowBarkTeaAction extends Action {
+    static name = 'MakeWillowBarkTea';
+    static building_id = BuildingID.Apothecary;
+    total_ticks = MAKE_TICKS;
+
+    input_origin = BuildingID.Apothecary;
+    // The only two-ingredient recipe. `reviewQuests` posts a quest for each,
+    // sized to its own recipe amount — 10 willow bark, 20 mint.
+    input = new Map([[ItemID.WillowBark, 2], [ItemID.Mint, 1]]);
+
+    output_destination = BuildingID.Apothecary;
+    output = new Map([[ItemID.WillowBarkTea, 1]]);
+}
+
+class MakeMossBandageAction extends Action {
+    static name = 'MakeMossBandage';
+    static building_id = BuildingID.Apothecary;
+    total_ticks = MAKE_TICKS;
+
+    input_origin = BuildingID.Apothecary;
+    input = new Map([[ItemID.SphagnumMoss, 2]]);
+
+    output_destination = BuildingID.Apothecary;
+    output = new Map([[ItemID.MossBandage, 1]]);
+}
+
+class MakePineBalmAction extends Action {
+    static name = 'MakePineBalm';
+    static building_id = BuildingID.Apothecary;
+    total_ticks = MAKE_TICKS;
+
+    input_origin = BuildingID.Apothecary;
+    input = new Map([[ItemID.PineResin, 2]]);
+
+    output_destination = BuildingID.Apothecary;
+    output = new Map([[ItemID.PineBalm, 1]]);
+}
+
+class MakeSleepingDraughtAction extends Action {
+    static name = 'MakeSleepingDraught';
+    static building_id = BuildingID.Apothecary;
+    total_ticks = MAKE_TICKS;
+
+    input_origin = BuildingID.Apothecary;
+    input = new Map([[ItemID.ValerianRoot, 2]]);
+
+    output_destination = BuildingID.Apothecary;
+    output = new Map([[ItemID.SleepingDraught, 1]]);
+}
+
+class MakeSulfurOintmentAction extends Action {
+    static name = 'MakeSulfurOintment';
+    static building_id = BuildingID.Apothecary;
+    total_ticks = MAKE_TICKS;
+
+    input_origin = BuildingID.Apothecary;
+    input = new Map([[ItemID.Sulfur, 2]]);
+
+    output_destination = BuildingID.Apothecary;
+    output = new Map([[ItemID.SulfurOintment, 1]]);
+}
+
+/**
  * One row of what the Apothecary makes. `action` is the class, not an instance:
  * the recipe is read off a fresh one, never restated here.
  */
 interface ProductionRow {
     product: ItemID;
+    /**
+     * How many to keep on the shelf before moving on to the next row.
+     *
+     * For the everyday goods this is **not a stock target — it is the
+     * rotation**, and it is load-bearing. They are sold the moment they are
+     * made, so their stock sits at 0; `chooseNextAction` skips a row only when
+     * `current_amount >= desired_amount`, so dropping this field or setting it
+     * to 0 would make the first row with ingredients in hand win on every pass,
+     * forever. The building would quietly become a soap factory, throwing
+     * nothing. A target of 1 is what makes the scan fall through to the next
+     * product.
+     */
     desired_amount: number;
     action: new () => Action;
 }
@@ -201,4 +326,26 @@ const PRODUCTION_LIST: ProductionRow[] = [
         desired_amount: 3,
         action: BrewManaPotionAction,
     },
+
+    // The everyday line, all at 1 — see `desired_amount` above. Potions come
+    // first: they are the building's purpose, and the everyday goods are what
+    // pays for them.
+    { product: ItemID.KelpSoap, desired_amount: 1, action: MakeKelpSoapAction },
+    { product: ItemID.CoughSyrup, desired_amount: 1, action: MakeCoughSyrupAction },
+    { product: ItemID.WillowBarkTea, desired_amount: 1, action: MakeWillowBarkTeaAction },
+    { product: ItemID.MossBandage, desired_amount: 1, action: MakeMossBandageAction },
+    { product: ItemID.PineBalm, desired_amount: 1, action: MakePineBalmAction },
+    { product: ItemID.SleepingDraught, desired_amount: 1, action: MakeSleepingDraughtAction },
+    { product: ItemID.SulfurOintment, desired_amount: 1, action: MakeSulfurOintmentAction },
+];
+
+/** The everyday line, in list order — what the sell action takes to market. */
+export const EVERYDAY_GOODS: readonly ItemID[] = [
+    ItemID.KelpSoap,
+    ItemID.CoughSyrup,
+    ItemID.WillowBarkTea,
+    ItemID.MossBandage,
+    ItemID.PineBalm,
+    ItemID.SleepingDraught,
+    ItemID.SulfurOintment,
 ];
